@@ -51,6 +51,7 @@
     }
     #input-container {
       margin-top: 10px;
+      display: none;
     }
     #user-input {
       background: black;
@@ -67,9 +68,9 @@
 <body>
   <div id="terminal">
     <div id="output"></div><div id="cursor"></div>
-    <div id="input-container" style="display:none;">
+    <div id="input-container">
       <label for="user-input">Escribe S o N y presiona Enter: </label>
-      <input type="text" id="user-input" maxlength="1" autocomplete="off" autofocus />
+      <input type="text" id="user-input" maxlength="1" autocomplete="off" />
     </div>
   </div>
 
@@ -88,6 +89,7 @@
     var output = document.getElementById('output');
     var inputContainer = document.getElementById('input-container');
     var userInput = document.getElementById('user-input');
+    var cursor = document.getElementById('cursor');
 
     function escribe() {
       if (i < lines.length) {
@@ -103,11 +105,11 @@
           } else {
             clearInterval(intervalo);
             i++;
-            // Si es la última línea, mostramos input para S/N
             if(i === lines.length) {
+              cursor.style.display = 'none';
               inputContainer.style.display = 'block';
+              userInput.value = '';
               userInput.focus();
-              document.getElementById('cursor').style.display = 'none';
             } else {
               setTimeout(escribe, 300);
             }
@@ -134,7 +136,6 @@
             nextLine.textContent = "IA_SYS: Misión denegada. Terminando conexión.";
           }
           output.appendChild(nextLine);
-          userInput.value = '';
         } else {
           alert("Por favor escribe solo S o N.");
           userInput.value = '';
