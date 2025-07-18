@@ -387,6 +387,7 @@
         estado.enigmaIndex = 0;
         estado.puntosVulneracion = 0;
         estado.intentosEnigmaActual = 0;
+        estado.MAX_PUNTOS_VULNERACION = 5;
         estado.juegoTerminado = false;
         estado.victoria = false;
         estado.mostrarAyuda = false;
@@ -400,9 +401,12 @@
 
         dialogIA('Iniciando conexión remota segura a la Instalación D-47...');
         simularBarraDeCarga(2000, "Estableciendo enlace de datos encriptado...", "Enlace seguro establecido. Requiere autenticación de acceso.", function() {
-            dialogIA('LYSSA: Identificación requerida para acceso primario. Introduzca el código de seguridad):');
-            userInput.disabled = false; // Habilitar input después de la carga
-            userInput.focus();
+            dialogIA('LYSSA: El Subvertidor de Ciclos intenta acceder a nuestros sistemas. Para proteger la integridad del Velo, deberás realizar una serie de hackeos en la red. Cada hackeo exitoso nos acerca a neutralizar la amenaza.');
+            setTimeout(() => {
+                dialogIA('LYSSA: Identificación requerida para acceso primario. Introduzca el código de seguridad (Contraseña: M205):');
+                userInput.disabled = false; // Habilitar input después de la carga
+                userInput.focus();
+            }, 1000);
         });
     }
 
@@ -417,9 +421,31 @@
         });
     }
 
+    function getSubvertidorStatusMessage() {
+        if (estado.puntosVulneracion === 0) {
+            return 'El Subvertidor está contenido. Potencial de peligro: [OPTIMAL].';
+        } else if (estado.puntosVulneracion === 1) {
+            return 'Se detecta una ligera anomalía en el perímetro. Potencial de peligro: [BAJO]. Proceda con cautela.';
+        } else if (estado.puntosVulneracion === 2) {
+            return 'El Subvertidor está ganando terreno. Potencial de peligro: [MODERADO]. La estabilidad de los nodos es crítica.';
+        } else if (estado.puntosVulneracion === 3) {
+            return '¡Advertencia! Intrusión significativa. Potencial de peligro: [ALTO]. No hay margen para errores.';
+        } else if (estado.puntosVulneracion === 4) {
+            return '¡Alerta crítica! El Subvertidor está a punto de lograr la fusión. Potencial de peligro: [EXTREMO]. El Velo está en riesgo.';
+        }
+        return 'Estado desconocido del Subvertidor. Anomalías máximas detectadas.';
+    }
+
     function mostrarEnigmaActual() {
         var currentEnigmas = enigmas['nodo' + estado.nodoActual];
-        if (estado.enigmaIndex < currentEnigmas.length) {
+        if (!currentEnigmas || estado.enigmaIndex >= currentEnigmas.length) {
+            // Esto debería ser un caso de error si no se encuentra el nodo o el enigma
+            dialogIA('Error interno: Enigmas no definidos para el nodo actual o índice fuera de rango.');
+            return;
+        }
+
+        dialogIA('LYSSA: ' + getSubvertidorStatusMessage());
+        setTimeout(() => {
             dialogIA('Decodificación de autenticación requerida. Enigma ' + (estado.enigmaIndex + 1) + ':');
             setTimeout(function(){
                 imprimirLinea(currentEnigmas[estado.enigmaIndex].pregunta, 'dialog-ia');
@@ -427,20 +453,7 @@
                     setTimeout(function() { imprimirLinea('[IA_LYSSA]: Pista: ' + currentEnigmas[estado.enigmaIndex].pista, 'dialog-ia'); }, 1000);
                 }
             }, 1200);
-        } else {
-            // Nodo completado
-            dialogIA('Acceso concedido. Nodo ' + estado.nodoActual + ' completado. Avance autorizado.');
-            if (audioSuccess) audioSuccess.play();
-            if (estado.nodoActual < 4) {
-                setTimeout(function() {
-                    dialogIA('Preparando para el siguiente nivel de autenticación...');
-                    iniciarNodo(estado.nodoActual + 1);
-                }, 2000);
-            } else {
-                // Todos los nodos completados - ¡Victoria!
-                finalizarJuego(true);
-            }
-        }
+        }, 1000); // Añadir un pequeño delay para el mensaje de status
     }
 
     function verificarContrasena(input) {
@@ -450,10 +463,14 @@
             if (audioSuccess) audioSuccess.play();
             estado.faseActual = 'enigma'; // Cambiar a la fase de enigmas
             setTimeout(function() {
-                dialogIA('LYSSA: Detecto actividad anómala en los nodos perimetrales. El Subvertidor de Ciclos está intentando una intrusión forzada. Debemos actuar rápidamente para proteger la integridad del Velo.');
-                setTimeout(function() {
-                    iniciarNodo(1); // Iniciar el primer nodo de enigmas
-                }, 2000);
+                dialogIA('LYSSA: Ejecutando análisis de la entidad "Subvertidor de Ciclos"...');
+                simularBarraDeCarga(2500, "Analizando patrones de intrusión...", "Análisis completado.", function() {
+                    dialogIA('LYSSA: El Subvertidor no opera con subrutinas ni lenguajes de código complejos. Su método es anómalo, basado en la disonancia conceptual. Su fuerza reside en la desorientación, no en la técnica binaria.');
+                    dialogIA('LYSSA: Para confrontarlo, nuestro sistema defensivo ha traducido sus vectores de ataque a un formato de acertijos lógicos. Deberás resolverlos para replegar su avance.');
+                    setTimeout(function() {
+                        iniciarNodo(1); // Iniciar el primer nodo de enigmas
+                    }, 2000);
+                });
             }, 1500);
         } else {
             estado.puntosVulneracion++;
@@ -493,6 +510,7 @@
 
         if(isCorrect){
             dialogIA('Respuesta aceptada. Procediendo...');
+            dialogIA('LYSSA: El Subvertidor ha sido momentáneamente replegado. La integridad del sistema se reestabiliza.');
             if (audioSuccess) audioSuccess.play();
             estado.enigmaIndex++;
             estado.intentosEnigmaActual = 0;
@@ -515,6 +533,7 @@
                     if (audioSubvertidorWhisper) audioSubvertidorWhisper.play();
                 }
                 dialogSubvertidor(subvertidorDialog, 0, true);
+                dialogIA('LYSSA: La respuesta fue incorrecta. El Subvertidor avanza un paso más en nuestros sistemas. Potencial de peligro: [' + (estado.puntosVulneracion > 2 ? 'ALTO' : 'MODERADO') + '].');
             }
         }
     }
