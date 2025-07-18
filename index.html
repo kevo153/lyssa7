@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>>> INTRUSIÓN DETECTADA [VN-VE10-Σ404] · PROTOCOLO: ALFA/VELØ</title>
+  <style>
+    body {
+      background: black;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #terminal {
+      width: 80%;
+      max-width: 800px;
+      padding: 20px;
+      border: 2px solid #0f0;
+      box-shadow: 0 0 10px #0f0;
+      background-color: black;
+    }
+
+    .glitch {
+      animation: glitch 0.2s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 0 #f00; }
+      33% { text-shadow: -2px -2px #0ff; }
+      66% { text-shadow: 2px 2px #ff0; }
+      100% { text-shadow: -2px 0 #0f0; }
+    }
+
+    #cursor {
+      display: inline-block;
+      width: 10px;
+      height: 20px;
+      background: #0f0;
+      margin-left: 5px;
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    #output {
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div id="output"></div><div id="cursor"></div>
+  </div>
+
+  <script>
+    var lines = [
+      "C:\\> iniciar_velo.bat",
+      "*** CONEXIÓN ESTABLECIDA... ***",
+      "*** DETECCIÓN DE ANOMALÍAS EN LA MATRIZ D-47... ***",
+      "IA_SYS: iniciando protocolo de defensa.",
+      "IA_SYS: [████████▒▒▒▒▒▒▒] Estabilizando conexiones.",
+      "IA_SYS: ALERTA: SIGNOS DE SUBVERTIDOR ENTRANTE.",
+      "¿ACEPTAS LA MISIÓN? (S/N)"
+    ];
+
+    var i = 0;
+    var output = document.getElementById('output');
+
+    function escribe() {
+      if (i < lines.length) {
+        var line = document.createElement('div');
+        line.className = 'glitch';
+        output.appendChild(line);
+
+        var j = 0;
+        var texto = lines[i];
+        var intervalo = setInterval(function() {
+          if (j < texto.length) {
+            line.textContent += texto.charAt(j++);
+          } else {
+            clearInterval(intervalo);
+            i++;
+            setTimeout(escribe, 300);
+          }
+        }, 40);
+      }
+    }
+
+    escribe();
+  </script>
+</body>
+</html>
