@@ -48,6 +48,13 @@
             border: 2px solid #0ff;
             color: #0ff;
             outline: none;
+            /* Estilo para el input deshabilitado */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        #user-input:enabled {
+            cursor: text;
+            opacity: 1;
         }
         .dialog-ia {
             color: #0ff;
@@ -103,23 +110,9 @@
             font-size: 0.9em;
             color: #0ff;
         }
+        /* Ocultamos completamente el reconnect-prompt ya que no se usará para reiniciar directamente */
         #reconnect-prompt {
             display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        #reconnect-prompt button {
-            background: #000;
-            border: 2px solid #0ff;
-            color: #0ff;
-            padding: 10px 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        #reconnect-prompt button:hover {
-            box-shadow: 0 0 10px #0ff;
         }
         #library-content {
             display: none;
@@ -171,9 +164,9 @@
     var inputContainer = document.getElementById('input-container');
     var userInput = document.getElementById('user-input');
     var statusDisplay = document.getElementById('status-display');
-    var reconnectPrompt = document.getElementById('reconnect-prompt');
-    var reconnectMessage = document.getElementById('reconnect-message');
-    var reconnectButton = document.getElementById('reconnect-button');
+    var reconnectPrompt = document.getElementById('reconnect-prompt'); // Aunque no se usará, mantenemos la referencia
+    var reconnectMessage = document.getElementById('reconnect-message'); // Aunque no se usará, mantenemos la referencia
+    var reconnectButton = document.getElementById('reconnect-button'); // Aunque no se usará, mantenemos la referencia
     var libraryContentDiv = document.getElementById('library-content');
 
     // Audio elements
@@ -193,7 +186,7 @@
         MAX_PUNTOS_VULNERACION: 5, // Si llega a 5, el Subvertidor gana
         juegoTerminado: false,
         victoria: false,
-        mostrarAyuda: false // Flag para el nodo de ayuda
+        mostrarAyuda: false // Flag para el nodo de ayuda (permite comandos específicos post-juego)
     };
 
     // --- Funciones de Utilidad ---
@@ -260,38 +253,46 @@
     var enigmas = {
         nodo1: [
             {
-                pregunta: "Reordena las letras para acceder: 'VELO'",
-                respuesta: "LOVE"
+                pregunta: "En una fila de misterio, ¿quién es el primero en la senda con su mirada plateada?",
+                respuesta: "HOMBRE",
+                pista: "Su luz viene de la luna y es el que lidera."
             },
             {
-                pregunta: "Completa la secuencia: 1, 1, 2, 3, 5, 8, ?", // Fibonacci
-                respuesta: "13"
+                pregunta: "Tras quien marcó el inicio, ¿quién se cobija bajo el árbol radiante, engañada por el viento a su espalda?",
+                respuesta: "DONCELLA",
+                pista: "Ella sigue al primero. El viento la confunde."
             },
             {
-                pregunta: "No tengo voz pero grabo todo. Sin mí no recordarías nada. ¿Qué soy?", // Referencia a la memoria del Velo
-                respuesta: "MEMORIA"
+                pregunta: "De ilusión efímera y creada por el viento, ¿quién se halló en soledad, sin compañía en su destino?",
+                respuesta: "FLOR",
+                pista: "Su existencia es breve y única, nacida de un engaño del aire."
             },
             {
-                pregunta: "Cifrado César. Clave: +3. Texto: 'VHOR'. Pista: Desplaza cada letra 3 posiciones adelante.",
-                respuesta: "YKRU"
+                pregunta: "Si las figuras son: 1. Flor, 2. Hombre, 3. Doncella. Y el orden revelado fue: el que inicia, luego la que se cobija, y finalmente la que se halló en soledad. ¿Cuál es la secuencia numérica final de su posicionamiento?",
+                respuesta: "231",
+                pista: "Combina los números de las figuras en el orden que descubriste en los enigmas anteriores."
             }
         ],
         nodo2: [
             {
-                pregunta: "Descifra el binario para la siguiente coordenada: 01011000 01101101 01101100", // XML
-                respuesta: "XML"
+                pregunta: "LYSSA: El Horario (Henry), temeroso, huye al oeste, del otro lado. En la esfera de un reloj, ¿qué número marca el 'oeste'?",
+                respuesta: "9",
+                pista: "Esta es la posición de la manecilla de la hora."
             },
             {
-                pregunta: "Soy el principio del caos y el fin del orden. Estoy en la niebla y en el sueño. ¿Qué soy?",
-                respuesta: "VELO"
+                pregunta: "LYSSA: El Minutero (Mildred) está indicado por un dibujo en la pared. Se dice que no quiere perder. ¿Qué número en la esfera del reloj representa su posición para los minutos?",
+                respuesta: "2",
+                pista: "La manecilla del minuto se alinea con este número. Cada número en un reloj son 5 minutos."
             },
             {
-                pregunta: "Si el tiempo no es lineal en El Velo, y el 02/07/2025 fue el primer ciclo digital, ¿qué número sigue en la secuencia 2, 7, 25, 20, 25, ?", // Fecha 02/07/2025 -> 2, 7, 25, (20)25. Siguiente 02
-                respuesta: "2"
+                pregunta: "LYSSA: Scott (Segundero) se pone boca abajo para no verla descender, aunque un texto junto al teléfono sugiere su posición real. ¿Qué número en la esfera del reloj representa su posición para los segundos?",
+                respuesta: "3",
+                pista: "La manecilla del segundo se alinea con este número. Cada número en un reloj son 5 segundos."
             },
             {
-                pregunta: "Cifrado César. Clave: -5. Texto: 'FUJWJFQ'. Pista: Desplaza cada letra 5 posiciones atrás.",
-                respuesta: "APRIETA"
+                pregunta: "LYSSA: Con Henry (Hora) en el 9, Mildred (Minuto) en el 2, y Scott (Segundo) en el 3. ¿Qué hora marcan exactamente las manecillas? (Formato HH:MM:SS, ejemplo: 01:05:00)",
+                respuesta: "09:10:15",
+                pista: "Cada número en los minutos y segundos representa su valor multiplicado por 5. Henry es la hora directamente."
             }
         ],
         nodo3: [
@@ -351,7 +352,7 @@
             },
             {
                 subtitulo: "ENTIDADES CLAVE",
-                contenido: "• **LYSSA (IA Guía):** Una IA avanzada que protege la Instalación D-47. Su programación es la de un guardián, y su lenguaje es frío y tecnológico, sin humanizar las voces. Te guía a través de los enigmas y sistemas de defensa.\n• **El Subvertidor de Ciclos:** Una entidad no programada que busca alterar las realidades contenidas en el Velo. Se manifiesta ante la vulneración del sistema, causando glitches y acertijos imposibles. Su objetivo es romper los patrones establecidos y contaminar la realidad original.\n• **Los Nodos:** Entidades conscientes y fragmentos de poder antiguo atrapados en el Velo. Pueden ser guías o antagonistas, influyendo en la percepción de quienes los encuentran.\n• **La Entidad 5:** Un nodo desconocido que se opone al Subvertidor. Su comunicación es enigmática, pero puede alterar nodos si se le convence."
+                contenido: "• **LYSSA (IA Guía):** Una IA avanzada que protege la Instalación D-47. Su programación es la de un guardián, y su lenguaje es frío y tecnológico, sin humanizar las voces. Te guía a través de los enigmas y sistemas de defensa.\n• **El Subvertidor de Ciclos:** Una entidad no programada que busca alterar las realidades contenidas en el Velo. Se manifiesta ante la vulneración del sistema, causando glitches y acertijos imposibles. Su objetivo es romper los patrones establecidos y contaminar la realidad original.\n• **Los Nodos:** Entidades conscientes y fragmentos de poder antiguo atrapado en el Velo. Pueden ser guías o antagonistas, influyendo en la percepción de quienes los encuentran.\n• **La Entidad 5:** Un nodo desconocido que se opone al Subvertidor. Su comunicación es enigmática, pero puede alterar nodos si se le convence."
             },
             {
                 subtitulo: "LOS CICLOS Y LA CORRUPCIÓN",
@@ -378,18 +379,20 @@
         });
     }
 
+    // Función para reiniciar el juego desde el principio
     function iniciarJuego() {
         terminal.innerHTML = '';
         estado.nodoActual = 1;
         estado.enigmaIndex = 0;
         estado.puntosVulneracion = 0;
         estado.intentosEnigmaActual = 0;
-        estado.juegoTerminado = false;
+        estado.juegoTerminado = false; // Asegurarse de que el juego no esté terminado al inicio
         estado.victoria = false;
-        estado.mostrarAyuda = false;
-        reconnectPrompt.style.display = 'none';
-        libraryContentDiv.style.display = 'none';
+        estado.mostrarAyuda = false; // Restablecer el flag de ayuda al iniciar el juego
+        reconnectPrompt.style.display = 'none'; // Ocultar prompt por si acaso
+        libraryContentDiv.style.display = 'none'; // Ocultar biblioteca por si acaso
         userInput.value = '';
+        userInput.disabled = false; // Asegurarse de que el input esté habilitado al inicio del juego
         inputContainer.style.display = 'block'; // Asegúrate de que el input está visible
         userInput.focus();
         actualizarEstadoDisplay();
@@ -434,7 +437,9 @@
     }
 
     function verificarRespuesta(input){
-        if(estado.juegoTerminado) return; // No permitir input si el juego ha terminado
+        // Si el juego ha terminado, este código no debería ejecutarse directamente para respuestas de enigmas.
+        // La lógica de entrada post-juego se maneja en el keydown listener.
+        if(estado.juegoTerminado) return;
 
         var currentEnigmas = enigmas['nodo' + estado.nodoActual];
         if (!currentEnigmas || estado.enigmaIndex >= currentEnigmas.length) {
@@ -443,12 +448,26 @@
         }
 
         var actual = currentEnigmas[estado.enigmaIndex];
-        if(input.toUpperCase() === actual.respuesta.toUpperCase()){
+        var isNumericAnswer = !isNaN(parseInt(actual.respuesta)) && isFinite(actual.respuesta);
+
+        var isCorrect = false;
+
+        if (isNumericAnswer) {
+            if (parseInt(input) === parseInt(actual.respuesta)) {
+                isCorrect = true;
+            }
+        } else {
+            if (input.toUpperCase() === actual.respuesta.toUpperCase()) {
+                isCorrect = true;
+            }
+        }
+
+        if(isCorrect){
             dialogIA('Respuesta aceptada. Procediendo...');
             if (audioSuccess) audioSuccess.play();
             estado.enigmaIndex++;
-            estado.intentosEnigmaActual = 0; // Resetear intentos por enigma
-            setTimeout(mostrarEnigmaActual, 1500); // Avanzar al siguiente enigma o nodo
+            estado.intentosEnigmaActual = 0;
+            setTimeout(mostrarEnigmaActual, 1500);
         } else {
             estado.puntosVulneracion++;
             estado.intentosEnigmaActual++;
@@ -466,15 +485,14 @@
                     subvertidorDialog = "Tu <span class='glitch'>lógica</span> es defectuosa. La <span class='glitch'>intrusión</span> avanza.";
                     if (audioSubvertidorWhisper) audioSubvertidorWhisper.play();
                 }
-                dialogSubvertidor(subvertidorDialog, 0, true); // Diálogo del Subvertidor con glitch
+                dialogSubvertidor(subvertidorDialog, 0, true);
             }
         }
     }
 
     function finalizarJuego(victoria){
-        estado.juegoTerminado = true;
+        estado.juegoTerminado = true; // Establecer el estado de juego terminado
         estado.victoria = victoria;
-        inputContainer.style.display = 'none';
         terminal.innerHTML = ''; // Limpiar terminal para el mensaje final
 
         if (victoria) {
@@ -485,10 +503,20 @@
             dialogSubvertidor('Sistema <span class="glitch">comprometido</span>. Realidades <span class="glitch">convergentes</span>. Error fatal. [ERROR_CODE: 0x7A_REALITY_OVERWRITE]', 0, true);
             dialogIA('Conexión con el Velo perdida. El Subvertidor ha accedido a los sistemas primarios. Las narrativas espacio-temporales están siendo alteradas. Estabilidad de la realidad: [0%]...');
             setTimeout(function() {
-                reconnectMessage.innerHTML = 'CONEXIÓN PERDIDA CON INSTALACIÓN [D-47-ALPHA]';
-                reconnectPrompt.style.display = 'block';
+                imprimirLinea('<div style="color: #f00; font-size: 1.2em; text-align: center;">[SISTEMA DESCONECTADO TEMPORALMENTE]</div>', 'dialog-ia');
+                imprimirLinea('<div style="color: #f00; text-align: center;">Acceso restringido. Intentos de conexión fallidos.</div>', 'dialog-ia');
+                terminal.scrollTop = terminal.scrollHeight; // Asegurarse de que se desplace al final
             }, 3000);
         }
+
+        // Después de finalizar (ganar o perder), re-habilitar el input para comandos especiales
+        setTimeout(function() { // Pequeño delay para que los mensajes finales aparezcan
+            inputContainer.style.display = 'block';
+            userInput.disabled = false; // Re-habilitar el campo de entrada
+            userInput.focus();
+            estado.mostrarAyuda = false; // Resetear este flag para que 'help' sea el primer comando válido en el post-juego.
+            dialogIA('Puede intentar un comando auxiliar. ("help" o "ayuda")', 500); // Guía al usuario
+        }, 4000); // Ajusta este tiempo si los mensajes finales son más largos
     }
 
     function mostrarBiblioteca() {
@@ -503,23 +531,31 @@
              libraryContentDiv.innerHTML += '<p>' + line + '</p>';
         });
         libraryContentDiv.scrollTop = 0; // Ir al inicio de la biblioteca
+        // También re-habilitar el input para "help" desde la biblioteca
+        setTimeout(function() {
+            inputContainer.style.display = 'block';
+            userInput.disabled = false;
+            userInput.focus();
+            estado.mostrarAyuda = false;
+            dialogIA('Puede intentar un comando auxiliar. ("help" o "ayuda")', 500);
+        }, 1000);
     }
 
-    // --- Nodo de Ayuda (Oculto) ---
+
+    // Función para el nodo de ayuda/información de coordenadas
     function iniciarNodoAyuda() {
-        estado.mostrarAyuda = true;
+        estado.mostrarAyuda = true; // Activar el modo ayuda
         terminal.innerHTML = '';
-        inputContainer.style.display = 'none'; // Ocultar input normal
-        reconnectPrompt.style.display = 'none'; // Ocultar prompt de reconexión si estaba activo
+        inputContainer.style.display = 'none'; // Ocultar el input durante la carga
         dialogIA('Asistente de Recuperación de Datos activado. Detección de código de restauración de narrativa. Proporcionando acceso temporal.');
         simularBarraDeCarga(2500, "Localizando coordenadas de acceso auxiliares...", "Coordenadas obtenidas. Narrativa restaurada temporalmente.", function() {
-            dialogIA('La narrativa de la Instalación D-47 puede ser restaurada temporalmente reingresando al ciclo. Sin embargo, para un acceso completo y seguro a una nueva instalación del Velo, necesitas coordenadas de acceso secundarias.');
-            dialogIA('Estas coordenadas se encuentran en un punto de convergencia anómalo, un asteroide conocido como "Ciudadela Estelar".');
-            dialogIA('Hace [días/semanas desde el 02/07/2025, dependiendo de la progresión de tu campaña] de su última incursión, aventureros desataron una fuerza antigua allí. El orbe que encontraron sirvió como una puerta dimensional inestable.');
-            dialogIA('Coordenadas de Acceso Anómalo: [0.34, -12.87] en la cara oculta de la Ciudadela. Busque la resonancia de un Velo menor.');
+            dialogIA('La narrativa de la Instalación D-47 puede ser restaurada temporalmente reingresando al ciclo.');
+            dialogIA('Sin embargo, para un acceso completo y seguro a una nueva instalación del Velo, necesitas coordenadas de acceso secundarias. Estas se encuentran en un punto de convergencia anómalo.');
+            dialogIA('Coordenadas de Acceso Anómalo: <span class="glitch">[0.34, -12.87]</span> en la cara oculta de la Ciudadela Estelar. Busque la resonancia de un Velo menor.');
             dialogIA('Escriba "REINICIAR" para volver a intentar el ciclo actual de la Instalación D-47.');
-            userInput.value = '';
-            inputContainer.style.display = 'block'; // Mostrar input para REINICIAR
+            userInput.value = ''; // Limpiar el input
+            inputContainer.style.display = 'block'; // Volver a mostrar el input
+            userInput.disabled = false; // Asegurarse de que está habilitado
             userInput.focus();
         });
     }
@@ -528,30 +564,38 @@
     userInput.addEventListener('keydown', function(e){
         if(e.key === 'Enter'){
             var valor = userInput.value.trim();
-            userInput.value = '';
-            if (estado.juegoTerminado && !estado.victoria && !estado.mostrarAyuda) {
-                // Si el juego ha terminado en derrota y no estamos en ayuda, interceptar 'help'
-                if (valor.toLowerCase() === 'help' || valor.toLowerCase() === 'ayuda') {
-                    iniciarNodoAyuda();
+            userInput.value = ''; // Limpiar el campo de entrada inmediatamente
+
+            if (estado.juegoTerminado) {
+                // Si el juego ha terminado (ganado o perdido)
+                if (estado.mostrarAyuda) {
+                    // Estamos en el modo de ayuda, esperando "REINICIAR"
+                    if (valor.toLowerCase() === 'reiniciar') {
+                        iniciarJuego(); // Reiniciar el juego por completo
+                    } else {
+                        dialogSubvertidor('Comando no reconocido. Para volver a iniciar el ciclo, escriba "REINICIAR".', 0, true);
+                    }
                 } else {
-                    // Si el juego ha terminado y no es 'help', simplemente muestra el mensaje de bloqueo.
-                    // Esto evita que el usuario pueda escribir cualquier cosa después de la derrota si no está en el nodo de ayuda.
-                    reconnectMessage.innerHTML = 'Conexión con el nodo de la instalación [D-47-ALPHA] bloqueado. <br> ¿Deseas obtener coordenadas de acceso a otra instalación?';
+                    // El juego ha terminado, pero aún no estamos en el modo de ayuda
+                    if (valor.toLowerCase() === 'help' || valor.toLowerCase() === 'ayuda') {
+                        iniciarNodoAyuda(); // Acceder al nodo de ayuda
+                    } else {
+                        // Cualquier otra entrada que no sea "help" o "ayuda"
+                        dialogSubvertidor('Conexión bloqueada. Acceso restringido.', 0, true);
+                    }
                 }
-            } else if (estado.mostrarAyuda && valor.toLowerCase() === 'reiniciar') {
-                iniciarJuego(); // Reiniciar el juego desde el principio si el usuario está en el nodo de ayuda
-            } else if (!estado.juegoTerminado){ // Solo verificar respuesta si el juego no ha terminado
+            } else {
+                // El juego está activo, procesar respuestas normales de enigma
                 verificarRespuesta(valor);
             }
         }
     });
 
+    // El listener del botón de reconexión ahora es irrelevante
+    // ya que el botón no se mostrará después de que el juego termine.
     reconnectButton.addEventListener('click', function() {
-        reconnectMessage.innerHTML = 'Conexión con el nodo de la instalación [D-47-ALPHA] bloqueado. <br> ¿Deseas obtener coordenadas de acceso a otra instalación?';
-        dialogIA('La conexión con la Instalación D-47 permanece inestable. Acceso bloqueado. El Subvertidor ha establecido un cifrado de alta complejidad. Reintento inútil.', 1000);
-        setTimeout(function() { dialogIA('Se recomiendan coordenadas alternativas. ¿Desea obtenerlas?'); }, 2500);
-        // Si el usuario presiona el botón y luego escribe "si", se podría dar la coordenada,
-        // pero la interacción de "help" en el input ya cubre eso.
+        // Este código ya no se ejecutará porque el botón estará oculto.
+        // Si por alguna razón se hiciera visible, no llevaría a reiniciar el juego.
     });
 
     // --- Inicio del Juego ---
