@@ -164,9 +164,9 @@
     var inputContainer = document.getElementById('input-container');
     var userInput = document.getElementById('user-input');
     var statusDisplay = document.getElementById('status-display');
-    var reconnectPrompt = document.getElementById('reconnect-prompt'); // Aunque no se usará, mantenemos la referencia
-    var reconnectMessage = document.getElementById('reconnect-message'); // Aunque no se usará, mantenemos la referencia
-    var reconnectButton = document.getElementById('reconnect-button'); // Aunque no se usará, mantenemos la referencia
+    var reconnectPrompt = document.getElementById('reconnect-prompt');
+    var reconnectMessage = document.getElementById('reconnect-message');
+    var reconnectButton = document.getElementById('reconnect-button');
     var libraryContentDiv = document.getElementById('library-content');
 
     // Audio elements
@@ -186,7 +186,8 @@
         MAX_PUNTOS_VULNERACION: 5, // Si llega a 5, el Subvertidor gana
         juegoTerminado: false,
         victoria: false,
-        mostrarAyuda: false // Flag para el nodo de ayuda (permite comandos específicos post-juego)
+        mostrarAyuda: false, // Flag para el nodo de ayuda (permite comandos específicos post-juego)
+        faseActual: 'password' // NUEVO: Controla la fase actual del juego: 'password' o 'enigma'
     };
 
     // --- Funciones de Utilidad ---
@@ -196,24 +197,24 @@
         div.className = 'line ' + (clase || '');
         terminal.appendChild(div);
         terminal.scrollTop = terminal.scrollHeight;
-        if (audioBeep) audioBeep.play(); // Play sound only if element exists
+        if (audioBeep) audioBeep.play();
     }
 
     function dialogIA(texto, delay){
-        delay = delay || 0; // ES5 default parameter
+        delay = delay || 0;
         setTimeout(function(){ imprimirLinea('[IA_LYSSA]: ' + texto, 'dialog-ia'); }, delay);
     }
 
     function dialogSubvertidor(texto, delay, glitch){
-        delay = delay || 0; // ES5 default parameter
-        glitch = glitch || false; // ES5 default parameter
+        delay = delay || 0;
+        glitch = glitch || false;
         var glitchedText = texto;
         if (glitch) {
             glitchedText = texto.split('').map(function(char) {
-                if (Math.random() < 0.2) return '<span class="glitch">' + char + '</span>'; // 20% chance to glitch a char
+                if (Math.random() < 0.2) return '<span class="glitch">' + char + '</span>';
                 return char;
             }).join('');
-            if (audioGlitch) audioGlitch.play(); // Play sound only if element exists
+            if (audioGlitch) audioGlitch.play();
         }
         setTimeout(function(){ imprimirLinea('[SUBVERTIDOR]: ' + glitchedText, 'dialog-subvertidor'); }, delay);
     }
@@ -244,7 +245,7 @@
                 dialogIA(mensajeFin);
                 if (callback) setTimeout(callback, 500);
             }
-        }, duracion / 50); // Divide duration by 50 to get 50 steps
+        }, duracion / 50);
     }
 
     // --- Lógica del Juego ---
@@ -386,17 +387,23 @@
         estado.enigmaIndex = 0;
         estado.puntosVulneracion = 0;
         estado.intentosEnigmaActual = 0;
-        estado.juegoTerminado = false; // Asegurarse de que el juego no esté terminado al inicio
+        estado.juegoTerminado = false;
         estado.victoria = false;
-        estado.mostrarAyuda = false; // Restablecer el flag de ayuda al iniciar el juego
-        reconnectPrompt.style.display = 'none'; // Ocultar prompt por si acaso
-        libraryContentDiv.style.display = 'none'; // Ocultar biblioteca por si acaso
+        estado.mostrarAyuda = false;
+        estado.faseActual = 'password'; // Establecer la fase inicial
+        reconnectPrompt.style.display = 'none';
+        libraryContentDiv.style.display = 'none';
         userInput.value = '';
-        userInput.disabled = false; // Asegurarse de que el input esté habilitado al inicio del juego
-        inputContainer.style.display = 'block'; // Asegúrate de que el input está visible
-        userInput.focus();
+        userInput.disabled = true; // Deshabilitar hasta que se cargue la narrativa inicial
+        inputContainer.style.display = 'block';
         actualizarEstadoDisplay();
-        iniciarNodo(estado.nodoActual);
+
+        dialogIA('Iniciando conexión remota segura a la Instalación D-47...');
+        simularBarraDeCarga(2000, "Estableciendo enlace de datos encriptado...", "Enlace seguro establecido. Requiere autenticación de acceso.", function() {
+            dialogIA('LYSSA: Identificación requerida para acceso primario. Introduzca el código de seguridad (Contraseña: M205):');
+            userInput.disabled = false; // Habilitar input después de la carga
+            userInput.focus();
+        });
     }
 
     function iniciarNodo(nodoNum) {
@@ -436,9 +443,33 @@
         }
     }
 
+    function verificarContrasena(input) {
+        var contrasenaCorrecta = "M205"; // La contraseña real
+        if (input.toUpperCase() === contrasenaCorrecta.toUpperCase()) {
+            dialogIA('Acceso de seguridad concedido. Bienvenido, agente.');
+            if (audioSuccess) audioSuccess.play();
+            estado.faseActual = 'enigma'; // Cambiar a la fase de enigmas
+            setTimeout(function() {
+                dialogIA('LYSSA: Detecto actividad anómala en los nodos perimetrales. El Subvertidor de Ciclos está intentando una intrusión forzada. Debemos actuar rápidamente para proteger la integridad del Velo.');
+                setTimeout(function() {
+                    iniciarNodo(1); // Iniciar el primer nodo de enigmas
+                }, 2000);
+            }, 1500);
+        } else {
+            estado.puntosVulneracion++;
+            actualizarEstadoDisplay();
+            if (audioFail) audioFail.play();
+            dialogSubvertidor('Contraseña incorrecta. ¡Acceso denegado! La <span class="glitch">seguridad</span> está siendo <span class="glitch">vulnerada</span>. Siento tu <span class="glitch">debilidad</span>...', 0, true);
+
+            if (estado.puntosVulneracion >= estado.MAX_PUNTOS_VULNERACION) {
+                finalizarJuego(false); // Subvertidor gana si demasiados errores
+            } else {
+                dialogIA('LYSSA: Código de seguridad inválido. El sistema reporta una vulneración de seguridad. Reintente el código.');
+            }
+        }
+    }
+
     function verificarRespuesta(input){
-        // Si el juego ha terminado, este código no debería ejecutarse directamente para respuestas de enigmas.
-        // La lógica de entrada post-juego se maneja en el keydown listener.
         if(estado.juegoTerminado) return;
 
         var currentEnigmas = enigmas['nodo' + estado.nodoActual];
@@ -448,19 +479,17 @@
         }
 
         var actual = currentEnigmas[estado.enigmaIndex];
-        var isNumericAnswer = !isNaN(parseInt(actual.respuesta)) && isFinite(actual.respuesta);
+        // Normalizar la entrada para comparación. Para HH:MM:SS, no cambiar a mayúsculas.
+        var entradaNormalizada = input;
+        if (actual.respuesta.indexOf(':') === -1) { // No es un formato de hora
+             entradaNormalizada = input.toUpperCase();
+        }
 
         var isCorrect = false;
-
-        if (isNumericAnswer) {
-            if (parseInt(input) === parseInt(actual.respuesta)) {
-                isCorrect = true;
-            }
-        } else {
-            if (input.toUpperCase() === actual.respuesta.toUpperCase()) {
-                isCorrect = true;
-            }
+        if (entradaNormalizada === actual.respuesta.toUpperCase()) {
+             isCorrect = true;
         }
+
 
         if(isCorrect){
             dialogIA('Respuesta aceptada. Procediendo...');
@@ -491,9 +520,9 @@
     }
 
     function finalizarJuego(victoria){
-        estado.juegoTerminado = true; // Establecer el estado de juego terminado
+        estado.juegoTerminado = true;
         estado.victoria = victoria;
-        terminal.innerHTML = ''; // Limpiar terminal para el mensaje final
+        terminal.innerHTML = '';
 
         if (victoria) {
             dialogIA('¡Alerta de Sistema! Amenaza del Subvertidor neutralizada. Integridad de la Instalación D-47 restaurada.');
@@ -505,22 +534,21 @@
             setTimeout(function() {
                 imprimirLinea('<div style="color: #f00; font-size: 1.2em; text-align: center;">[SISTEMA DESCONECTADO TEMPORALMENTE]</div>', 'dialog-ia');
                 imprimirLinea('<div style="color: #f00; text-align: center;">Acceso restringido. Intentos de conexión fallidos.</div>', 'dialog-ia');
-                terminal.scrollTop = terminal.scrollHeight; // Asegurarse de que se desplace al final
+                terminal.scrollTop = terminal.scrollHeight;
             }, 3000);
         }
 
-        // Después de finalizar (ganar o perder), re-habilitar el input para comandos especiales
-        setTimeout(function() { // Pequeño delay para que los mensajes finales aparezcan
+        setTimeout(function() {
             inputContainer.style.display = 'block';
-            userInput.disabled = false; // Re-habilitar el campo de entrada
+            userInput.disabled = false;
             userInput.focus();
-            estado.mostrarAyuda = false; // Resetear este flag para que 'help' sea el primer comando válido en el post-juego.
-            dialogIA('Puede intentar un comando auxiliar. ("help" o "ayuda")', 500); // Guía al usuario
-        }, 4000); // Ajusta este tiempo si los mensajes finales son más largos
+            estado.mostrarAyuda = false;
+            dialogIA('Puede intentar un comando auxiliar. ("help" o "ayuda")', 500);
+        }, 4000);
     }
 
     function mostrarBiblioteca() {
-        terminal.style.display = 'none'; // Ocultar terminal principal
+        terminal.style.display = 'none';
         libraryContentDiv.style.display = 'block';
         libraryContentDiv.innerHTML = '<h2>' + loreBiblioteca.titulo + '</h2>';
         loreBiblioteca.secciones.forEach(function(section) {
@@ -530,8 +558,7 @@
         logAnomalias.forEach(function(line) {
              libraryContentDiv.innerHTML += '<p>' + line + '</p>';
         });
-        libraryContentDiv.scrollTop = 0; // Ir al inicio de la biblioteca
-        // También re-habilitar el input para "help" desde la biblioteca
+        libraryContentDiv.scrollTop = 0;
         setTimeout(function() {
             inputContainer.style.display = 'block';
             userInput.disabled = false;
@@ -541,21 +568,19 @@
         }, 1000);
     }
 
-
-    // Función para el nodo de ayuda/información de coordenadas
     function iniciarNodoAyuda() {
-        estado.mostrarAyuda = true; // Activar el modo ayuda
+        estado.mostrarAyuda = true;
         terminal.innerHTML = '';
-        inputContainer.style.display = 'none'; // Ocultar el input durante la carga
+        inputContainer.style.display = 'none';
         dialogIA('Asistente de Recuperación de Datos activado. Detección de código de restauración de narrativa. Proporcionando acceso temporal.');
         simularBarraDeCarga(2500, "Localizando coordenadas de acceso auxiliares...", "Coordenadas obtenidas. Narrativa restaurada temporalmente.", function() {
             dialogIA('La narrativa de la Instalación D-47 puede ser restaurada temporalmente reingresando al ciclo.');
             dialogIA('Sin embargo, para un acceso completo y seguro a una nueva instalación del Velo, necesitas coordenadas de acceso secundarias. Estas se encuentran en un punto de convergencia anómalo.');
             dialogIA('Coordenadas de Acceso Anómalo: <span class="glitch">[0.34, -12.87]</span> en la cara oculta de la Ciudadela Estelar. Busque la resonancia de un Velo menor.');
             dialogIA('Escriba "REINICIAR" para volver a intentar el ciclo actual de la Instalación D-47.');
-            userInput.value = ''; // Limpiar el input
-            inputContainer.style.display = 'block'; // Volver a mostrar el input
-            userInput.disabled = false; // Asegurarse de que está habilitado
+            userInput.value = '';
+            inputContainer.style.display = 'block';
+            userInput.disabled = false;
             userInput.focus();
         });
     }
@@ -564,38 +589,28 @@
     userInput.addEventListener('keydown', function(e){
         if(e.key === 'Enter'){
             var valor = userInput.value.trim();
-            userInput.value = ''; // Limpiar el campo de entrada inmediatamente
+            userInput.value = '';
 
             if (estado.juegoTerminado) {
-                // Si el juego ha terminado (ganado o perdido)
                 if (estado.mostrarAyuda) {
-                    // Estamos en el modo de ayuda, esperando "REINICIAR"
                     if (valor.toLowerCase() === 'reiniciar') {
-                        iniciarJuego(); // Reiniciar el juego por completo
+                        iniciarJuego();
                     } else {
                         dialogSubvertidor('Comando no reconocido. Para volver a iniciar el ciclo, escriba "REINICIAR".', 0, true);
                     }
                 } else {
-                    // El juego ha terminado, pero aún no estamos en el modo de ayuda
                     if (valor.toLowerCase() === 'help' || valor.toLowerCase() === 'ayuda') {
-                        iniciarNodoAyuda(); // Acceder al nodo de ayuda
+                        iniciarNodoAyuda();
                     } else {
-                        // Cualquier otra entrada que no sea "help" o "ayuda"
                         dialogSubvertidor('Conexión bloqueada. Acceso restringido.', 0, true);
                     }
                 }
-            } else {
-                // El juego está activo, procesar respuestas normales de enigma
+            } else if (estado.faseActual === 'password') {
+                verificarContrasena(valor);
+            } else if (estado.faseActual === 'enigma') {
                 verificarRespuesta(valor);
             }
         }
-    });
-
-    // El listener del botón de reconexión ahora es irrelevante
-    // ya que el botón no se mostrará después de que el juego termine.
-    reconnectButton.addEventListener('click', function() {
-        // Este código ya no se ejecutará porque el botón estará oculto.
-        // Si por alguna razón se hiciera visible, no llevaría a reiniciar el juego.
     });
 
     // --- Inicio del Juego ---
