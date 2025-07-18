@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>>> INTRUSIÓN DETECTADA [VN-VE10-Σ404] · PROTOCOLO: ALFA/VELØ</title>
+  <meta charset="UTF-8" />
+  <title>El Velo • Introducción</title>
   <style>
     body {
       background: black;
@@ -16,7 +16,6 @@
       justify-content: center;
       flex-direction: column;
     }
-
     #terminal {
       width: 80%;
       max-width: 800px;
@@ -25,18 +24,15 @@
       box-shadow: 0 0 10px #0f0;
       background-color: black;
     }
-
     .glitch {
       animation: glitch 0.2s infinite;
     }
-
     @keyframes glitch {
       0% { text-shadow: 2px 0 #f00; }
       33% { text-shadow: -2px -2px #0ff; }
       66% { text-shadow: 2px 2px #ff0; }
       100% { text-shadow: -2px 0 #0f0; }
     }
-
     #cursor {
       display: inline-block;
       width: 10px;
@@ -45,20 +41,36 @@
       margin-left: 5px;
       animation: blink 1s step-start infinite;
     }
-
     @keyframes blink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
     }
-
     #output {
       white-space: pre-wrap;
+      min-height: 300px;
+    }
+    #input-container {
+      margin-top: 10px;
+    }
+    #user-input {
+      background: black;
+      border: 1px solid #0f0;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 18px;
+      padding: 5px 10px;
+      width: 100px;
+      outline: none;
     }
   </style>
 </head>
 <body>
   <div id="terminal">
     <div id="output"></div><div id="cursor"></div>
+    <div id="input-container" style="display:none;">
+      <label for="user-input">Escribe S o N y presiona Enter: </label>
+      <input type="text" id="user-input" maxlength="1" autocomplete="off" autofocus />
+    </div>
   </div>
 
   <script>
@@ -74,6 +86,8 @@
 
     var i = 0;
     var output = document.getElementById('output');
+    var inputContainer = document.getElementById('input-container');
+    var userInput = document.getElementById('user-input');
 
     function escribe() {
       if (i < lines.length) {
@@ -89,11 +103,44 @@
           } else {
             clearInterval(intervalo);
             i++;
-            setTimeout(escribe, 300);
+            // Si es la última línea, mostramos input para S/N
+            if(i === lines.length) {
+              inputContainer.style.display = 'block';
+              userInput.focus();
+              document.getElementById('cursor').style.display = 'none';
+            } else {
+              setTimeout(escribe, 300);
+            }
           }
         }, 40);
       }
     }
+
+    userInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var val = userInput.value.toUpperCase();
+        if (val === 'S' || val === 'N') {
+          inputContainer.style.display = 'none';
+          var response = document.createElement('div');
+          response.className = 'glitch';
+          response.textContent = "Usuario: " + val;
+          output.appendChild(response);
+
+          var nextLine = document.createElement('div');
+          nextLine.className = 'glitch';
+          if(val === 'S') {
+            nextLine.textContent = "IA_SYS: Misión aceptada. Preparando protocolos...";
+          } else {
+            nextLine.textContent = "IA_SYS: Misión denegada. Terminando conexión.";
+          }
+          output.appendChild(nextLine);
+          userInput.value = '';
+        } else {
+          alert("Por favor escribe solo S o N.");
+          userInput.value = '';
+        }
+      }
+    });
 
     escribe();
   </script>
