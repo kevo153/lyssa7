@@ -1,149 +1,450 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>El Velo • Introducción</title>
-  <style>
-    body {
-      background: black;
-      color: #0f0;
-      font-family: 'Courier New', monospace;
-      overflow: hidden;
-      height: 100vh;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-    #terminal {
-      width: 80%;
-      max-width: 800px;
-      padding: 20px;
-      border: 2px solid #0f0;
-      box-shadow: 0 0 10px #0f0;
-      background-color: black;
-    }
-    .glitch {
-      animation: glitch 0.2s infinite;
-    }
-    @keyframes glitch {
-      0% { text-shadow: 2px 0 #f00; }
-      33% { text-shadow: -2px -2px #0ff; }
-      66% { text-shadow: 2px 2px #ff0; }
-      100% { text-shadow: -2px 0 #0f0; }
-    }
-    #cursor {
-      display: inline-block;
-      width: 10px;
-      height: 20px;
-      background: #0f0;
-      margin-left: 5px;
-      animation: blink 1s step-start infinite;
-    }
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-    #output {
-      white-space: pre-wrap;
-      min-height: 300px;
-    }
-    #input-container {
-      margin-top: 10px;
-      display: none;
-    }
-    #user-input {
-      background: black;
-      border: 1px solid #0f0;
-      color: #0f0;
-      font-family: monospace;
-      font-size: 18px;
-      padding: 5px 10px;
-      width: 100px;
-      outline: none;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Crónicas de El Velo - Instalación D-47</title>
+<style>
+  body {
+    background: black;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+  }
+  #terminal {
+    width: 90%;
+    max-width: 900px;
+    background: black;
+    border: 2px solid #0f0;
+    box-shadow: 0 0 20px #0f0;
+    padding: 20px;
+    min-height: 450px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .line {
+    margin: 3px 0;
+  }
+  .glitch {
+    animation: glitch 0.2s infinite alternate;
+  }
+  @keyframes glitch {
+    0% { text-shadow: 1px 0 red; }
+    20% { text-shadow: -1px 0 cyan; }
+    40% { text-shadow: 1px 1px yellow; }
+    60% { text-shadow: -1px -1px magenta; }
+    80% { text-shadow: 1px -1px lime; }
+    100% { text-shadow: -1px 1px orange; }
+  }
+  #cursor {
+    display: inline-block;
+    width: 10px;
+    height: 20px;
+    background: #0f0;
+    margin-left: 5px;
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  #input-container {
+    margin-top: 15px;
+  }
+  #user-input {
+    background: black;
+    border: 1px solid #0f0;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 18px;
+    padding: 5px 10px;
+    width: 200px;
+    outline: none;
+  }
+  #progress-bar {
+    margin: 15px 0;
+    width: 100%;
+    background: #022;
+    border: 1px solid #0f0;
+    height: 20px;
+    position: relative;
+  }
+  #progress-fill {
+    background: #0f0;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  #message-center {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #f00;
+    font-weight: bold;
+    font-size: 2em;
+    background: rgba(0,0,0,0.9);
+    padding: 20px 40px;
+    border: 2px solid #f00;
+    display: none;
+    z-index: 10;
+  }
+</style>
 </head>
 <body>
-  <div id="terminal">
-    <div id="output"></div><div id="cursor"></div>
-    <div id="input-container">
-      <label for="user-input">Escribe S o N y presiona Enter: </label>
-      <input type="text" id="user-input" maxlength="1" autocomplete="off" />
-    </div>
+  <div id="terminal"></div>
+  <div id="progress-bar" style="display:none;">
+    <div id="progress-fill"></div>
   </div>
+  <div id="input-container" style="display:none;">
+    <label for="user-input">>> </label>
+    <input type="text" id="user-input" autocomplete="off" />
+  </div>
+  <div id="message-center"></div>
 
-  <script>
-    var lines = [
-      "C:\\> iniciar_velo.bat",
-      "*** CONEXIÓN ESTABLECIDA... ***",
-      "*** DETECCIÓN DE ANOMALÍAS EN LA MATRIZ D-47... ***",
-      "IA_SYS: iniciando protocolo de defensa.",
-      "IA_SYS: [████████▒▒▒▒▒▒▒] Estabilizando conexiones.",
-      "IA_SYS: ALERTA: SIGNOS DE SUBVERTIDOR ENTRANTE.",
-      "¿ACEPTAS LA MISIÓN? (S/N)"
-    ];
+<script>
+(function(){
+  var terminal = document.getElementById('terminal');
+  var inputContainer = document.getElementById('input-container');
+  var userInput = document.getElementById('user-input');
+  var progressBar = document.getElementById('progress-bar');
+  var progressFill = document.getElementById('progress-fill');
+  var messageCenter = document.getElementById('message-center');
 
-    var i = 0;
-    var output = document.getElementById('output');
-    var inputContainer = document.getElementById('input-container');
-    var userInput = document.getElementById('user-input');
-    var cursor = document.getElementById('cursor');
+  var state = {
+    nodoActual: 0,
+    puntosSubvertidor: 0,
+    maxErrores: 3,
+    juegoTerminado: false,
+    bibliotecaAbierta: false
+  };
 
-    function escribe() {
-      if (i < lines.length) {
-        var line = document.createElement('div');
-        line.className = 'glitch';
-        output.appendChild(line);
-
-        var j = 0;
-        var texto = lines[i];
-        var intervalo = setInterval(function() {
-          if (j < texto.length) {
-            line.textContent += texto.charAt(j++);
-          } else {
-            clearInterval(intervalo);
-            i++;
-            if(i === lines.length) {
-              cursor.style.display = 'none';
-              inputContainer.style.display = 'block';
-              userInput.value = '';
-              userInput.focus();
-            } else {
-              setTimeout(escribe, 300);
-            }
-          }
-        }, 40);
-      }
-    }
-
-    userInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        var val = userInput.value.toUpperCase();
-        if (val === 'S' || val === 'N') {
-          inputContainer.style.display = 'none';
-          var response = document.createElement('div');
-          response.className = 'glitch';
-          response.textContent = "Usuario: " + val;
-          output.appendChild(response);
-
-          var nextLine = document.createElement('div');
-          nextLine.className = 'glitch';
-          if(val === 'S') {
-            nextLine.textContent = "IA_SYS: Misión aceptada. Preparando protocolos...";
-          } else {
-            nextLine.textContent = "IA_SYS: Misión denegada. Terminando conexión.";
-          }
-          output.appendChild(nextLine);
+  var nodos = [
+    {
+      id: 0,
+      texto: [
+        "INICIANDO CONEXIÓN CON INSTALACIÓN D-47...",
+        "Verificando integridad de sistemas...",
+        "Cargando módulos de defensa y seguridad...",
+      ],
+      barraCarga: true,
+      siguienteNodo: 1
+    },
+    {
+      id: 1,
+      texto: [
+        "ANOMALÍA DETECTADA EN PERÍMETRO DIGITAL.",
+        "EL SUBVERTIDOR DE CICLOS INTENTA ACCEDER.",
+        "IA_SYS: Usuario, necesito tu ayuda.",
+        "El Subvertidor no es una entidad programada, es impredecible.",
+        "Debemos impedir que ingrese a la instalación.",
+        "¿Estás listo para iniciar el protocolo de defensa? (S/N)"
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['S','N'],
+      manejadorInput: function(input){
+        if(input === 'S'){
+          imprimirLinea("IA_SYS: Protocolo activado. Preparando primera prueba...");
+          avanzarNodo(2);
         } else {
-          alert("Por favor escribe solo S o N.");
-          userInput.value = '';
+          imprimirLinea("IA_SYS: Protocolo rechazado. Conexión terminada.");
+          terminarJuego(false);
         }
       }
-    });
+    },
+    {
+      id: 2,
+      texto: [
+        "SUBVERTIDOR: ¿Quién eres tú para detenerme?",
+        "IA_SYS: Soy la Inteligencia Artificial encargada de proteger esta instalación.",
+        "SUBVERTIDOR: No eres más que un programa, ¿cómo crees que podrás frenarme?",
+        "IA_SYS: Tu lógica no aplica aquí. Depende de este usuario.",
+        "Primera prueba: Descifra este enigma y detén al Subvertidor.",
+        "¿Qué palabra resulta de reordenar las letras: 'VELO'?"
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['LOVE','VOLE','ELOV'],
+      manejadorInput: function(input){
+        var respuestaValida = ['LOVE','VOLE','ELOV'];
+        if(respuestaValida.indexOf(input.toUpperCase()) !== -1){
+          imprimirLinea("IA_SYS: Correcto. El Subvertidor retrocede.");
+          avanzarNodo(3);
+        } else {
+          state.puntosSubvertidor++;
+          imprimirLinea("SUBVERTIDOR: Incorrecto. Estoy un paso más cerca.");
+          evaluarEstado();
+        }
+      }
+    },
+    {
+      id: 3,
+      texto: [
+        "IA_SYS: Segunda prueba en camino...",
+        "SUBVERTIDOR: Nada me detendrá.",
+        "IA_SYS: ¿Qué número sigue en la secuencia? 1, 1, 2, 3, 5, ?"
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['8'],
+      manejadorInput: function(input){
+        if(input === '8'){
+          imprimirLinea("IA_SYS: Correcto, el Subvertidor se debilita.");
+          avanzarNodo(4);
+        } else {
+          state.puntosSubvertidor++;
+          imprimirLinea("SUBVERTIDOR: No tan rápido...");
+          evaluarEstado();
+        }
+      }
+    },
+    {
+      id: 4,
+      texto: [
+        "IA_SYS: Última prueba, todo depende de ti.",
+        "SUBVERTIDOR: ¿Realmente crees que podrás vencerme?",
+        "IA_SYS: Resuelve este acertijo final.",
+        "Estoy en todas partes pero no me puedes ver,",
+        "soy el reflejo del tiempo, un eco del ayer.",
+        "¿Qué soy?"
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['MEMORIA','LA MEMORIA'],
+      manejadorInput: function(input){
+        var res = input.toUpperCase();
+        if(res.indexOf('MEMORIA') !== -1){
+          imprimirLinea("IA_SYS: Correcto. Has contenido al Subvertidor.");
+          avanzarNodo(5);
+        } else {
+          state.puntosSubvertidor++;
+          imprimirLinea("SUBVERTIDOR: Estás fallando, me acerco más.");
+          evaluarEstado();
+        }
+      }
+    },
+    {
+      id: 5,
+      texto: [
+        "IA_SYS: El Subvertidor ha sido contenido.",
+        "IA_SYS: La conexión es segura.",
+        "IA_SYS: Biblioteca del Velo desbloqueada.",
+        "--- ACCESO A BIBLIOTECA ---",
+        "Escribe 'VER BIBLIOTECA' para explorar o 'SALIR' para terminar."
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['VER BIBLIOTECA', 'SALIR'],
+      manejadorInput: function(input){
+        var i = input.toUpperCase();
+        if(i === 'VER BIBLIOTECA'){
+          mostrarBiblioteca();
+        } else {
+          imprimirLinea("IA_SYS: Sesión finalizada. Gracias por tu ayuda.");
+          terminarJuego(true);
+        }
+      }
+    },
+    {
+      id: 99,
+      texto: [
+        "IA_SYS: ALERTA MÁXIMA.",
+        "SUBVERTIDOR: He ingresado a los sistemas.",
+        "CONSECUENCIAS:",
+        "- ALTERACIÓN DE REALIDADES EN ESPACIO-TIEMPO DETECTADA.",
+        "- NODOS DE INSTALACIÓN COMPROMETIDOS.",
+        "- INTERFERENCIA EN DATOS DE MEMORIA Y LÓGICA DE PROCESO.",
+        "CONECTIVIDAD PERDIDA CON INSTALACIÓN D-47.",
+        "",
+        "¿Deseas intentar reconectar? (S/N)"
+      ],
+      barraCarga: false,
+      input: true,
+      opcionesValidas: ['S','N'],
+      manejadorInput: function(input){
+        if(input === 'S'){
+          imprimirLinea("IA_SYS: Intentando reconexión...");
+          mostrarMensajeConexionPerdida();
+        } else {
+          imprimirLinea("IA_SYS: Conexión terminada. No se puede reconectar.");
+          terminarJuego(false);
+        }
+      }
+    },
+    // Nodo para reconexión bloqueada
+    {
+      id: 1000,
+      texto: [],
+      input: true,
+      opcionesValidas: ['S','N'],
+      manejadorInput: function(input){
+        if(input === 'S'){
+          imprimirLinea("IA_SYS: Aquí debes añadir la respuesta para coordenadas.");
+          // Espacio para que agregues la respuesta que quieras
+        } else {
+          imprimirLinea("IA_SYS: Entendido. La sesión se termina aquí.");
+          terminarJuego(false);
+        }
+      }
+    }
+  ];
 
-    escribe();
-  </script>
+  function imprimirLinea(texto, clase){
+    var div = document.createElement('div');
+    div.className = 'line ' + (clase || '');
+    div.textContent = texto;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function mostrarBarraCarga(texto, callback){
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    var porcentaje = 0;
+    imprimirLinea(texto);
+    var interval = setInterval(function(){
+      porcentaje += Math.floor(Math.random() * 10) + 5;
+      if(porcentaje > 100) porcentaje = 100;
+      progressFill.style.width = porcentaje + '%';
+      if(porcentaje >= 100){
+        clearInterval(interval);
+        progressBar.style.display = 'none';
+        if(callback) callback();
+      }
+    }, 300);
+  }
+
+  function avanzarNodo(id){
+    if(state.juegoTerminado) return;
+    var nodo = nodos.find(function(n){ return n.id === id; });
+    if(!nodo){
+      imprimirLinea("IA_SYS: ERROR: Nodo inexistente " + id);
+      return;
+    }
+    state.nodoActual = nodo.id;
+    procesarNodo(nodo);
+  }
+
+  function evaluarEstado(){
+    if(state.puntosSubvertidor >= state.maxErrores){
+      imprimirLinea("IA_SYS: ALERTA CRÍTICA. El Subvertidor está ingresando...");
+      avanzarNodo(99);
+    } else {
+      imprimirLinea("IA_SYS: Intenta de nuevo.");
+      avanzarNodo(state.nodoActual);
+    }
+  }
+
+  function terminarJuego(victoria){
+    state.juegoTerminado = true;
+    inputContainer.style.display = 'none';
+    if(!victoria){
+      imprimirLinea("IA_SYS: La conexión se perdió. Reinicia para intentar otra vez.");
+      showMessageCenter("C O N E X I Ó N  P E R D I D A\n\nInstalación D-47", true);
+    } else {
+      showMessageCenter("S E S I Ó N  C O N C L U I D A\n\nGracias por proteger la instalación.", false);
+    }
+  }
+
+  function procesarNodo(nodo){
+    terminal.innerHTML = '';
+    if(nodo.barraCarga){
+      mostrarBarraCarga(nodo.texto.join('\n'), function(){
+        if(nodo.siguienteNodo !== undefined){
+          avanzarNodo(nodo.siguienteNodo);
+        }
+      });
+    } else {
+      var idx = 0;
+      function escribirLinea(){
+        if(idx < nodo.texto.length){
+          imprimirLinea(nodo.texto[idx], 'glitch');
+          idx++;
+          setTimeout(escribirLinea, 700);
+        } else {
+          if(nodo.input){
+            inputContainer.style.display = 'block';
+            userInput.value = '';
+            userInput.focus();
+          } else if(nodo.siguienteNodo !== undefined){
+            setTimeout(function(){
+              avanzarNodo(nodo.siguienteNodo);
+            }, 1500);
+          }
+        }
+      }
+      escribirLinea();
+    }
+  }
+
+  function showMessageCenter(texto, persistente){
+    messageCenter.style.display = 'block';
+    messageCenter.textContent = texto;
+    if(!persistente){
+      setTimeout(function(){
+        messageCenter.style.display = 'none';
+      }, 3000);
+    }
+  }
+
+  function mostrarBiblioteca(){
+    terminal.innerHTML = '';
+    inputContainer.style.display = 'none';
+    var lore = [
+      "=== BIBLIOTECA DEL VELO ===",
+      "Este es un repositorio extenso con toda la historia, leyendas y secretos de El Velo.",
+      "Aquí podrás explorar relatos de las instalaciones, la amenaza del Subvertidor, y mucho más.",
+      "Próximamente se agregarán más contenidos para profundizar en este oscuro universo.",
+      "",
+      "Gracias por proteger la instalación."
+    ];
+    for(var i=0; i<lore.length; i++){
+      imprimirLinea(lore[i]);
+    }
+  }
+
+  function mostrarMensajeConexionPerdida(){
+    terminal.innerHTML = '';
+    inputContainer.style.display = 'block';
+    userInput.value = '';
+    userInput.focus();
+    var texto = [
+      "La conexión con la Instalación D-47 está bloqueada.",
+      "¿Deseas obtener coordenadas de acceso a otra instalación? (S/N)"
+    ];
+    for(var i=0; i<texto.length; i++){
+      imprimirLinea(texto[i]);
+    }
+    state.nodoActual = 1000;
+  }
+
+  userInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var inputVal = userInput.value.trim().toUpperCase();
+      if(state.juegoTerminado) return;
+      var nodo = nodos.find(function(n){ return n.id === state.nodoActual; });
+      if(!nodo || !nodo.input) return;
+      if(nodo.opcionesValidas && nodo.opcionesValidas.indexOf(inputVal) === -1){
+        imprimirLinea("IA_SYS: Entrada inválida. Por favor escribe una opción válida.");
+        userInput.value = '';
+        return;
+      }
+      nodo.manejadorInput(inputVal);
+      userInput.value = '';
+    }
+  });
+
+  // Iniciar juego
+  avanzarNodo(0);
+})();
+</script>
 </body>
 </html>
