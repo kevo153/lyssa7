@@ -400,7 +400,7 @@
 
         dialogIA('Iniciando conexión remota segura a la Instalación D-47...');
         simularBarraDeCarga(2000, "Estableciendo enlace de datos encriptado...", "Enlace seguro establecido. Requiere autenticación de acceso.", function() {
-            dialogIA('LYSSA: Identificación requerida para acceso primario. Introduzca el código de seguridad (Contraseña: M205):');
+            dialogIA('LYSSA: Identificación requerida para acceso primario. Introduzca el código de seguridad):');
             userInput.disabled = false; // Habilitar input después de la carga
             userInput.focus();
         });
