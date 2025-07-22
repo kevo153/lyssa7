@@ -2,7 +2,7 @@
 var terminalOutput;
 var terminalInput;
 var terminalInputArea;
-var terminalContainer; // Asegurar que esta variable esté declarada globalmente
+var terminalContainer;
 var audioTeclado;
 var audioGlitch;
 var audioFondo;
@@ -18,9 +18,8 @@ function playAudio(audioElement, loop) {
     if (audioElement) {
         audioElement.loop = loop || false;
         audioElement.play().catch(function(error) {
-            console.warn("No se pudo reproducir el audio:", error);
-            // Esto puede ocurrir si el navegador bloquea la reproducción automática
-            // o si el usuario no ha interactuado aún con la página.
+            // No se puede reproducir el audio automáticamente debido a restricciones del navegador
+            // Esto es normal si el usuario no ha interactuado aún con la página.
         });
     }
 }
@@ -36,7 +35,6 @@ function stopAudio(audioElement) {
 
 // Función para escribir texto letra por letra
 function typeWriter(text, callback) {
-    console.log("typeWriter: Iniciando escritura de texto."); // DEBUG
     isTyping = true;
     terminalInputArea.style.display = 'none'; // Ocultar input mientras se escribe
     var i = 0;
@@ -48,11 +46,10 @@ function typeWriter(text, callback) {
             terminalOutput.innerText = currentOutputText;
             terminalOutput.scrollTop = terminalOutput.scrollHeight; // Desplazar al final
             i++;
-            // Opcional: Reproducir sonido de teclado para cada carácter (manejar volumen con CSS/JS)
+            // Opcional: Reproducir sonido de teclado para cada carácter
             // if (audioTeclado) audioTeclado.play(); 
             setTimeout(typeChar, textSpeed);
         } else {
-            console.log("typeWriter: Escritura de texto completada."); // DEBUG
             isTyping = false;
             terminalInputArea.style.display = 'flex'; // Mostrar input de nuevo
             terminalInput.focus(); // Enfocar el input
@@ -66,7 +63,6 @@ function typeWriter(text, callback) {
 
 // Función para añadir texto directamente (sin efecto de escritura)
 function appendText(text) {
-    console.log("appendText: Añadiendo texto directamente: " + text.substring(0, 50) + "..."); // DEBUG
     currentOutputText += "\n" + text;
     terminalOutput.innerText = currentOutputText;
     terminalOutput.scrollTop = terminalOutput.scrollHeight;
@@ -75,7 +71,6 @@ function appendText(text) {
 
 // Función para limpiar la pantalla de la terminal
 function clearTerminal() {
-    console.log("clearTerminal: Limpiando terminal."); // DEBUG
     currentOutputText = "";
     terminalOutput.innerText = "";
 }
@@ -83,7 +78,6 @@ function clearTerminal() {
 /* MARKER: Funciones de Efectos Visuales */
 
 function applyGlitchEffect() {
-    console.log("applyGlitchEffect: Aplicando glitch."); // DEBUG
     terminalContainer.classList.add('glitch');
     if (audioGlitch) {
         audioGlitch.currentTime = 0; // Reinicia el audio cada vez
@@ -92,13 +86,11 @@ function applyGlitchEffect() {
 }
 
 function removeGlitchEffect() {
-    console.log("removeGlitchEffect: Removiendo glitch."); // DEBUG
     terminalContainer.classList.remove('glitch');
     stopAudio(audioGlitch);
 }
 
 function showLoadingBar(durationMs, callback) {
-    console.log("showLoadingBar: Mostrando barra de carga."); // DEBUG
     var loadingBarContainer = document.createElement('div');
     loadingBarContainer.className = 'loading-bar-container';
     loadingBarContainer.id = 'dynamic-loading-bar-container';
@@ -151,23 +143,11 @@ function showLoadingBar(durationMs, callback) {
 
 // Función principal de inicialización
 function initGame() {
-    console.log("initGame: Iniciando el juego..."); // DEBUG
-
     // Referencias a elementos DOM
     terminalOutput = document.getElementById('terminal-output');
     terminalInput = document.getElementById('terminal-input');
     terminalInputArea = document.getElementById('terminal-input-area');
     terminalContainer = document.getElementById('terminal-container'); 
-
-    // ** DEBUG: Mensaje de prueba directo **
-    if (terminalOutput) {
-        terminalOutput.innerText = "DEBUG: El script está corriendo y terminalOutput es accesible. Si ves esto, el problema no es la referencia principal del DOM.";
-        console.log("DEBUG: terminalOutput encontrado y modificado."); // DEBUG
-    } else {
-        console.error("ERROR: No se encontró 'terminalOutput'. Revisa tu HTML."); // DEBUG
-    }
-    // ** FIN DEBUG **
-
 
     // Referencias a elementos de audio
     audioTeclado = document.getElementById('audio-teclado');
@@ -196,21 +176,13 @@ function initGame() {
     });
 
     // Iniciar la pantalla inicial del one-shot
-    // Retraso para que el mensaje DEBUG sea visible primero
-    setTimeout(function() {
-        startInitialScreen();
-    }, 1000); 
-    
-    console.log("initGame: Finalizado."); // DEBUG
+    startInitialScreen();
 }
 
 // Función para manejar el prompt de "presionar cualquier tecla para continuar"
 function showContinuePrompt(callback) {
-    console.log("showContinuePrompt: Esperando tecla para continuar."); // DEBUG
     waitForKeyPress = true;
     typeWriter("Presiona cualquier tecla para continuar...", function() {
-        // La bandera 'waitForKeyPress' ya está activa, no necesitamos más acción aquí
-        // La función 'handleContinuePrompt' se encargará de esto cuando la tecla sea presionada.
         if (callback) {
             window._continueCallback = callback; 
         }
@@ -218,7 +190,6 @@ function showContinuePrompt(callback) {
 }
 
 function handleContinuePrompt() {
-    console.log("handleContinuePrompt: Tecla presionada, continuando..."); // DEBUG
     appendText("[CONTINUADO]");
     // Si tenemos un callback específico del showContinuePrompt, lo ejecutamos.
     if (window._continueCallback) {
@@ -374,19 +345,16 @@ var nodes = {
 /* MARKER: Lógica para manejar la secuencia de Nodos */
 
 function startNodeSequence(path) {
-    console.log("startNodeSequence: Iniciando secuencia para path: " + path); // DEBUG
     currentPath = path;
     currentNodeIndex = 0; // Siempre empezar desde el primer nodo del path
     displayCurrentNode();
 }
 
 function displayCurrentNode() {
-    console.log("displayCurrentNode: Mostrando nodo " + currentNodeIndex + " del path " + currentPath); // DEBUG
     clearTerminal(); // Limpiar la pantalla para el nuevo nodo
     var node = nodes[currentPath][currentNodeIndex];
 
     if (!node) {
-        console.warn("displayCurrentNode: No hay más nodos en este path. Fin de la secuencia."); // DEBUG
         typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nHas llegado al final de este camino (por ahora). El Velo se cierra. Puedes recargar la página para intentar otro camino o explorar de nuevo.", function() {
             showContinuePrompt(function() {
                 location.reload(); // Recargar la página para reiniciar el juego
@@ -419,7 +387,6 @@ function displayCurrentNode() {
                 if (nextNodeFound) {
                     displayCurrentNode();
                 } else {
-                    console.error("displayCurrentNode: ERROR: Nodo siguiente '" + node.next + "' no encontrado."); // DEBUG
                     typeWriter("ERROR: Nodo siguiente '" + node.next + "' no encontrado. Terminando secuencia.", function() {
                         showContinuePrompt(function() {
                              location.reload(); 
@@ -427,7 +394,6 @@ function displayCurrentNode() {
                     });
                 }
             } else {
-                console.warn("displayCurrentNode: Nodo de texto sin instrucción 'next' o 'wait_for_key'. Asumiendo fin de segmento."); // DEBUG
                 typeWriter("Secuencia de nodo de texto finalizada sin siguiente instrucción. Fin de este segmento.", function(){
                      showContinuePrompt(function() {
                         location.reload();
@@ -439,14 +405,12 @@ function displayCurrentNode() {
         typeWriter(node.prompt, function() {
             waitForInput = true;
             terminalInput.setAttribute('placeholder', 'Tu respuesta...');
-            console.log("displayCurrentNode: Esperando input para enigma."); // DEBUG
         });
     }
 }
 
 
 function startInitialScreen() {
-    console.log("startInitialScreen: Iniciando pantalla inicial."); // DEBUG
     clearTerminal();
     typeWriter(
         "// PROTOCOLO DE CONEXIÓN INICIADO\n" +
@@ -455,14 +419,12 @@ function startInitialScreen() {
         function() {
             waitForInput = true;
             terminalInput.setAttribute('placeholder', 'Introduzca clave...');
-            console.log("startInitialScreen: Esperando input de contraseña."); // DEBUG
         }
     );
 }
 
 // Actualizar la función handleUserInput para procesar enigmas Y la contraseña inicial
 function handleUserInput(input) {
-    console.log("handleUserInput: Input recibido: " + input); // DEBUG
     if (isTyping) {
         appendText("Por favor, espere a que el texto termine de cargarse.");
         return;
@@ -472,7 +434,6 @@ function handleUserInput(input) {
 
     // Lógica para enigmas
     if (waitForInput && node && node.type === "enigma_input") {
-        console.log("handleUserInput: Procesando input como respuesta a enigma."); // DEBUG
         waitForInput = false; 
         terminalInput.removeAttribute('placeholder');
         appendText("> " + input); 
@@ -497,7 +458,6 @@ function handleUserInput(input) {
     } 
     // Lógica para la contraseña inicial
     else if (waitForInput) { 
-        console.log("handleUserInput: Procesando input como contraseña inicial."); // DEBUG
         waitForInput = false;
         terminalInput.removeAttribute('placeholder');
         appendText("> " + input); 
@@ -530,7 +490,6 @@ function handleUserInput(input) {
             setTimeout(removeGlitchEffect, 1500);
         }
     } else {
-        console.log("handleUserInput: Comando no reconocido o input inesperado."); // DEBUG
         appendText("> " + input);
         typeWriter("Comando no reconocido o no se espera entrada en este momento. Intente 'ayuda' si está disponible.", null);
     }
@@ -541,7 +500,6 @@ document.addEventListener('DOMContentLoaded', initGame);
 
 // La función proceedAfterAuthentication se mantiene como estaba, llamando a startNodeSequence
 function proceedAfterAuthentication() {
-    console.log("proceedAfterAuthentication: Autenticación exitosa, procediendo a secuencia de nodos."); // DEBUG
     clearTerminal();
     switch (currentPath) {
         case "pathA":
@@ -560,7 +518,6 @@ function proceedAfterAuthentication() {
             });
             break;
         default:
-            console.error("proceedAfterAuthentication: Error de ruta interna inesperada: " + currentPath); // DEBUG
             typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
             break;
     }
