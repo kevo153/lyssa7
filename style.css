@@ -1,8 +1,8 @@
 /* MARKER: Estilos Generales y del Cuerpo */
 body {
-    background-color: #000; /* Fondo negro para la terminal */
+    background-color: transparent; /* Importante: el fondo del body debe ser transparente para que se vea el video */
     color: #0F0; /* Texto verde brillante, clásico de terminal */
-    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace; /* Fuente de terminal */
+    font-family: 'Press Start 2P', monospace; /* Cambiado a Press Start 2P según el HTML, o puedes mantener Consolas si prefieres */
     font-size: 1.1em;
     margin: 0;
     overflow: hidden; /* Oculta barras de desplazamiento */
@@ -12,9 +12,34 @@ body {
     min-height: 100vh; /* Ocupa toda la altura de la ventana */
 }
 
+/* MARKER: Estilos del Contenedor del Video de Fondo */
+#video-background-container {
+    position: fixed; /* Fija el contenedor a la ventana de visualización */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Oculta cualquier parte del video que se desborde */
+    z-index: -100; /* Envía este contenedor MUY al fondo */
+    pointer-events: none; /* Permite que los clics pasen a través del video */
+}
+
+#video-background-container iframe {
+    position: absolute; /* Posiciona el iframe dentro de su contenedor fijo */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centra el video */
+    min-width: 100%; /* Asegura que el video cubra al menos el 100% del ancho/alto */
+    min-height: 100%;
+    width: 100vw;   /* Asegura cobertura total del viewport */
+    height: 100vh;  /* Asegura cobertura total del viewport */
+    object-fit: cover; /* Escala el video para cubrir el área, manteniendo el aspecto */
+    filter: brightness(0.5) contrast(1.2) blur(2px); /* Ajusta estos valores a tu gusto */
+}
+
 /* MARKER: Estilos del Contenedor de la Terminal */
 #terminal-container {
-    background-color: #000; /* Fondo de la terminal */
+    background-color: rgba(0, 0, 0, 0.9); /* Fondo oscuro semi-transparente para la legibilidad sobre el video */
     border: 2px solid #0F0; /* Borde verde */
     padding: 20px;
     width: 80%; /* Ancho de la terminal */
@@ -22,9 +47,10 @@ body {
     height: 70vh; /* Altura de la terminal */
     display: flex;
     flex-direction: column; /* Contenido apilado verticalmente */
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); /* Sombra brillante */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); /* Sombra brillante unificada */
     box-sizing: border-box; /* Incluye padding y borde en el ancho/alto */
-    position: relative; /* Para posicionar elementos internos si es necesario */
+    position: relative; /* Esencial para que el z-index funcione correctamente */
+    z-index: 1; /* Coloca la terminal por encima del video (-100) */
 }
 
 /* MARKER: Estilos del Área de Salida (Output) */
@@ -33,6 +59,7 @@ body {
     overflow-y: auto; /* Desplazamiento si el contenido es largo */
     white-space: pre-wrap; /* Mantiene saltos de línea y espacios, ajusta texto */
     padding-right: 10px; /* Pequeño padding para el scrollbar */
+    line-height: 1.5; /* Añadido para mejor legibilidad */
     /* Estilo del scrollbar para que coincida con la terminal */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: #0F0 #000; /* Firefox */
@@ -57,9 +84,12 @@ body {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    border-top: 1px solid #0F0; /* Añadido para separar input del output */
+    padding-top: 10px; /* Padding para el borde superior */
 }
 
-#terminal-prompt {
+/* Aquí he cambiado '#terminal-prompt' a '.prompt' para que coincida con tu HTML actual */
+.prompt {
     color: #0F0;
     margin-right: 5px;
 }
@@ -68,7 +98,7 @@ body {
     background-color: transparent; /* Fondo transparente */
     border: none; /* Sin borde */
     color: #0F0; /* Color de texto */
-    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    font-family: 'Press Start 2P', monospace; /* Consistente con el body */
     font-size: 1.1em;
     flex-grow: 1; /* Ocupa el espacio restante */
     outline: none; /* Quitar el contorno al enfocar */
@@ -130,46 +160,4 @@ body {
     margin-top: 5px;
     color: #0F0;
     display: none; /* Oculto por defecto */
-}
-
-/* Contenedor para el iframe de fondo */
-#video-background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; 
-    z-index: -100; 
-    pointer-events: none; 
-}
-
-#video-background-container iframe {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
-    min-width: 100%;
-    min-height: 100%;
-    width: 100vw;   
-    height: 100vh;  
-    object-fit: cover; 
-    filter: brightness(0.5) contrast(1.2); /* Ajusta estos valores a tu gusto */
-}
-
-/* Ajustes para la terminal para asegurar que esté por encima del video */
-#terminal-container {
-    position: relative; 
-    z-index: 1; 
-    background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro semi-transparente para la legibilidad */
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); 
-    /* ... el resto de tus estilos para #terminal-container ... */
-}
-
-/* Asegúrate de que el body no tenga un background-color que tape el video */
-body {
-    background-color: transparent; 
-    margin: 0; 
-    overflow: hidden; 
-    /* ... el resto de tus estilos para body ... */
 }

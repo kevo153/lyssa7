@@ -256,9 +256,19 @@ var nodes = {
                   "La interfaz de la Instalación D-47 se estabiliza, su brillo verde-esmeralda inunda tu percepción. Has demostrado una comprensión básica de las fallas inherentes al Velo y cómo se manifiestan. La firma del Subvertidor, aunque sutil, ahora es un poco más legible para ti.\n\n" +
                   "LYSSA: 'Un nuevo segmento de la red principal de la Instalación D-47 se ilumina en tu mapa mental. Te espera el Módulo Criptográfico, donde las claves de acceso a otras sub-secciones del Velo están siendo atacadas. La siguiente fase requiere una decodificación de patrones más compleja.'\n\n" +
                   "Sientes el pull de la red, una invitación a sumergirte más profundamente en el código que es la realidad misma.",
-            next: "wait_for_key"
+            next: "programador_04" // Apunta al nuevo nodo de batalla
+        },
+        {
+            id: "programador_04",
+            type: "text_only",
+            text: "--- BATALLA CON EL SUBVERTIDOR DE CICLOS: INICIADA ---\n\n" +
+                  "El Módulo Criptográfico resuena con una frecuencia que no es de esta realidad. El Subvertidor de Ciclos se manifiesta como una anomalía en el código, una serpiente de datos corruptos que intenta devorar las claves de acceso. LYSSA proyecta escudos de contención binarios, pero la entidad es persistente.\n\n" +
+                  "LYSSA: 'Su patrón es volátil. Necesitamos una conexión externa para una sobrecarga de datos directos. Contactando a la Entidad 5, unidad de soporte remoto de alta prioridad. Su asistencia es crítica para neutralizar esta incursión.'\n\n" +
+                  "Sientes la tensión del combate digital. Bits de información chocan contra la intrusión, intentando descifrar su lógica y encontrar una vulnerabilidad. La pantalla parpadea con destellos de código que se corrompen y se reparan, una danza caótica entre la defensa y el ataque. El enlace con la Entidad 5 se establece, una luz tenue aparece en el horizonte digital.",
+            next: "wait_for_key", // Puedes cambiar esto a otro enigma o nodo de batalla si lo deseas
+            glitch: true
         }
-        // MARKER: Añadir más nodos del Programador aquí
+        // MARKER: Añadir más nodos del Programador aquí (ej. programador_05, etc.)
     ],
     "pathB": [ // Nodos para el camino del Viajero
         {
