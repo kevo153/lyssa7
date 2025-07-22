@@ -36,6 +36,7 @@ function stopAudio(audioElement) {
 
 // Función para escribir texto letra por letra
 function typeWriter(text, callback) {
+    console.log("typeWriter: Iniciando escritura de texto."); // DEBUG
     isTyping = true;
     terminalInputArea.style.display = 'none'; // Ocultar input mientras se escribe
     var i = 0;
@@ -51,6 +52,7 @@ function typeWriter(text, callback) {
             // if (audioTeclado) audioTeclado.play(); 
             setTimeout(typeChar, textSpeed);
         } else {
+            console.log("typeWriter: Escritura de texto completada."); // DEBUG
             isTyping = false;
             terminalInputArea.style.display = 'flex'; // Mostrar input de nuevo
             terminalInput.focus(); // Enfocar el input
@@ -64,6 +66,7 @@ function typeWriter(text, callback) {
 
 // Función para añadir texto directamente (sin efecto de escritura)
 function appendText(text) {
+    console.log("appendText: Añadiendo texto directamente: " + text.substring(0, 50) + "..."); // DEBUG
     currentOutputText += "\n" + text;
     terminalOutput.innerText = currentOutputText;
     terminalOutput.scrollTop = terminalOutput.scrollHeight;
@@ -72,6 +75,7 @@ function appendText(text) {
 
 // Función para limpiar la pantalla de la terminal
 function clearTerminal() {
+    console.log("clearTerminal: Limpiando terminal."); // DEBUG
     currentOutputText = "";
     terminalOutput.innerText = "";
 }
@@ -79,6 +83,7 @@ function clearTerminal() {
 /* MARKER: Funciones de Efectos Visuales */
 
 function applyGlitchEffect() {
+    console.log("applyGlitchEffect: Aplicando glitch."); // DEBUG
     terminalContainer.classList.add('glitch');
     if (audioGlitch) {
         audioGlitch.currentTime = 0; // Reinicia el audio cada vez
@@ -87,11 +92,13 @@ function applyGlitchEffect() {
 }
 
 function removeGlitchEffect() {
+    console.log("removeGlitchEffect: Removiendo glitch."); // DEBUG
     terminalContainer.classList.remove('glitch');
     stopAudio(audioGlitch);
 }
 
 function showLoadingBar(durationMs, callback) {
+    console.log("showLoadingBar: Mostrando barra de carga."); // DEBUG
     var loadingBarContainer = document.createElement('div');
     loadingBarContainer.className = 'loading-bar-container';
     loadingBarContainer.id = 'dynamic-loading-bar-container';
@@ -144,11 +151,23 @@ function showLoadingBar(durationMs, callback) {
 
 // Función principal de inicialización
 function initGame() {
+    console.log("initGame: Iniciando el juego..."); // DEBUG
+
     // Referencias a elementos DOM
     terminalOutput = document.getElementById('terminal-output');
     terminalInput = document.getElementById('terminal-input');
     terminalInputArea = document.getElementById('terminal-input-area');
-    terminalContainer = document.getElementById('terminal-container'); // Asegurar que está referenciada
+    terminalContainer = document.getElementById('terminal-container'); 
+
+    // ** DEBUG: Mensaje de prueba directo **
+    if (terminalOutput) {
+        terminalOutput.innerText = "DEBUG: El script está corriendo y terminalOutput es accesible. Si ves esto, el problema no es la referencia principal del DOM.";
+        console.log("DEBUG: terminalOutput encontrado y modificado."); // DEBUG
+    } else {
+        console.error("ERROR: No se encontró 'terminalOutput'. Revisa tu HTML."); // DEBUG
+    }
+    // ** FIN DEBUG **
+
 
     // Referencias a elementos de audio
     audioTeclado = document.getElementById('audio-teclado');
@@ -177,33 +196,39 @@ function initGame() {
     });
 
     // Iniciar la pantalla inicial del one-shot
-    startInitialScreen();
+    // Retraso para que el mensaje DEBUG sea visible primero
+    setTimeout(function() {
+        startInitialScreen();
+    }, 1000); 
+    
+    console.log("initGame: Finalizado."); // DEBUG
 }
 
 // Función para manejar el prompt de "presionar cualquier tecla para continuar"
 function showContinuePrompt(callback) {
+    console.log("showContinuePrompt: Esperando tecla para continuar."); // DEBUG
     waitForKeyPress = true;
     typeWriter("Presiona cualquier tecla para continuar...", function() {
         // La bandera 'waitForKeyPress' ya está activa, no necesitamos más acción aquí
         // La función 'handleContinuePrompt' se encargará de esto cuando la tecla sea presionada.
         if (callback) {
-            // Guardar el callback para ejecutarlo cuando se presione la tecla
-            // Usamos una variable global temporal para el callback en este caso simplificado
             window._continueCallback = callback; 
         }
     });
 }
 
 function handleContinuePrompt() {
-    // Aquí es donde la lógica avanza después de "presionar tecla"
-    // Dependiendo del estado del juego, esta función llamará a la siguiente fase.
-    // El callback guardado se ejecuta.
+    console.log("handleContinuePrompt: Tecla presionada, continuando..."); // DEBUG
+    appendText("[CONTINUADO]");
+    // Si tenemos un callback específico del showContinuePrompt, lo ejecutamos.
     if (window._continueCallback) {
-        window._continueCallback();
+        var tempCallback = window._continueCallback;
         window._continueCallback = null; // Limpiar el callback
+        tempCallback(); // Ejecutar el callback guardado
     } else {
-        // Fallback si no hay un callback específico, o para depuración
-        appendText("[CONTINUADO SIN CALLBACK ESPECÍFICO]");
+        // Por defecto, si no hay un callback específico, simplemente avanza al siguiente nodo
+        currentNodeIndex++;
+        displayCurrentNode();
     }
 }
 
@@ -349,19 +374,20 @@ var nodes = {
 /* MARKER: Lógica para manejar la secuencia de Nodos */
 
 function startNodeSequence(path) {
+    console.log("startNodeSequence: Iniciando secuencia para path: " + path); // DEBUG
     currentPath = path;
     currentNodeIndex = 0; // Siempre empezar desde el primer nodo del path
     displayCurrentNode();
 }
 
 function displayCurrentNode() {
+    console.log("displayCurrentNode: Mostrando nodo " + currentNodeIndex + " del path " + currentPath); // DEBUG
     clearTerminal(); // Limpiar la pantalla para el nuevo nodo
     var node = nodes[currentPath][currentNodeIndex];
 
     if (!node) {
-        // Si no hay más nodos en este path, el juego termina o redirige.
+        console.warn("displayCurrentNode: No hay más nodos en este path. Fin de la secuencia."); // DEBUG
         typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nHas llegado al final de este camino (por ahora). El Velo se cierra. Puedes recargar la página para intentar otro camino o explorar de nuevo.", function() {
-            // MARKER: Lógica de fin de juego / reinicio
             showContinuePrompt(function() {
                 location.reload(); // Recargar la página para reiniciar el juego
             });
@@ -379,13 +405,9 @@ function displayCurrentNode() {
         typeWriter(node.text, function() {
             if (node.next === "wait_for_key") {
                 showContinuePrompt(function() {
-                    // Después de showContinuePrompt, handleContinuePrompt se encargará de avanzar
-                    // Una vez que la tecla sea presionada, handleContinuePrompt llamará a la lógica de avance.
-                    // No necesitamos llamar currentNodeIndex++ o displayCurrentNode() aquí directamente
-                    // porque ya se hará en handleContinuePrompt a través del callback.
+                    // El handleContinuePrompt se encargará de avanzar al siguiente nodo.
                 });
             } else if (node.next) {
-                // Si 'next' es un ID de nodo específico, buscarlo y saltar
                 var nextNodeFound = false;
                 for (var i = 0; i < nodes[currentPath].length; i++) {
                     if (nodes[currentPath][i].id === node.next) {
@@ -397,22 +419,18 @@ function displayCurrentNode() {
                 if (nextNodeFound) {
                     displayCurrentNode();
                 } else {
+                    console.error("displayCurrentNode: ERROR: Nodo siguiente '" + node.next + "' no encontrado."); // DEBUG
                     typeWriter("ERROR: Nodo siguiente '" + node.next + "' no encontrado. Terminando secuencia.", function() {
-                        // MARKER: Lógica de error o fin de juego
                         showContinuePrompt(function() {
-                             location.reload(); // Reiniciar en caso de error crítico
+                             location.reload(); 
                         });
                     });
                 }
             } else {
-                // Si no hay 'next' definido y no es 'wait_for_key',
-                // asumir que se espera una acción externa (ej. input),
-                // pero esto debería ser manejado por el tipo de nodo si es enigma_input.
-                // Para text_only sin next, se queda esperando indefinidamente o se debe definir un comportamiento por defecto.
-                // Por ahora, para evitar bloqueos, si es text_only y no tiene next o wait_for_key, asumimos fin.
+                console.warn("displayCurrentNode: Nodo de texto sin instrucción 'next' o 'wait_for_key'. Asumiendo fin de segmento."); // DEBUG
                 typeWriter("Secuencia de nodo de texto finalizada sin siguiente instrucción. Fin de este segmento.", function(){
                      showContinuePrompt(function() {
-                        location.reload(); // Recargar en caso de flujo no manejado
+                        location.reload();
                     });
                 });
             }
@@ -421,29 +439,14 @@ function displayCurrentNode() {
         typeWriter(node.prompt, function() {
             waitForInput = true;
             terminalInput.setAttribute('placeholder', 'Tu respuesta...');
+            console.log("displayCurrentNode: Esperando input para enigma."); // DEBUG
         });
-    }
-    // MARKER: Añadir otros tipos de nodos aquí si es necesario (ej. 'choice_input')
-}
-
-// Actualizar la función handleContinuePrompt para avanzar en los nodos
-function handleContinuePrompt() {
-    appendText("[CONTINUADO]");
-    // Si tenemos un callback específico del showContinuePrompt, lo ejecutamos.
-    if (window._continueCallback) {
-        var tempCallback = window._continueCallback;
-        window._continueCallback = null; // Limpiar el callback
-        tempCallback(); // Ejecutar el callback guardado
-    } else {
-        // Por defecto, si no hay un callback específico, simplemente avanza al siguiente nodo
-        // Esto cubre casos donde showContinuePrompt no pasa un callback (aunque lo hace ahora).
-        currentNodeIndex++;
-        displayCurrentNode();
     }
 }
 
 
 function startInitialScreen() {
+    console.log("startInitialScreen: Iniciando pantalla inicial."); // DEBUG
     clearTerminal();
     typeWriter(
         "// PROTOCOLO DE CONEXIÓN INICIADO\n" +
@@ -452,12 +455,14 @@ function startInitialScreen() {
         function() {
             waitForInput = true;
             terminalInput.setAttribute('placeholder', 'Introduzca clave...');
+            console.log("startInitialScreen: Esperando input de contraseña."); // DEBUG
         }
     );
 }
 
 // Actualizar la función handleUserInput para procesar enigmas Y la contraseña inicial
 function handleUserInput(input) {
+    console.log("handleUserInput: Input recibido: " + input); // DEBUG
     if (isTyping) {
         appendText("Por favor, espere a que el texto termine de cargarse.");
         return;
@@ -467,35 +472,35 @@ function handleUserInput(input) {
 
     // Lógica para enigmas
     if (waitForInput && node && node.type === "enigma_input") {
-        waitForInput = false; // Desactivar la espera de input temporalmente
+        console.log("handleUserInput: Procesando input como respuesta a enigma."); // DEBUG
+        waitForInput = false; 
         terminalInput.removeAttribute('placeholder');
-        appendText("> " + input); // Mostrar lo que el usuario escribió
+        appendText("> " + input); 
 
         if (input.toUpperCase() === node.answer.toUpperCase()) {
             typeWriter(node.correct_feedback, function() {
-                currentNodeIndex++; // Avanzar al siguiente nodo
+                currentNodeIndex++; 
                 displayCurrentNode();
             });
         } else {
             typeWriter(node.incorrect_feedback, function() {
                 if (node.retry_on_incorrect) {
-                    waitForInput = true; // Volver a esperar input para el mismo enigma
+                    waitForInput = true; 
                     terminalInput.setAttribute('placeholder', 'Tu respuesta...');
                 } else {
-                    // Si no se permite reintentar, terminar el juego o reiniciar
                     typeWriter("Secuencia interrumpida por fallo crítico. Reiniciando el Velo...", startInitialScreen);
                 }
             });
-            // Opcional: Glitch al fallar un enigma
             applyGlitchEffect();
             setTimeout(removeGlitchEffect, 1500);
         }
     } 
     // Lógica para la contraseña inicial
-    else if (waitForInput) { // Si waitForInput es true y no es un enigma, es la contraseña inicial
+    else if (waitForInput) { 
+        console.log("handleUserInput: Procesando input como contraseña inicial."); // DEBUG
         waitForInput = false;
         terminalInput.removeAttribute('placeholder');
-        appendText("> " + input); // Mostrar lo que el usuario escribió
+        appendText("> " + input); 
 
         var matchedPath = passwords[input.toUpperCase()]; 
 
@@ -507,7 +512,6 @@ function handleUserInput(input) {
                 function() {
                     showLoadingBar(3000, function() { 
                         typeWriter("Conexión establecida. Iniciando secuencia de nodos...", function() {
-                            // Este callback es para proceedAfterAuthentication, que a su vez llama a startNodeSequence
                             showContinuePrompt(proceedAfterAuthentication); 
                         });
                     });
@@ -526,7 +530,7 @@ function handleUserInput(input) {
             setTimeout(removeGlitchEffect, 1500);
         }
     } else {
-        // Esto manejará la entrada si no se está esperando una contraseña ni un enigma
+        console.log("handleUserInput: Comando no reconocido o input inesperado."); // DEBUG
         appendText("> " + input);
         typeWriter("Comando no reconocido o no se espera entrada en este momento. Intente 'ayuda' si está disponible.", null);
     }
@@ -537,25 +541,26 @@ document.addEventListener('DOMContentLoaded', initGame);
 
 // La función proceedAfterAuthentication se mantiene como estaba, llamando a startNodeSequence
 function proceedAfterAuthentication() {
+    console.log("proceedAfterAuthentication: Autenticación exitosa, procediendo a secuencia de nodos."); // DEBUG
     clearTerminal();
-    // Aquí es donde el juego diverge según el 'currentPath'
     switch (currentPath) {
         case "pathA":
             typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                startNodeSequence(currentPath); // Inicia la secuencia de nodos para el Programador
+                startNodeSequence(currentPath); 
             });
             break;
         case "pathB":
             typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                startNodeSequence(currentPath); // Inicia la secuencia de nodos para el Viajero
+                startNodeSequence(currentPath); 
             });
             break;
         case "pathC":
             typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                startNodeSequence(currentPath); // Inicia la secuencia de nodos para el Corrupto
+                startNodeSequence(currentPath); 
             });
             break;
         default:
+            console.error("proceedAfterAuthentication: Error de ruta interna inesperada: " + currentPath); // DEBUG
             typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
             break;
     }
