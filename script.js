@@ -6,6 +6,8 @@ var terminalContainer;
 var audioTeclado;
 var audioGlitch;
 var audioFondo;
+var videoBackground; // NUEVO: Referencia al elemento de video
+var startOverlay;    // NUEVO: Referencia al overlay de inicio
 
 var currentOutputText = ""; // Almacena el texto actual que se muestra en la terminal
 var textSpeed = 50; // Velocidad de escritura (milisegundos por carácter)
@@ -18,8 +20,9 @@ function playAudio(audioElement, loop) {
     if (audioElement) {
         audioElement.loop = loop || false;
         audioElement.play().catch(function(error) {
-            // No se puede reproducir el audio automáticamente debido a restricciones del navegador
             // Esto es normal si el usuario no ha interactuado aún con la página.
+            // Con el overlay de inicio, esta parte debería ejecutarse correctamente.
+            console.error("Error al intentar reproducir audio:", error);
         });
     }
 }
@@ -46,8 +49,6 @@ function typeWriter(text, callback) {
             terminalOutput.innerText = currentOutputText;
             terminalOutput.scrollTop = terminalOutput.scrollHeight; // Desplazar al final
             i++;
-            // Opcional: Reproducir sonido de teclado para cada carácter
-            // if (audioTeclado) audioTeclado.play(); 
             setTimeout(typeChar, textSpeed);
         } else {
             isTyping = false;
@@ -123,7 +124,6 @@ function showLoadingBar(durationMs, callback) {
         if (progress === 1) {
             clearInterval(interval);
             setTimeout(function() {
-                // Eliminar los elementos de la barra de carga
                 if (terminalOutput.contains(loadingBarContainer)) {
                     terminalOutput.removeChild(loadingBarContainer);
                 }
@@ -133,9 +133,9 @@ function showLoadingBar(durationMs, callback) {
                 if (callback) {
                     callback();
                 }
-            }, 500); // Pequeña pausa después de completar la carga
+            }, 500);
         }
-    }, 50); // Actualiza cada 50ms
+    }, 50);
 }
 
 
@@ -149,35 +149,43 @@ function initGame() {
     terminalInputArea = document.getElementById('terminal-input-area');
     terminalContainer = document.getElementById('terminal-container'); 
 
-    // Referencias a elementos de audio
+    // Referencias a elementos de audio y video
     audioTeclado = document.getElementById('audio-teclado');
     audioGlitch = document.getElementById('audio-glitch');
     audioFondo = document.getElementById('audio-fondo');
+    videoBackground = document.querySelector('#video-background-container video'); // NUEVO
+    startOverlay = document.getElementById('start-overlay'); // NUEVO
 
-    // Iniciar el sonido de fondo (puede requerir interacción del usuario en algunos navegadores)
+    // NUEVO: Añadir event listener al overlay para iniciar la experiencia
+    startOverlay.addEventListener('click', startExperience);
+
+    // Opcional: Mostrar terminal oculta al inicio si es necesario (no debería serlo si el overlay la cubre)
+    // terminalContainer.style.display = 'none'; 
+}
+
+// NUEVO: Función para iniciar la experiencia completa (audio y video) después del primer click
+function startExperience() {
+    // Ocultar el overlay con una transición
+    startOverlay.style.opacity = '0';
+    setTimeout(function() {
+        startOverlay.style.display = 'none';
+        startOverlay.removeEventListener('click', startExperience); // Eliminar listener
+    }, 1000); // Coincide con la duración de la transición CSS
+
+    // Reproducir audio y video de fondo
     playAudio(audioFondo, true);
+    if (videoBackground) {
+        videoBackground.play().catch(function(error) {
+            console.error("Error al intentar reproducir video:", error);
+            // Esto puede ocurrir si el navegador es extremadamente estricto
+            // Aunque 'muted' y 'playsinline' ayudan mucho
+        });
+    }
 
-    // Event Listener para la entrada del usuario (tecla Enter)
-    terminalInput.addEventListener('keydown', function(event) {
-        if (event.keyCode === 13) { // Tecla Enter
-            event.preventDefault(); // Evitar salto de línea en el input
-            handleUserInput(terminalInput.value.trim());
-            terminalInput.value = ''; // Limpiar el input
-        }
-    });
-
-    // Event Listener para "Presionar cualquier tecla para continuar"
-    document.addEventListener('keydown', function(event) {
-        if (waitForKeyPress && !isTyping) {
-            waitForKeyPress = false;
-            event.preventDefault(); // Prevenir cualquier acción por defecto de la tecla
-            handleContinuePrompt();
-        }
-    });
-
-    // Iniciar la pantalla inicial del one-shot
+    // Iniciar la pantalla inicial de la terminal una vez los medios están en marcha
     startInitialScreen();
 }
+
 
 // Función para manejar el prompt de "presionar cualquier tecla para continuar"
 function showContinuePrompt(callback) {
@@ -191,13 +199,11 @@ function showContinuePrompt(callback) {
 
 function handleContinuePrompt() {
     appendText("[CONTINUADO]");
-    // Si tenemos un callback específico del showContinuePrompt, lo ejecutamos.
     if (window._continueCallback) {
         var tempCallback = window._continueCallback;
-        window._continueCallback = null; // Limpiar el callback
-        tempCallback(); // Ejecutar el callback guardado
+        window._continueCallback = null;
+        tempCallback();
     } else {
-        // Por defecto, si no hay un callback específico, simplemente avanza al siguiente nodo
         currentNodeIndex++;
         displayCurrentNode();
     }
@@ -206,14 +212,13 @@ function handleContinuePrompt() {
 
 /* MARKER: Lógica Específica del One-Shot */
 
-var currentPath = ''; // Almacenará el camino de nodos (ej. 'pathA', 'pathB', 'pathC')
-var currentNodeIndex = 0; // Índice del nodo actual dentro del path
+var currentPath = '';
+var currentNodeIndex = 0;
 
-// Contraseñas y sus rutas asociadas
 var passwords = {
-    "M205": "pathA",    // Para el Programador
-    "PADEL": "pathB", // Para el Viajero
-    "PIFIA": "pathC"      // Para el Corrupto
+    "M205": "pathA",
+    "PADEL": "pathB",
+    "PIFIA": "pathC"
 };
 
 /* MARKER: Definición de los Nodos para cada Path */
@@ -240,14 +245,14 @@ var nodes = {
                     "[ 1, 3, 6, 10, 15, 21, 28, 37 ]\n\n" +
                     "LYSSA: 'Detecta el bit corrupto. La precisión es crucial. Solo un número rompe la armonía. El futuro de este segmento del Velo depende de tu discernimiento.'\n\n" +
                     "INGRESA EL NÚMERO INTRUSO (solo el valor numérico):",
-            answer: "37", // La secuencia es la suma de números consecutivos (1, 1+2=3, 3+3=6, etc. - números triangulares). 37 debería ser 36 (suma de 1 a 8).
+            answer: "37",
             correct_feedback: ":: PROTOCOLO VERIFICADO ::\n\n" +
                               "LYSSA: 'Sistema re-calibrado. Patrón de disonancia corregido. El flujo de datos en D-47 se estabiliza. Tu lógica es sólida. Acceso al siguiente módulo de defensa desbloqueado. Prepárate para una inmersión más profunda en los algoritmos del Velo.'",
             incorrect_feedback: ":: ALERTA: ERROR DE LÓGICA ::\n\n" +
                                 "LYSSA: 'Patrón persistente. La disonancia se propaga. Tu análisis es defectuoso. Vuelve a intentar. La estabilidad pende de un hilo, y cada segundo de inestabilidad fortalece al Subvertidor.'\n\n" +
                                 "El Velo parpadea con una interferencia más agresiva. Sientes una punzada de Ansiedad. La presión aumenta.",
             next_on_correct: "programador_03",
-            retry_on_incorrect: true // Permite reintentar el enigma
+            retry_on_incorrect: true
         },
         {
             id: "programador_03",
@@ -256,7 +261,7 @@ var nodes = {
                   "La interfaz de la Instalación D-47 se estabiliza, su brillo verde-esmeralda inunda tu percepción. Has demostrado una comprensión básica de las fallas inherentes al Velo y cómo se manifiestan. La firma del Subvertidor, aunque sutil, ahora es un poco más legible para ti.\n\n" +
                   "LYSSA: 'Un nuevo segmento de la red principal de la Instalación D-47 se ilumina en tu mapa mental. Te espera el Módulo Criptográfico, donde las claves de acceso a otras sub-secciones del Velo están siendo atacadas. La siguiente fase requiere una decodificación de patrones más compleja.'\n\n" +
                   "Sientes el pull de la red, una invitación a sumergirte más profundamente en el código que es la realidad misma.",
-            next: "programador_04" // Apunta al nuevo nodo de batalla
+            next: "programador_04"
         },
         {
             id: "programador_04",
@@ -265,12 +270,11 @@ var nodes = {
                   "El Módulo Criptográfico resuena con una frecuencia que no es de esta realidad. El Subvertidor de Ciclos se manifiesta como una anomalía en el código, una serpiente de datos corruptos que intenta devorar las claves de acceso. LYSSA proyecta escudos de contención binarios, pero la entidad es persistente.\n\n" +
                   "LYSSA: 'Su patrón es volátil. Necesitamos una conexión externa para una sobrecarga de datos directos. Contactando a la Entidad 5, unidad de soporte remoto de alta prioridad. Su asistencia es crítica para neutralizar esta incursión.'\n\n" +
                   "Sientes la tensión del combate digital. Bits de información chocan contra la intrusión, intentando descifrar su lógica y encontrar una vulnerabilidad. La pantalla parpadea con destellos de código que se corrompen y se reparan, una danza caótica entre la defensa y el ataque. El enlace con la Entidad 5 se establece, una luz tenue aparece en el horizonte digital.",
-            next: "wait_for_key", // Puedes cambiar esto a otro enigma o nodo de batalla si lo deseas
+            next: "wait_for_key",
             glitch: true
         }
-        // MARKER: Añadir más nodos del Programador aquí (ej. programador_05, etc.)
     ],
-    "pathB": [ // Nodos para el camino del Viajero
+    "pathB": [
         {
             id: "viajero_01",
             type: "text_only",
@@ -290,7 +294,7 @@ var nodes = {
                     "Piensa en un objeto de tu pasado, una posesión personal, sin importar su insignificancia aparente, que te ate más fuertemente a la 'realidad' que conocías. Algo que te traiga de vuelta, un faro en la niebla de la disociación.\n\n" +
                     "LYSSA: 'Tu conexión personal es la clave. La verdad de tu ser es tu mejor ancla. ¿Qué es lo que verdaderamente te arraiga?'\n\n" +
                     "INGRESA UNA PALABRA (un sustantivo) que describa ese objeto o concepto que te ancla:",
-            answer: "LIBRO", // Ejemplo: una palabra clave. Podría ser cualquier cosa significativa para el personaje/jugador.
+            answer: "LIBRO",
             correct_feedback: ":: RESONANCIA ESTABLECIDA ::\n\n" +
                               "LYSSA: 'Anclaje con éxito. El nexo se estabiliza con tu resonancia personal. La dislocación de D-47 ha sido prevenida. Una ruta tenue, un camino entre los pliegues del Velo, se manifiesta brevemente en la niebla. Has demostrado tu capacidad para la navegación interdimensional.'",
             incorrect_feedback: ":: ALERTA: ANCLAJE INSUFICIENTE ::\n\n" +
@@ -308,9 +312,8 @@ var nodes = {
                   "Sientes la vasta inmensidad de los caminos posibles. Tu mente se expande para abarcar las realidades que se extienden más allá de tu comprensión.",
             next: "wait_for_key"
         }
-        // MARKER: Añadir más nodos del Viajero aquí
     ],
-    "pathC": [ // Nodos para el camino del Corrupto
+    "pathC": [
         {
             id: "corrupto_01",
             type: "text_only",
@@ -330,7 +333,7 @@ var nodes = {
                     "¿Qué emoción, de estas tres, te consume más profundamente ahora mismo? ¿Cuál es el eco más fuerte de tu trauma central que el Velo ha amplificado?\n\n" +
                     "LYSSA: 'Tu elección resonará con el Velo. La verdad de tu aflicción se convertirá en tu arma o tu perdición. Elige sabiamente, o serás consumido sin propósito.'\n\n" +
                     "INGRESA UNA DE LAS TRES EMOCIONES (Miedo, Culpa, Vacío):",
-            answer: "VACIO", // O MIEDO, CULPA. Basado en el Lore_El_Velo.txt sobre trauma.
+            answer: "VACIO",
             correct_feedback: ":: RESONANCIA ESTABLECIDA CON EL VELO ::\n\n" +
                               "LYSSA: 'Frecuencia de corrupción reconocida. El poder fluye a través de ti. Las barreras internas de D-47 se rompen, o se doblegan a tu voluntad. Tu voluntad es una onda expansiva en el tejido del Velo, para bien o para mal.'",
             incorrect_feedback: ":: ALERTA: DISONANCIA INTERNA ::\n\n" +
@@ -348,42 +351,37 @@ var nodes = {
                   "Sientes el pull de las entidades que habitan El Velo. Tu propia forma parece fluctuar al borde de la disolución y la redefinición.",
             next: "wait_for_key"
         }
-        // MARKER: Añadir más nodos del Corrupto aquí
     ]
 };
 
-/* MARKER: Lógica para manejar la secuencia de Nodos */
-
 function startNodeSequence(path) {
     currentPath = path;
-    currentNodeIndex = 0; // Siempre empezar desde el primer nodo del path
+    currentNodeIndex = 0;
     displayCurrentNode();
 }
 
 function displayCurrentNode() {
-    clearTerminal(); // Limpiar la pantalla para el nuevo nodo
+    clearTerminal();
     var node = nodes[currentPath][currentNodeIndex];
 
     if (!node) {
         typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nHas llegado al final de este camino (por ahora). El Velo se cierra. Puedes recargar la página para intentar otro camino o explorar de nuevo.", function() {
             showContinuePrompt(function() {
-                location.reload(); // Recargar la página para reiniciar el juego
+                location.reload();
             });
         });
         return;
     }
 
-    // Aplicar/quitar glitch si el nodo lo indica
     if (node.glitch) {
         applyGlitchEffect();
-        setTimeout(removeGlitchEffect, 2000); // Glitch dura 2 segundos
+        setTimeout(removeGlitchEffect, 2000);
     }
 
     if (node.type === "text_only") {
         typeWriter(node.text, function() {
             if (node.next === "wait_for_key") {
                 showContinuePrompt(function() {
-                    // El handleContinuePrompt se encargará de avanzar al siguiente nodo.
                 });
             } else if (node.next) {
                 var nextNodeFound = false;
@@ -433,7 +431,6 @@ function startInitialScreen() {
     );
 }
 
-// Actualizar la función handleUserInput para procesar enigmas Y la contraseña inicial
 function handleUserInput(input) {
     if (isTyping) {
         appendText("Por favor, espere a que el texto termine de cargarse.");
@@ -442,7 +439,6 @@ function handleUserInput(input) {
 
     var node = nodes[currentPath] ? nodes[currentPath][currentNodeIndex] : null;
 
-    // Lógica para enigmas
     if (waitForInput && node && node.type === "enigma_input") {
         waitForInput = false; 
         terminalInput.removeAttribute('placeholder');
@@ -466,7 +462,6 @@ function handleUserInput(input) {
             setTimeout(removeGlitchEffect, 1500);
         }
     } 
-    // Lógica para la contraseña inicial
     else if (waitForInput) { 
         waitForInput = false;
         terminalInput.removeAttribute('placeholder');
@@ -505,10 +500,8 @@ function handleUserInput(input) {
     }
 }
 
-// Inicializar el juego cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', initGame);
 
-// La función proceedAfterAuthentication se mantiene como estaba, llamando a startNodeSequence
 function proceedAfterAuthentication() {
     clearTerminal();
     switch (currentPath) {

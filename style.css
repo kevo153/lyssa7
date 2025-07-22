@@ -2,7 +2,7 @@
 body {
     background-color: transparent; /* Importante: el fondo del body debe ser transparente para que se vea el video */
     color: #0F0; /* Texto verde brillante, clásico de terminal */
-    font-family: 'Press Start 2P', monospace; /* Cambiado a Press Start 2P según el HTML, o puedes mantener Consolas si prefieres */
+    font-family: 'Press Start 2P', monospace;
     font-size: 1.1em;
     margin: 0;
     overflow: hidden; /* Oculta barras de desplazamiento */
@@ -12,61 +12,87 @@ body {
     min-height: 100vh; /* Ocupa toda la altura de la ventana */
 }
 
-/* MARKER: Estilos del Contenedor del Video de Fondo */
-#video-background-container {
-    position: fixed; /* Fija el contenedor a la ventana de visualización */
+/* NUEVO: Estilos para el Overlay de Inicio */
+#start-overlay {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Oculta cualquier parte del video que se desborde */
-    z-index: -100; /* Envía este contenedor MUY al fondo */
-    pointer-events: none; /* Permite que los clics pasen a través del video */
+    background-color: rgba(0, 0, 0, 0.95); /* Fondo casi negro y opaco */
+    color: #0F0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+    cursor: pointer; /* Indica que es clicable */
+    transition: opacity 1s ease-out; /* Transición suave al desaparecer */
 }
 
-/* Actualizado: Ahora apunta a la etiqueta <video> */
-#video-background-container video {
-    position: absolute; /* Posiciona el video dentro de su contenedor fijo */
+#start-overlay h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px #0F0;
+}
+
+#start-overlay p {
+    font-size: 1.5em;
+    opacity: 0.8;
+}
+
+/* Estilos para el Contenedor del Video de Fondo */
+#video-background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -100;
+    pointer-events: none;
+}
+
+#video-background-container video { /* Apunta a la etiqueta <video> */
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centra el video */
-    min-width: 100%; /* Asegura que el video cubra al menos el 100% del ancho/alto */
+    transform: translate(-50%, -50%);
+    min-width: 100%;
     min-height: 100%;
-    width: 100vw;   /* Asegura cobertura total del viewport */
-    height: 100vh;  /* Asegura cobertura total del viewport */
-    object-fit: cover; /* Escala el video para cubrir el área, manteniendo el aspecto */
-    filter: brightness(0.5) contrast(1.2) blur(2px); /* Ajusta estos valores a tu gusto */
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    filter: brightness(0.5) contrast(1.2) blur(2px);
 }
 
-/* MARKER: Estilos del Contenedor de la Terminal */
+/* Estilos del Contenedor de la Terminal */
 #terminal-container {
-    background-color: rgba(0, 0, 0, 0.9); /* Fondo oscuro semi-transparente para la legibilidad sobre el video */
-    border: 2px solid #0F0; /* Borde verde */
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 2px solid #0F0;
     padding: 20px;
-    width: 80%; /* Ancho de la terminal */
-    max-width: 900px; /* Ancho máximo */
-    height: 70vh; /* Altura de la terminal */
+    width: 80%;
+    max-width: 900px;
+    height: 70vh;
     display: flex;
-    flex-direction: column; /* Contenido apilado verticalmente */
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); /* Sombra brillante unificada */
-    box-sizing: border-box; /* Incluye padding y borde en el ancho/alto */
-    position: relative; /* Esencial para que el z-index funcione correctamente */
-    z-index: 1; /* Coloca la terminal por encima del video (-100) */
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
 }
 
-/* MARKER: Estilos del Área de Salida (Output) */
+/* Estilos del Área de Salida (Output) */
 #terminal-output {
-    flex-grow: 1; /* Ocupa el espacio restante */
-    overflow-y: auto; /* Desplazamiento si el contenido es largo */
-    white-space: pre-wrap; /* Mantiene saltos de línea y espacios, ajusta texto */
-    padding-right: 10px; /* Pequeño padding para el scrollbar */
-    line-height: 1.5; /* Añadido para mejor legibilidad */
-    /* Estilo del scrollbar para que coincida con la terminal */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #0F0 #000; /* Firefox */
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    padding-right: 10px;
+    line-height: 1.5;
+    scrollbar-width: thin;
+    scrollbar-color: #0F0 #000;
 }
 
-/* Para navegadores basados en WebKit (Chrome, Safari, Edge) */
 #terminal-output::-webkit-scrollbar {
     width: 8px;
 }
@@ -79,14 +105,13 @@ body {
     border: 1px solid #080;
 }
 
-
-/* MARKER: Estilos del Área de Entrada (Input) */
+/* Estilos del Área de Entrada (Input) */
 #terminal-input-area {
     display: flex;
     align-items: center;
     margin-top: 10px;
-    border-top: 1px solid #0F0; /* Añadido para separar input del output */
-    padding-top: 10px; /* Padding para el borde superior */
+    border-top: 1px solid #0F0;
+    padding-top: 10px;
 }
 
 .prompt {
@@ -95,17 +120,17 @@ body {
 }
 
 #terminal-input {
-    background-color: transparent; /* Fondo transparente */
-    border: none; /* Sin borde */
-    color: #0F0; /* Color de texto */
-    font-family: 'Press Start 2P', monospace; /* Consistente con el body */
+    background-color: transparent;
+    border: none;
+    color: #0F0;
+    font-family: 'Press Start 2P', monospace;
     font-size: 1.1em;
-    flex-grow: 1; /* Ocupa el espacio restante */
-    outline: none; /* Quitar el contorno al enfocar */
-    caret-color: #0F0; /* Color del cursor */
+    flex-grow: 1;
+    outline: none;
+    caret-color: #0F0;
 }
 
-/* MARKER: Estilo para el efecto Glitch (se aplicará con JS) */
+/* Estilo para el efecto Glitch (se aplicará con JS) */
 .glitch {
     animation: glitch-effect 0.5s infinite alternate;
 }
@@ -137,7 +162,7 @@ body {
     }
 }
 
-/* MARKER: Estilos para barras de carga (inicialmente ocultas) */
+/* Estilos para barras de carga (inicialmente ocultas) */
 .loading-bar-container {
     width: 100%;
     height: 15px;
@@ -145,19 +170,19 @@ body {
     border: 1px solid #0F0;
     margin-top: 10px;
     box-sizing: border-box;
-    display: none; /* Oculto por defecto */
+    display: none;
 }
 
 .loading-bar-fill {
     height: 100%;
     width: 0%;
     background-color: #0F0;
-    transition: width 0.1s linear; /* Transición suave para el llenado */
+    transition: width 0.1s linear;
 }
 
 .loading-percentage {
     text-align: center;
     margin-top: 5px;
     color: #0F0;
-    display: none; /* Oculto por defecto */
+    display: none;
 }
