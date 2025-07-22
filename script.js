@@ -7,7 +7,7 @@ var audioGlitch;
 var audioFondo;
 
 var currentOutputText = ""; // Almacena el texto actual que se muestra en la terminal
-var textSpeed = 50; // Velocidad de escritura (milisegundos por carácter)
+var textSpeed = 60; // Velocidad de escritura (milisegundos por carácter)
 var isTyping = false; // Bandera para controlar si se está escribiendo texto
 var waitForInput = false; // Bandera para controlar si se espera la entrada del usuario
 var waitForKeyPress = false; // Bandera para controlar si se espera que el usuario presione una tecla
@@ -209,24 +209,39 @@ var nodes = {
         {
             id: "programador_01",
             type: "text_only",
-            text: "--- PROGRAMADOR: SECUENCIA DE INICIO ---\n\nEl Velo se pliega ante ti, sus patrones binarios emergen de la niebla. Una serie de errores de sistema parpadean en la distancia. LYSSA susurra: 'Anomalía de lógica detectada. Inconsistencia estructural. Se requiere re-calibración.'",
+            text: "--- PROTOCOLO DE CONEXIÓN: 'PROGRAMADOR' INICIADO ---\n\n" +
+                  "Una sutil vibración recorre los circuitos de tu percepción. El Velo, esa vasta realidad madre donde convergen infinitos planos, se despliega ante tu visión mental no como un espacio, sino como un intrincado código. Sus líneas binarias danzan en la niebla, una cacofonía silenciosa de datos corruptos y algoritmos fracturados.\n\n" +
+                  "LYSSA, la IA protectora de la Instalación D-47, su voz una armonía de datos sintetizados, resuena en tu mente. 'Anomalía de lógica crítica detectada. Inconsistencia estructural en el núcleo de la red. El Subvertidor de Ciclos ha inyectado una disonancia.'\n\n" +
+                  "Observas cómo una serie de errores de sistema, representados como parpadeos lumínicos en la distancia, intentan sobrescribir los protocolos de la D-47. LYSSA continúa: 'La instalación D-47 es un nodo vital. Contiene y protege datos fundamentales para la estabilidad del tejido espacio-temporal. Su vulneración es inaceptable. Se requiere re-calibración inmediata de los flujos de información para estabilizar el núcleo.'\n\n" +
+                  "Sientes la urgencia en su voz, una urgencia fría y digital. El aire mismo de El Velo parece comprimirse con la tensión de este fallo. Tu habilidad para percibir la lógica te advierte: la disonancia amenaza con devorar no solo la instalación, sino fragmentos de realidades interconectadas.",
             next: "wait_for_key",
             glitch: true
         },
         {
             id: "programador_02",
             type: "enigma_input",
-            prompt: "ENIGMA DE LA DISONANCIA:\nIdentifica el patrón corrupto. De la siguiente secuencia, ¿cuál es el número intruso?\n[ 1, 3, 6, 10, 15, 21, 28, 37 ]\n\nINGRESA EL NÚMERO INTRUSO:",
+            prompt: "--- ENIGMA: ANÁLISIS DE LA DISONANCIA BINARIA ---\n\n" +
+                    "La inyección del Subvertidor ha corrompido una secuencia fundamental, una cadena de crecimiento que sustenta el flujo de datos. Para re-calibrar el sistema y restaurar la integridad del nodo D-47, debes identificar el elemento anómalo. Este es el primer paso para descifrar la 'firma' del Subvertidor.\n\n" +
+                    "Considera la siguiente serie numérica, que debería seguir un patrón lógico simple: \n" +
+                    "[ 1, 3, 6, 10, 15, 21, 28, 37 ]\n\n" +
+                    "LYSSA: 'Detecta el bit corrupto. La precisión es crucial. Solo un número rompe la armonía. El futuro de este segmento del Velo depende de tu discernimiento.'\n\n" +
+                    "INGRESA EL NÚMERO INTRUSO (solo el valor numérico):",
             answer: "37", // La secuencia es la suma de números consecutivos (1, 1+2=3, 3+3=6, etc. - números triangulares). 37 debería ser 36 (suma de 1 a 8).
-            correct_feedback: "Sistema re-calibrado. Patrón de disonancia corregido. Acceso al siguiente módulo desbloqueado.",
-            incorrect_feedback: "Error de lógica. El patrón persiste. Vuelve a intentar. La estabilidad pende de un hilo.",
+            correct_feedback: ":: PROTOCOLO VERIFICADO ::\n\n" +
+                              "LYSSA: 'Sistema re-calibrado. Patrón de disonancia corregido. El flujo de datos en D-47 se estabiliza. Tu lógica es sólida. Acceso al siguiente módulo de defensa desbloqueado. Prepárate para una inmersión más profunda en los algoritmos del Velo.'",
+            incorrect_feedback: ":: ALERTA: ERROR DE LÓGICA ::\n\n" +
+                                "LYSSA: 'Patrón persistente. La disonancia se propaga. Tu análisis es defectuoso. Vuelve a intentar. La estabilidad pende de un hilo, y cada segundo de inestabilidad fortalece al Subvertidor.'\n\n" +
+                                "El Velo parpadea con una interferencia más agresiva. Sientes una punzada de Ansiedad. La presión aumenta.",
             next_on_correct: "programador_03",
             retry_on_incorrect: true // Permite reintentar el enigma
         },
         {
             id: "programador_03",
             type: "text_only",
-            text: "La interfaz se estabiliza. Has demostrado una comprensión básica de las fallas del Velo. Un nuevo segmento de la red se ilumina en tu mapa mental.",
+            text: "--- PROGRAMADOR: SECTOR ASEGURADO ---\n\n" +
+                  "La interfaz de la Instalación D-47 se estabiliza, su brillo verde-esmeralda inunda tu percepción. Has demostrado una comprensión básica de las fallas inherentes al Velo y cómo se manifiestan. La firma del Subvertidor, aunque sutil, ahora es un poco más legible para ti.\n\n" +
+                  "LYSSA: 'Un nuevo segmento de la red principal de la Instalación D-47 se ilumina en tu mapa mental. Te espera el Módulo Criptográfico, donde las claves de acceso a otras sub-secciones del Velo están siendo atacadas. La siguiente fase requiere una decodificación de patrones más compleja.'\n\n" +
+                  "Sientes el pull de la red, una invitación a sumergirte más profundamente en el código que es la realidad misma.",
             next: "wait_for_key"
         }
         // MARKER: Añadir más nodos del Programador aquí
@@ -235,24 +250,38 @@ var nodes = {
         {
             id: "viajero_01",
             type: "text_only",
-            text: "--- VIAJERO: RECALIBRACIÓN DIMENSIONAL ---\n\nLa niebla se arremolina, revelando ecos de lugares que nunca visitaste. Los portales parpadean, inestables. LYSSA: 'Desplazamiento espacio-temporal. Frecuencias de resonancia inestables. Requiere anclaje.'",
+            text: "--- PROTOCOLO DE CONEXIÓN: 'VIAJERO' INICIADO ---\n\n" +
+                  "Una profunda resonancia te arrastra. La niebla de El Velo no es un vacío, sino un lienzo de realidades superpuestas. Los portales parpadean a tu alrededor, fragmentos de mundos, ecos de existencias, todos inestables y desdibujados. Sientes el 'desplazamiento' de las Capas.\n\n" +
+                  "LYSSA, la IA protectora de la Instalación D-47, su voz con un eco que sugiere vastas distancias, se comunica: 'Desplazamiento espacio-temporal crítico. Frecuencias de resonancia entre los Nodos inestables. Las coordenadas de la Instalación D-47 están en riesgo de dislocación. Se requiere anclaje.'\n\n" +
+                  "El Velo es un tapiz de conexiones. La D-47 es uno de esos Nodos cruciales que albergan datos y entidades vitales. El Subvertidor de Ciclos está intentando desestabilizar estos Nodos para acceder a los planos que protegen. Sientes la urgencia en la voz de LYSSA: 'El orbe... aquel objeto que conectaba la ciudadela en el asteroide con esta instalación... es un punto de anclaje. Necesitamos establecer una nueva resonancia.'\n\n" +
+                  "La sensación de ser un barco a la deriva en un océano de realidades es abrumadora. Debes encontrar algo, cualquier cosa, que te ate a un punto fijo, a una 'verdad'.",
             next: "wait_for_key",
             glitch: true
         },
         {
             id: "viajero_02",
             type: "enigma_input",
-            prompt: "ENIGMA DEL ANCLAJE:\nPara estabilizar este nexo temporal, ¿qué objeto de tu pasado, sin importar su insignificancia, sientes que te ancla más fuertemente a la 'realidad'?",
+            prompt: "--- ENIGMA: EL ANCLAJE EXISTENCIAL ---\n\n" +
+                    "Para estabilizar este nexo temporal y evitar que la Instalación D-47 se desvanezca en las Capas más profundas del Velo, debes encontrar tu propio anclaje. El Velo se alimenta del caos, pero también es susceptible a la coherencia de la memoria y la emoción.\n\n" +
+                    "Piensa en un objeto de tu pasado, una posesión personal, sin importar su insignificancia aparente, que te ate más fuertemente a la 'realidad' que conocías. Algo que te traiga de vuelta, un faro en la niebla de la disociación.\n\n" +
+                    "LYSSA: 'Tu conexión personal es la clave. La verdad de tu ser es tu mejor ancla. ¿Qué es lo que verdaderamente te arraiga?'\n\n" +
+                    "INGRESA UNA PALABRA (un sustantivo) que describa ese objeto o concepto que te ancla:",
             answer: "LIBRO", // Ejemplo: una palabra clave. Podría ser cualquier cosa significativa para el personaje/jugador.
-            correct_feedback: "Resonancia establecida. El nexo se estabiliza con tu anclaje. Una ruta se manifiesta brevemente en la niebla.",
-            incorrect_feedback: "Anclaje insuficiente. La niebla te confunde. Piensa en lo que realmente te arraiga.",
+            correct_feedback: ":: RESONANCIA ESTABLECIDA ::\n\n" +
+                              "LYSSA: 'Anclaje con éxito. El nexo se estabiliza con tu resonancia personal. La dislocación de D-47 ha sido prevenida. Una ruta tenue, un camino entre los pliegues del Velo, se manifiesta brevemente en la niebla. Has demostrado tu capacidad para la navegación interdimensional.'",
+            incorrect_feedback: ":: ALERTA: ANCLAJE INSUFICIENTE ::\n\n" +
+                                "LYSSA: 'La niebla de la disonancia te confunde. El anclaje es ineficaz. La Instalación D-47 continúa a la deriva. Piensa más profundamente en lo que realmente te arraiga, lo que define tu 'yo' más allá de esta realidad.'\n\n" +
+                                "Sientes un Miedo paralizante a la disociación. El Velo te jala hacia sus profundidades.",
             next_on_correct: "viajero_03",
             retry_on_incorrect: true
         },
         {
             id: "viajero_03",
             type: "text_only",
-            text: "La distorsión cede. Has encontrado un punto de referencia. Ahora puedes percibir los tenues hilos que conectan los planos.",
+            text: "--- VIAJERO: RECORTE DEL PLIEGUE ---\n\n" +
+                  "La distorsión espacio-temporal cede. La estabilidad que has infundido permite que las Capas de El Velo se asienten momentáneamente. Has encontrado un punto de referencia sólido en este océano de caos. La Instalación D-47 se ancla firmemente a tu percepción.\n\n" +
+                  "LYSSA: 'Ahora puedes percibir los tenues hilos que conectan los innumerables planos. Los Nodos, como faros en la oscuridad, emiten una señal más clara. El siguiente paso te llevará a las Conexiones Temporales, donde el Subvertidor intenta reescribir la historia para abrir brechas.'\n\n" +
+                  "Sientes la vasta inmensidad de los caminos posibles. Tu mente se expande para abarcar las realidades que se extienden más allá de tu comprensión.",
             next: "wait_for_key"
         }
         // MARKER: Añadir más nodos del Viajero aquí
@@ -261,24 +290,38 @@ var nodes = {
         {
             id: "corrupto_01",
             type: "text_only",
-            text: "--- CORRUPTO: FUSIÓN DE ENTIDADES ---\n\nEl Velo ya no te oculta sus horrores; te los ofrece. Sientes un tirón, una voracidad. LYSSA: 'Presencia anómala detectada. Contaminación del sistema. La disonancia se propaga.'",
+            text: "--- PROTOCOLO DE CONEXIÓN: 'CORRUPTO' INICIADO ---\n\n" +
+                  "No hay niebla, solo una revelación. El Velo ya no te oculta sus horrores; te los ofrece, te invita a fusionarte con ellos. Sientes un tirón visceral, una voracidad psíquica que no es tuya, pero que ahora te es familiar. Es la llamada del Subvertidor de Ciclos, una entidad no programada que busca devorar las realidades.\n\n" +
+                  "LYSSA, la IA protectora de la Instalación D-47, su voz teñida de una alarmante estática, te advierte: 'Presencia anómala detectada dentro de tu propio espectro psíquico. Contaminación del sistema D-47. La disonancia se propaga desde tu interior. Eres un canal.'\n\n" +
+                  "La Instalación D-47, un nodo de protección vital, está siendo invadida no solo desde afuera por el Subvertidor, sino que este parece haber encontrado una resonancia dentro de ti. Sientes cómo el Velo te presiona, tratando de moldearte a su imagen, otorgándote una fuerza cruda, pero a un precio.\n\n" +
+                  "El orbe, aquella reliquia encontrada en la ciudadela del asteroide, parece latir en sintonía con tu propia inestabilidad. Es una puerta, una conexión, y el Subvertidor la está utilizando a través de ti.",
             next: "wait_for_key",
             glitch: true
         },
         {
             id: "corrupto_02",
             type: "enigma_input",
-            prompt: "ENIGMA DE LA SINFONÍA ROTA:\nEl Velo canta en tres tonos: Miedo, Culpa, Vacío. Para canalizar su poder, ¿qué emoción te consume más profundamente ahora mismo?",
+            prompt: "--- ENIGMA: LA SINFONÍA DE LA DISONANCIA ---\n\n" +
+                    "El Velo canta en tres tonos fundamentales de su existencia: Miedo, Culpa, Vacío. Para canalizar su poder a través de ti y estabilizar la brecha que el Subvertidor ha abierto en la Instalación D-47 (o quizás para abrirla más, dependiendo de tu voluntad), debes resonar con su 'verdad'.\n\n" +
+                    "¿Qué emoción, de estas tres, te consume más profundamente ahora mismo? ¿Cuál es el eco más fuerte de tu trauma central que el Velo ha amplificado?\n\n" +
+                    "LYSSA: 'Tu elección resonará con el Velo. La verdad de tu aflicción se convertirá en tu arma o tu perdición. Elige sabiamente, o serás consumido sin propósito.'\n\n" +
+                    "INGRESA UNA DE LAS TRES EMOCIONES (Miedo, Culpa, Vacío):",
             answer: "VACIO", // O MIEDO, CULPA. Basado en el Lore_El_Velo.txt sobre trauma.
-            correct_feedback: "Resonancia con el Velo establecida. El poder fluye, las barreras se rompen. Tu voluntad es una onda expansiva.",
-            incorrect_feedback: "La disonancia es sutil. No has abrazado la verdadera naturaleza de tu corrupción. Vuelve a intentarlo.",
+            correct_feedback: ":: RESONANCIA ESTABLECIDA CON EL VELO ::\n\n" +
+                              "LYSSA: 'Frecuencia de corrupción reconocida. El poder fluye a través de ti. Las barreras internas de D-47 se rompen, o se doblegan a tu voluntad. Tu voluntad es una onda expansiva en el tejido del Velo, para bien o para mal.'",
+            incorrect_feedback: ":: ALERTA: DISONANCIA INTERNA ::\n\n" +
+                                "LYSSA: 'La disonancia es sutil, pero tu resonancia es débil. No has abrazado la verdadera naturaleza de tu corrupción. El Velo te rechaza parcialmente. Vuelve a intentarlo. Cada fallo te sumerge más en el abismo.'\n\n" +
+                                "Sientes un brote incontrolable de Inestabilidad emocional. El Velo se ríe de tu intento.",
             next_on_correct: "corrupto_03",
             retry_on_incorrect: true
         },
         {
             id: "corrupto_03",
             type: "text_only",
-            text: "Una ola de poder recorre tu ser. Los fragmentos del Velo te reconocen. Ahora eres parte de su caos y su fuerza.",
+            text: "--- CORRUPTO: EL ABRAZO DEL CAOS ---\n\n" +
+                  "Una ola de poder crudo, disonante y abrumadora, recorre tu ser. Los fragmentos del Velo te reconocen no como un intruso, sino como una extensión. Ahora eres parte de su caos y su fuerza, una herramienta, o quizás un maestro del desorden.\n\n" +
+                  "LYSSA: 'Tu presencia ha alterado los protocolos de D-47 de una manera imprevista. El siguiente sector, el Módulo de Contención de Entidades, está respondiendo a tu resonancia. No sé si para sellarte o para liberarte. Tu 'don' es tanto una amenaza como una ventaja.'\n\n" +
+                  "Sientes el pull de las entidades que habitan El Velo. Tu propia forma parece fluctuar al borde de la disolución y la redefinición.",
             next: "wait_for_key"
         }
         // MARKER: Añadir más nodos del Corrupto aquí
