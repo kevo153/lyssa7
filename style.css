@@ -24,8 +24,9 @@ body {
     pointer-events: none; /* Permite que los clics pasen a través del video */
 }
 
-#video-background-container iframe {
-    position: absolute; /* Posiciona el iframe dentro de su contenedor fijo */
+/* Actualizado: Ahora apunta a la etiqueta <video> */
+#video-background-container video {
+    position: absolute; /* Posiciona el video dentro de su contenedor fijo */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* Centra el video */
@@ -88,7 +89,6 @@ body {
     padding-top: 10px; /* Padding para el borde superior */
 }
 
-/* Aquí he cambiado '#terminal-prompt' a '.prompt' para que coincida con tu HTML actual */
 .prompt {
     color: #0F0;
     margin-right: 5px;
