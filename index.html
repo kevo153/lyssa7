@@ -7,19 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <audio id="audio-teclado" src="audio/teclado.mp3" preload="auto"></audio>
+    <audio id="audio-glitch" src="audio/glitch.mp3" preload="auto"></audio>
+    <audio id="audio-fondo" src="audio/fondo.mp3" preload="auto"></audio>
 
-    <div id="terminal-container">
-        <div id="terminal-output"></div>
-        
-        <div id="terminal-input-area">
-            <span id="terminal-prompt">></span>
-            <input type="text" id="terminal-input" autofocus>
-        </div>
+    <div id="video-background-container">
+        <iframe 
+            src="https://www.youtube.com/embed/cnWTeYEUQK0?si=smmjF_0hJhtemfx-&" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="autoplay; modestbranding;" 
+            allowfullscreen>
+        </iframe>
     </div>
-
-    <audio id="audio-teclado" src="sonidos/teclado.mp3" preload="auto"></audio>
-    <audio id="audio-glitch" src="sonidos/glitch.mp3" preload="auto"></audio>
-    <audio id="audio-fondo" src="sonidos/ambiente_terminal.mp3" preload="auto" loop></audio>
+    <div id="terminal-container">
+        </div>
 
     <script src="script.js"></script>
 </body>
