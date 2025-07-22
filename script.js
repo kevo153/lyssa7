@@ -211,9 +211,9 @@ var currentNodeIndex = 0; // Índice del nodo actual dentro del path
 
 // Contraseñas y sus rutas asociadas
 var passwords = {
-    "AURORA": "pathA",    // Para el Programador
-    "VAGABUNDO": "pathB", // Para el Viajero
-    "VACIO": "pathC"      // Para el Corrupto
+    "M205": "pathA",    // Para el Programador
+    "PADEL": "pathB", // Para el Viajero
+    "PIFIA": "pathC"      // Para el Corrupto
 };
 
 /* MARKER: Definición de los Nodos para cada Path */
