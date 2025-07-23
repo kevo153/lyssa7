@@ -63,7 +63,7 @@ body {
     width: 100vw;
     height: 100vh;
     object-fit: cover;
-    filter: brightness(0.5) contrast(1.2) blur(2px);
+    filter: brightness(0.5) contrast(1.2) blur(0px);
 }
 
 /* Estilos del Contenedor de la Terminal */

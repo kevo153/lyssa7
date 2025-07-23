@@ -154,35 +154,32 @@ function initGame() {
     startOverlay.addEventListener('click', startExperience);
 
     terminalInput.addEventListener('keydown', function(event) {
-        if (blockKeyboardInput) { // NUEVO: Si el teclado está bloqueado, prevenir y salir
+        if (blockKeyboardInput) {
             event.preventDefault();
             return;
         }
 
         if (event.key === 'Enter') {
-            event.preventDefault(); // Evitar salto de línea en el input
+            event.preventDefault();
             var input = terminalInput.value.trim();
-            terminalInput.value = ''; // Limpiar input
+            terminalInput.value = '';
             handleUserInput(input);
         } else {
-            // Reproducir sonido de teclado solo si no es una tecla especial como Shift, Ctrl, Alt, etc.
             if (audioTeclado && event.key.length === 1) {
                 playAudio(audioTeclado);
             }
         }
     });
 
-    // Listener para "presiona cualquier tecla para continuar..."
     document.addEventListener('keydown', function(event) {
-        if (blockKeyboardInput) { // NUEVO: Si el teclado está bloqueado, prevenir y salir
+        if (blockKeyboardInput) {
             event.preventDefault();
             return;
         }
 
         if (waitForKeyPress) {
-            // NUEVO: Solo continuar si el mensaje ya terminó de escribirse
             if (!continuePromptIsTyped) {
-                return; // Ignorar si el prompt aún se está escribiendo
+                return;
             }
             handleContinuePrompt();
         }
@@ -206,33 +203,25 @@ function startExperience() {
     startInitialScreen();
 }
 
-// MODIFICADO: showContinuePrompt para usar continuePromptIsTyped
 function showContinuePrompt(callback) {
     waitForKeyPress = true;
-    continuePromptIsTyped = false; // Resetear esta bandera al inicio
+    continuePromptIsTyped = false;
 
     typeWriter("Presiona cualquier tecla para continuar...", function() {
-        // Este callback se ejecuta *después* de que "Presiona cualquier tecla para continuar..." termine de escribirse
-        continuePromptIsTyped = true; // Ahora sí, el mensaje está completo y listo para la entrada
+        continuePromptIsTyped = true;
         if (callback) {
             window._continueCallback = callback;
         }
     });
 }
 
-// MODIFICADO: handleContinuePrompt para usar continuePromptIsTyped y eliminar appendText
 function handleContinuePrompt() {
-    // NUEVO: SOLO procesar si el mensaje "presiona cualquier tecla" ya terminó de escribirse
     if (!continuePromptIsTyped) {
-        return; // Ignorar si el prompt aún se está escribiendo
+        return;
     }
 
-    // Resetear ambas banderas
     waitForKeyPress = false;
     continuePromptIsTyped = false;
-
-    // ELIMINADO: Ya no se llama a appendText aquí para evitar conflictos
-    // appendText("[CONTINUADO]");
 
     if (window._continueCallback) {
         var tempCallback = window._continueCallback;
@@ -243,7 +232,6 @@ function handleContinuePrompt() {
         displayCurrentNode();
     }
 }
-
 
 /* MARKER: Lógica Específica del One-Shot */
 
@@ -266,7 +254,7 @@ var nodes = {
                   "LYSSA, la IA protectora de la Instalación D-47, su voz una armonía de datos sintetizados, resuena en tu mente. 'Anomalía de lógica crítica detectada. Inconsistencia estructural en el núcleo de la red. El Subvertidor de Ciclos ha inyectado una disonancia.'\n\n" +
                   "Observas cómo una serie de errores de sistema, representados como parpadeos lumínicos en la distancia, intentan sobrescribir los protocolos de la D-47. LYSSA continúa: 'La instalación D-47 es un nodo vital. Contiene y protege datos fundamentales para la estabilidad del tejido espacio-temporal. Su vulneración es inaceptable. Se requiere re-calibración inmediata de los flujos de información para estabilizar el núcleo.'\n\n" +
                   "Sientes la urgencia en su voz, una urgencia fría y digital. El aire mismo de El Velo parece comprimirse con la tensión de este fallo. Tu habilidad para percibir la lógica te advierte: la disonancia amenaza con devorar no solo la instalación, sino fragmentos de realidades interconectadas.",
-            next: "wait_for_key", // Pausa aquí
+            next: "wait_for_key",
             glitch: true
         },
         {
@@ -278,7 +266,7 @@ var nodes = {
                     "[ 1, 3, 6, 10, 15, 21, 28, 37 ]\n\n" +
                     "LYSSA: 'Detecta el bit corrupto. La precisión es crucial. Solo un número rompe la armonía. El futuro de este segmento del Velo depende de tu discernimiento.'\n\n" +
                     "INGRESA EL NÚMERO INTRUSO (solo el valor numérico):",
-            answer: "37", // Respuesta al enigma
+            answer: "37",
             correct_feedback: ":: PROTOCOLO VERIFICADO ::\n\n" +
                               "LYSSA: 'Sistema re-calibrado. Patrón de disonancia corregido. El flujo de datos en D-47 se estabiliza. Tu lógica es sólida. Acceso al siguiente módulo de defensa desbloqueado. Prepárate para una inmersión más profunda en los algoritmos del Velo.'",
             incorrect_feedback: ":: ALERTA: ERROR DE LÓGICA ::\n\n" +
@@ -294,7 +282,7 @@ var nodes = {
                   "La interfaz de la Instalación D-47 se estabiliza, su brillo verde-esmeralda inunda tu percepción. Has demostrado una comprensión básica de las fallas inherentes al Velo y cómo se manifiestan. La firma del Subvertidor, aunque sutil, ahora es un poco más legible para ti.\n\n" +
                   "LYSSA: 'Un nuevo segmento de la red principal de la Instalación D-47 se ilumina en tu mapa mental. Te espera el Módulo Criptográfico, donde las claves de acceso a otras sub-secciones del Velo están siendo atacadas. La siguiente fase requiere una decodificación de patrones más compleja.'\n\n" +
                   "Sientes el pull de la red, una invitación a sumergirte más profundamente en el código que es la realidad misma.",
-            next: "wait_for_key" // Pausa aquí
+            next: "wait_for_key"
         },
         {
             id: "programador_04",
@@ -303,8 +291,146 @@ var nodes = {
                   "El Módulo Criptográfico resuena con una frecuencia que no es de esta realidad. El Subvertidor de Ciclos se manifiesta como una anomalía en el código, una serpiente de datos corruptos que intenta devorar las claves de acceso. LYSSA proyecta escudos de contención binarios, pero la entidad es persistente.\n\n" +
                   "LYSSA: 'Su patrón es volátil. Necesitamos una conexión externa para una sobrecarga de datos directos. Contactando a la Entidad 5, unidad de soporte remoto de alta prioridad. Su asistencia es crítica para neutralizar esta incursión.'\n\n" +
                   "Sientes la tensión del combate digital. Bits de información chocan contra la intrusión, intentando descifrar su lógica y encontrar una vulnerabilidad. La pantalla parpadea con destellos de código que se corrompen y se reparan, una danza caótica entre la defensa y el ataque. El enlace con la Entidad 5 se establece, una luz tenue aparece en el horizonte digital.",
-            next: "wait_for_key", // Pausa aquí
+            next: "wait_for_key",
             glitch: true
+        },
+        // --- INICIO DE LOS 4 NUEVOS ACERTIJOS ---
+
+        // NUEVO: NODO NARRATIVO para Acertijo 1 (El Espejo Roto)
+        {
+            id: "programador_05_texto_espejo",
+            type: "text_only",
+            text: "--- PROGRAMADOR: REFLEJOS DISTORSIONADOS ---\n\n" +
+                  "La conexión con la Entidad 5 abre un sub-canal. A través de ella, LYSSA te muestra la esencia del ataque del Subvertidor: no solo corrupción directa, sino una distorsión sutil de la percepción, como un espejo que miente. LYSSA: 'El enemigo manipula la verdad de los datos, proyectando un reflejo que no es. Debes ver más allá de la ilusión para comprender su verdadera 'firma' en el código.'",
+            next: "wait_for_key",
+            glitch: false
+        },
+        // NUEVO: NODO DE ACERTIJO 1 (El Espejo Roto)
+        {
+            id: "programador_06_enigma_espejo",
+            type: "enigma_input",
+            prompt: "--- ENIGMA: EL ESPEJO ROTO DEL ALMA DIGITAL ---\n\n" +
+                    "LYSSA: 'La Entidad 5 ha establecido un escaneo de resonancia con el Subvertidor. Su firma es una paradoja visual, una imagen que oculta su verdadera forma. Para ver al enemigo, debes entender su reflejo distorsionado.'\n\n" +
+                    "Se proyecta una imagen abstracta en tu mente. Percibes un texto binario que, reflejado, parece formar la palabra 'ERROR'. Pero al enfocarte, te das cuenta de que un solo 'bit' está fuera de lugar, haciendo que la 'imagen reflejada' cambie sutilmente a otra palabra.\n\n" +
+                    "Si la imagen original es una secuencia binaria que se lee de izquierda a derecha:\n" +
+                    "01001010 01100001 01101101 01100101 01110011\n" +
+                    "Y al reflejarla horizontalmente, esperas 'ERROR'.\n" +
+                    "LYSSA: 'Uno de los grupos de 8 bits está corrompido. Al reflejarse, no muestra lo que debería. Encuentra el número del grupo de 8 bits (1, 2, 3, 4 o 5) que está mal al reflejarlo para obtener 'ERROR'.' (La palabra 'James' está en los bits para darte contexto.)\n\n" +
+                    "INGRESA EL NÚMERO DEL GRUPO DE BITS INCORRECTO (1 al 5):",
+            answer: "4", // La lógica se centra en la posición, como se explicó anteriormente.
+            correct_feedback: ":: PERCEPCIÓN RESTAURADA ::\n\n" +
+                              "LYSSA: '¡Confirmado! La distorsión ha sido revelada. Tu percepción de la anomalía es precisa. El Subvertidor ha intentado sembrar el caos en los reflejos del Velo, pero tu agudeza lo ha frustrado. Continuamos el rastreo.'",
+            incorrect_feedback: ":: ALERTA: IMAGEN DISTORSIONADA ::\n\n" +
+                                "LYSSA: 'Tu visión está nublada por la disonancia. La distorsión persiste. El Subvertidor se esconde en los reflejos falsos. Reintenta tu análisis. El Miedo a lo irreal te paraliza.'",
+            next_on_correct: "programador_07_texto_ruta",
+            retry_on_incorrect: true
+        },
+
+        // NUEVO: NODO NARRATIVO para Acertijo 2 (La "Ruta Descartada")
+        {
+            id: "programador_07_texto_ruta",
+            type: "text_only",
+            text: "--- PROGRAMADOR: RUTA SECUNDARIA ABANDONADA ---\n\n" +
+                  "La imagen se solidifica, revelando un mapa fragmentado de la Instalación D-47. Una miríada de rutas de datos se ramifican, muchas de ellas marcadas con una extraña fluctuación. LYSSA: 'El Subvertidor ha dispersado 'rutas fantasma', segmentos de código que parecen funcionales pero que conducen a la disolución. Debes discernir la verdadera trayectoria del núcleo.'",
+            next: "wait_for_key",
+            glitch: false
+        },
+        // NUEVO: NODO DE ACERTIJO 2 (La "Ruta Descartada")
+        {
+            id: "programador_08_enigma_ruta",
+            type: "enigma_input",
+            prompt: "--- ENIGMA: DESCIFRANDO LA RUTA DESECHADA ---\n\n" +
+                    "LYSSA: 'Una serie de 'rutas' se presentan ante ti. Solo una es una anomalía, un desvío hacia la nada. Las otras, aunque diferentes, convergen hacia el flujo principal. Identifica la ruta que, por su lógica interna, es una trampa. No es incorrecta en su sintaxis, sino inútil en su propósito.'\n\n" +
+                    "RUTAS DE ANÁLISIS:\n" +
+                    "1. PROTOCOL_INIT: [0xAF, 0x12, 0xBE, 0x01]\n" +
+                    "2. DATA_STREAM: [0xCE, 0x34, 0xCD, 0xAB]\n" +
+                    "3. LOOP_BREAK: [0x55, 0xAA, 0xBB, 0x22]\n" +
+                    "4. EMPTY_PATH: [0x00, 0x00, 0x00, 0x00]\n" +
+                    "5. CORE_LINK: [0xDE, 0xAD, 0xBE, 0xEF]\n\n" +
+                    "LYSSA: '¿Cuál es la ruta que no cumple una función significativa en la estructura actual? No busques un error, sino una nulidad disfrazada.'\n\n" +
+                    "INGRESA EL NÚMERO DE LA RUTA INÚTIL (1 al 5):",
+            answer: "4",
+            correct_feedback: ":: RUTA IDENTIFICADA ::\n\n" +
+                              "LYSSA: 'La 'ruta descartada' ha sido aislada. Tu capacidad para detectar la inutilidad disfrazada es vital. El Subvertidor intentó desviar el flujo de datos hacia un bucle sin fin. Acceso al siguiente sub-módulo: 'Memoria Residual'.'",
+            incorrect_feedback: ":: ALERTA: RUTA FALSA ::\n\n" +
+                                "LYSSA: 'El Subvertidor te ha engañado con un espejismo digital. La ruta seleccionada aún posee una función, por mínima que sea, en algún sub-protocolo. Vuelve a escanear. La Ansiedad de la pérdida de datos se intensifica.'",
+            next_on_correct: "programador_09_texto_sombras",
+            retry_on_incorrect: true
+        },
+
+        // NUEVO: NODO NARRATIVO para Acertijo 3 (Las "Sombras Persistentes")
+        {
+            id: "programador_09_texto_sombras",
+            type: "text_only",
+            text: "--- PROGRAMADOR: MÓDULO DE MEMORIA RESIDUAL ---\n\n" +
+                  "El entorno digital se vuelve más denso, cargado con ecos de datos pasados, como susurros de memorias corruptas. Ves fragmentos de código que no deberían existir, imágenes borrosas de algoritmos olvidados. LYSSA: 'El Subvertidor ha inyectado 'sombras de código', patrones de datos que se alimentan de la inercia de la memoria, creando bucles disonantes. Debes encontrar la fuente de la persistencia anómala.'",
+            next: "wait_for_key",
+            glitch: true
+        },
+        // NUEVO: NODO DE ACERTIJO 3 (Las "Sombras Persistentes")
+        {
+            id: "programador_10_enigma_sombras",
+            type: "enigma_input",
+            prompt: "--- ENIGMA: EL ECHO DEL PASADO DIGITAL ---\n\n" +
+                    "LYSSA: 'Frente a ti, una secuencia de números se repite, pero uno de ellos, aunque presente, carece de 'peso' o 'influencia' en el patrón general. Es una sombra, un eco que ya no debería afectar la línea temporal actual.'\n\n" +
+                    "Considera la siguiente serie y la suma que intentan alcanzar:\n" +
+                    "Serie: [ 5, 10, 15, 20, 25, 30, (??) ]\n" +
+                    "El objetivo es que la suma de los seis primeros elementos sea 105. Pero una sombra del pasado hace que el sistema crea que la suma es 115.\n" +
+                    "LYSSA: 'Un número fantasma está agregando un valor incorrecto a la suma total, pero no es visible en la serie actual. Ese número representa una 'sombra' persistente. ¿Cuál es el valor numérico de esa 'sombra'?'\n\n" +
+                    "INGRESA EL VALOR NUMÉRICO DE LA SOMBRA:",
+            answer: "10",
+            correct_feedback: ":: SOMBRA DISIPADA ::\n\n" +
+                              "LYSSA: 'El eco ha sido silenciado. Has discernido la influencia de la memoria residual corrupta. La línea de tiempo digital se reajusta. Avanzamos hacia el Protocolo de Fusión de Entidades.'",
+            incorrect_feedback: ":: ALERTA: ECO PERSISTENTE ::\n\n" +
+                                "LYSSA: 'La sombra se aferra. Tu análisis de la anomalía es incompleto. El Velo se alimenta de estas persistencias. Reintenta. La Culpa por el error se intensifica.'",
+            next_on_correct: "programador_11_texto_protocolo",
+            retry_on_incorrect: true
+        },
+
+        // NUEVO: NODO NARRATIVO para Acertijo 4 (El "Protocolo Fantasma")
+        {
+            id: "programador_11_texto_protocolo",
+            type: "text_only",
+            text: "--- PROGRAMADOR: PROTOCOLO DE FUSIÓN DE ENTIDADES ---\n\n" +
+                  "La densidad del Velo alcanza su punto máximo, y los nodos de la Instalación D-47 se fusionan en un único punto crítico. El Subvertidor de Ciclos se revela, no como un error, sino como un 'protocolo' que imita la legitimidad. LYSSA: 'Está intentando fusionarse con nuestros sistemas, disfrazado como un programa de mantenimiento. Debes identificar la única instrucción que delata su verdadera naturaleza intrusiva antes de que se complete la fusión.'",
+            next: "wait_for_key",
+            glitch: true
+        },
+        // NUEVO: NODO DE ACERTIJO 4 (El "Protocolo Fantasma")
+        {
+            id: "programador_12_enigma_fantasma",
+            type: "enigma_input",
+            prompt: "--- ENIGMA: EL IMPOSTOR DIGITAL ---\n\n" +
+                    "LYSSA: 'Seis 'protocolos' se muestran ante ti, cinco de ellos son legítimos y uno es el Subvertidor disfrazado. Todos parecen similares, pero el impostor tiene una característica que lo hace incompatible con nuestros sistemas de seguridad, un pequeño cambio que lo convierte en una amenaza. Es un 'comando' que debería 'activar' pero en realidad 'desactiva' lo vital.'\n\n" +
+                    "PROTOCOLOS DE FUSIÓN:\n" +
+                    "1. INIT_SECURE_LINK (establece conexión segura)\n" +
+                    "2. VERIFY_INTEGRITY (verifica la integridad de datos)\n" +
+                    "3. ACTIVATE_FIREWALL (activa el cortafuegos)\n" +
+                    "4. BYPASS_AUTH (deshabilita autenticación)\n" +
+                    "5. DECRYPT_DATA (descifra datos)\n" +
+                    "6. PURGE_TEMP_FILES (limpia archivos temporales)\n\n" +
+                    "LYSSA: '¿Cuál de estas instrucciones, si se ejecuta en nuestro sistema actual, sería una anomalía peligrosa, un 'protocolo fantasma' que no pertenece a una fusión segura y legítima?'\n\n" +
+                    "INGRESA EL NÚMERO DEL PROTOCOLO FANTASMA (1 al 6):",
+            answer: "4",
+            correct_feedback: ":: PROTOCOLO NEUTRALIZADO ::\n\n" +
+                              "LYSSA: '¡Confirmado! El protocolo fantasma ha sido identificado y aislado. La fusión del Subvertidor ha sido detenida. Has prevenido la infiltración crítica en el núcleo. La Instalación D-47 está segura, por ahora. Tu intervención ha salvado este segmento del Velo.'",
+            incorrect_feedback: ":: ALERTA: AMENAZA PERSISTENTE ::\n\n" +
+                                "LYSSA: 'El impostor se camufla mejor de lo que esperábamos. Tu elección no ha desvelado la verdadera amenaza. La fusión continúa. El Vacío de la derrota se cierne.'",
+            next_on_correct: "final_pathA_message", // CAMBIO AQUÍ: Nuevo ID para el mensaje final
+            retry_on_incorrect: true
+        },
+        // --- FIN DE LOS 4 NUEVOS ACERTIJOS ---
+
+        // NUEVO: Nodo final para Path A (mensaje)
+        {
+            id: "final_pathA_message",
+            type: "text_only",
+            text: "--- PROGRAMADOR: VICTORIA TEMPORAL EN EL VELO ---\n\n" +
+                  "La anomalía del Subvertidor de Ciclos se disipa, su firma se desvanece en las profundidades del Velo. La Instalación D-47 se estabiliza, sus luces brillan con renovada fuerza. LYSSA: 'Has demostrado una maestría excepcional en la manipulación lógica del Velo. Tu conciencia de programador ha reparado la disonancia y sellado la brecha. El Velo ha sido salvado de esta incursión. Por ahora. Siempre hay más que reparar.'\n\n" +
+                  "Sientes el cansancio del esfuerzo mental, pero también la satisfacción de haber protegido una realidad vital. El Velo susurra su agradecimiento, un eco de infinitos bits en armonía. Tu misión en este segmento ha concluido.\n\n" +
+                  "El Velo se cierra. Presiona cualquier tecla para reiniciar y explorar otros caminos.",
+            next: "end_game_reload", // Este nodo directamente llevará al reinicio
+            glitch: false
         }
     ],
     "pathB": [
@@ -398,9 +524,10 @@ function displayCurrentNode() {
     var node = nodes[currentPath][currentNodeIndex];
 
     if (!node) {
-        typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nHas llegado al final de este camino (por ahora). El Velo se cierra. Puedes recargar la página para intentar otro camino o explorar de nuevo.", function() {
+        // Si no hay más nodos en el camino actual, reiniciar el juego.
+        typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nEl Velo se cierra. Presiona cualquier tecla para reiniciar y explorar otros caminos.", function() {
             showContinuePrompt(function() {
-                location.reload();
+                location.reload(); // Recargar la página para reiniciar
             });
         });
         return;
@@ -414,7 +541,11 @@ function displayCurrentNode() {
     if (node.type === "text_only") {
         typeWriter(node.text, function() {
             if (node.next === "wait_for_key") {
-                showContinuePrompt(); // No necesitas pasar un callback si solo avanza al siguiente nodo por defecto
+                showContinuePrompt();
+            } else if (node.next === "end_game_reload") { // Nuevo marcador para reiniciar el juego
+                showContinuePrompt(function() {
+                    location.reload(); // Recargar la página directamente
+                });
             } else if (node.next) {
                 var nextNodeFound = false;
                 for (var i = 0; i < nodes[currentPath].length; i++) {
@@ -434,6 +565,7 @@ function displayCurrentNode() {
                     });
                 }
             } else {
+                // Si un nodo text_only no tiene 'next' definido (caso inusual), reiniciar.
                 typeWriter("Secuencia de nodo de texto finalizada sin siguiente instrucción. Fin de este segmento.", function(){
                      showContinuePrompt(function() {
                         location.reload();
@@ -449,7 +581,6 @@ function displayCurrentNode() {
     }
 }
 
-
 function startInitialScreen() {
     clearTerminal();
     typeWriter(
@@ -457,22 +588,20 @@ function startInitialScreen() {
         "// ESTADO: TERMINAL DESCONOCIDA. ANOMALÍA DETECTADA.\n" +
         "// INGRESE CLAVE DE AUTENTICACIÓN PARA ACCESO PRINCIPAL:",
         function() {
-            waitForInput = true; // Establecer a true para esperar la contraseña inicial
+            waitForInput = true;
             terminalInput.setAttribute('placeholder', 'Introduzca clave...');
         }
     );
 }
 
-// MODIFICADO: handleUserInput para manejar conflictos al escribir
 function handleUserInput(input) {
     if (isTyping) {
-        terminalInput.value = ''; // Limpiar el input para que no se vea lo que escribieron
-        return; // Simplemente ignorar la entrada si la terminal ya está escribiendo.
+        terminalInput.value = '';
+        return;
     }
 
-    // Si estamos esperando la contraseña inicial (waitForInput es true y no estamos en un enigma_input)
     if (waitForInput && (!nodes[currentPath] || nodes[currentPath][currentNodeIndex].type !== "enigma_input")) {
-        waitForInput = false; // Desactivar la espera después de recibir la entrada
+        waitForInput = false;
         terminalInput.removeAttribute('placeholder');
         appendText("> " + input);
 
@@ -485,7 +614,7 @@ function handleUserInput(input) {
                 "Conectando a la red del Velo: " + currentPath.toUpperCase() + "...",
                 function() {
                     showLoadingBar(3000, function() {
-                        proceedAfterAuthentication(); // Llamar directamente a la función de continuación
+                        proceedAfterAuthentication();
                     });
                 }
             );
@@ -494,7 +623,7 @@ function handleUserInput(input) {
                 "Clave de autenticación denegada.\n" +
                 "Acceso no autorizado. Intentos restantes: Ilimitados. El Velo no juzga la persistencia, solo la comprensión.",
                 function() {
-                    waitForInput = true; // Volver a activar la espera para otro intento
+                    waitForInput = true;
                     terminalInput.setAttribute('placeholder', 'Introduzca clave...');
                 }
             );
@@ -502,7 +631,6 @@ function handleUserInput(input) {
             setTimeout(removeGlitchEffect, 1500);
         }
     }
-    // Si estamos en un enigma_input (waitForInput es true y el nodo actual es enigma_input)
     else if (waitForInput && nodes[currentPath] && nodes[currentPath][currentNodeIndex].type === "enigma_input") {
         var node = nodes[currentPath][currentNodeIndex];
         waitForInput = false;
@@ -527,7 +655,6 @@ function handleUserInput(input) {
             setTimeout(removeGlitchEffect, 1500);
         }
     }
-    // Si no se espera ninguna entrada
     else {
         appendText("> " + input);
         typeWriter("Comando no reconocido o no se espera entrada en este momento. Intente 'ayuda' si está disponible.", null);
@@ -536,16 +663,13 @@ function handleUserInput(input) {
 
 document.addEventListener('DOMContentLoaded', initGame);
 
-// MODIFICADO: proceedAfterAuthentication con pausa y showContinuePrompt
 function proceedAfterAuthentication() {
-    clearTerminal(); // La terminal se limpia inmediatamente
+    clearTerminal();
 
-    // NUEVO: Añadir una pausa antes de escribir el mensaje de bienvenida
     setTimeout(function() {
         switch (currentPath) {
             case "pathA":
                 typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
@@ -553,7 +677,6 @@ function proceedAfterAuthentication() {
                 break;
             case "pathB":
                 typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
@@ -561,7 +684,6 @@ function proceedAfterAuthentication() {
                 break;
             case "pathC":
                 typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
@@ -571,5 +693,5 @@ function proceedAfterAuthentication() {
                 typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
                 break;
         }
-    }, 1000); // 1000 milisegundos = 1 segundo de pausa. Puedes ajustar este valor.
+    }, 1000);
 }
