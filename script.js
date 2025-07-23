@@ -10,7 +10,7 @@ var videoBackground;
 var startOverlay;
 
 var currentOutputText = "";
-var textSpeed = 50; // Puedes ajustar la velocidad aquí (menor número = más rápido)
+var textSpeed = 20; // Puedes ajustar la velocidad aquí (menor número = más rápido)
 var isTyping = false; // Indica si *cualquier* secuencia de typeWriter está activa
 var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial o enigma)
 var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
