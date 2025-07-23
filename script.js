@@ -6,22 +6,20 @@ var terminalContainer;
 var audioTeclado;
 var audioGlitch;
 var audioFondo;
-var videoBackground; // NUEVO: Referencia al elemento de video
-var startOverlay;    // NUEVO: Referencia al overlay de inicio
+var videoBackground;
+var startOverlay;
 
-var currentOutputText = ""; // Almacena el texto actual que se muestra en la terminal
-var textSpeed = 50; // Velocidad de escritura (milisegundos por carácter)
-var isTyping = false; // Bandera para controlar si se está escribiendo texto
-var waitForInput = false; // Bandera para controlar si se espera la entrada del usuario
-var waitForKeyPress = false; // Bandera para controlar si se espera que el usuario presione una tecla
+var currentOutputText = "";
+var textSpeed = 50;
+var isTyping = false;
+var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial)
+var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
 
 /* MARKER: Audio Control */
 function playAudio(audioElement, loop) {
     if (audioElement) {
         audioElement.loop = loop || false;
         audioElement.play().catch(function(error) {
-            // Esto es normal si el usuario no ha interactuado aún con la página.
-            // Con el overlay de inicio, esta parte debería ejecutarse correctamente.
             console.error("Error al intentar reproducir audio:", error);
         });
     }
@@ -30,30 +28,29 @@ function playAudio(audioElement, loop) {
 function stopAudio(audioElement) {
     if (audioElement) {
         audioElement.pause();
-        audioElement.currentTime = 0; // Reiniciar al principio
+        audioElement.currentTime = 0;
     }
 }
 
 /* MARKER: Funciones de Utilidad de la Terminal */
 
-// Función para escribir texto letra por letra
 function typeWriter(text, callback) {
     isTyping = true;
-    terminalInputArea.style.display = 'none'; // Ocultar input mientras se escribe
+    terminalInputArea.style.display = 'none';
     var i = 0;
-    currentOutputText += "\n"; // Añadir salto de línea antes de nuevo texto
+    currentOutputText += "\n";
 
     function typeChar() {
         if (i < text.length) {
             currentOutputText += text.charAt(i);
             terminalOutput.innerText = currentOutputText;
-            terminalOutput.scrollTop = terminalOutput.scrollHeight; // Desplazar al final
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
             i++;
             setTimeout(typeChar, textSpeed);
         } else {
             isTyping = false;
-            terminalInputArea.style.display = 'flex'; // Mostrar input de nuevo
-            terminalInput.focus(); // Enfocar el input
+            terminalInputArea.style.display = 'flex';
+            terminalInput.focus();
             if (callback) {
                 callback();
             }
@@ -62,7 +59,6 @@ function typeWriter(text, callback) {
     typeChar();
 }
 
-// Función para añadir texto directamente (sin efecto de escritura)
 function appendText(text) {
     currentOutputText += "\n" + text;
     terminalOutput.innerText = currentOutputText;
@@ -70,7 +66,6 @@ function appendText(text) {
     terminalInput.focus();
 }
 
-// Función para limpiar la pantalla de la terminal
 function clearTerminal() {
     currentOutputText = "";
     terminalOutput.innerText = "";
@@ -81,7 +76,7 @@ function clearTerminal() {
 function applyGlitchEffect() {
     terminalContainer.classList.add('glitch');
     if (audioGlitch) {
-        audioGlitch.currentTime = 0; // Reinicia el audio cada vez
+        audioGlitch.currentTime = 0;
         playAudio(audioGlitch);
     }
 }
@@ -141,58 +136,68 @@ function showLoadingBar(durationMs, callback) {
 
 /* MARKER: Lógica del Juego - Inicio */
 
-// Función principal de inicialización
 function initGame() {
-    // Referencias a elementos DOM
     terminalOutput = document.getElementById('terminal-output');
     terminalInput = document.getElementById('terminal-input');
     terminalInputArea = document.getElementById('terminal-input-area');
-    terminalContainer = document.getElementById('terminal-container'); 
+    terminalContainer = document.getElementById('terminal-container');
 
-    // Referencias a elementos de audio y video
     audioTeclado = document.getElementById('audio-teclado');
     audioGlitch = document.getElementById('audio-glitch');
     audioFondo = document.getElementById('audio-fondo');
-    videoBackground = document.querySelector('#video-background-container video'); // NUEVO
-    startOverlay = document.getElementById('start-overlay'); // NUEVO
+    videoBackground = document.querySelector('#video-background-container video');
+    startOverlay = document.getElementById('start-overlay');
 
-    // NUEVO: Añadir event listener al overlay para iniciar la experiencia
     startOverlay.addEventListener('click', startExperience);
 
-    // Opcional: Mostrar terminal oculta al inicio si es necesario (no debería serlo si el overlay la cubre)
-    // terminalContainer.style.display = 'none'; 
+    // NUEVO: Añadir event listener para la entrada de la terminal
+    terminalInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evitar salto de línea en el input
+            var input = terminalInput.value.trim();
+            terminalInput.value = ''; // Limpiar input
+            handleUserInput(input);
+        } else {
+            // Reproducir sonido de teclado solo si no es una tecla especial como Shift, Ctrl, Alt, etc.
+            if (audioTeclado && event.key.length === 1) { // Solo para caracteres individuales
+                playAudio(audioTeclado);
+            }
+        }
+    });
+
+    // NUEVO: Listener para "presiona cualquier tecla para continuar..."
+    document.addEventListener('keydown', function(event) {
+        if (waitForKeyPress) {
+            waitForKeyPress = false;
+            event.preventDefault(); // Evita que la tecla presionada se escriba en el input
+            handleContinuePrompt();
+        }
+    });
+
 }
 
-// NUEVO: Función para iniciar la experiencia completa (audio y video) después del primer click
 function startExperience() {
-    // Ocultar el overlay con una transición
     startOverlay.style.opacity = '0';
     setTimeout(function() {
         startOverlay.style.display = 'none';
-        startOverlay.removeEventListener('click', startExperience); // Eliminar listener
-    }, 1000); // Coincide con la duración de la transición CSS
+        startOverlay.removeEventListener('click', startExperience);
+    }, 1000);
 
-    // Reproducir audio y video de fondo
     playAudio(audioFondo, true);
     if (videoBackground) {
         videoBackground.play().catch(function(error) {
             console.error("Error al intentar reproducir video:", error);
-            // Esto puede ocurrir si el navegador es extremadamente estricto
-            // Aunque 'muted' y 'playsinline' ayudan mucho
         });
     }
 
-    // Iniciar la pantalla inicial de la terminal una vez los medios están en marcha
     startInitialScreen();
 }
 
-
-// Función para manejar el prompt de "presionar cualquier tecla para continuar"
 function showContinuePrompt(callback) {
     waitForKeyPress = true;
     typeWriter("Presiona cualquier tecla para continuar...", function() {
         if (callback) {
-            window._continueCallback = callback; 
+            window._continueCallback = callback;
         }
     });
 }
@@ -220,8 +225,6 @@ var passwords = {
     "PADEL": "pathB",
     "PIFIA": "pathC"
 };
-
-/* MARKER: Definición de los Nodos para cada Path */
 
 var nodes = {
     "pathA": [ // Nodos para el camino del Programador
@@ -381,8 +384,7 @@ function displayCurrentNode() {
     if (node.type === "text_only") {
         typeWriter(node.text, function() {
             if (node.next === "wait_for_key") {
-                showContinuePrompt(function() {
-                });
+                showContinuePrompt(); // No necesitas pasar un callback si solo avanza al siguiente nodo por defecto
             } else if (node.next) {
                 var nextNodeFound = false;
                 for (var i = 0; i < nodes[currentPath].length; i++) {
@@ -397,7 +399,7 @@ function displayCurrentNode() {
                 } else {
                     typeWriter("ERROR: Nodo siguiente '" + node.next + "' no encontrado. Terminando secuencia.", function() {
                         showContinuePrompt(function() {
-                             location.reload(); 
+                             location.reload();
                         });
                     });
                 }
@@ -425,7 +427,7 @@ function startInitialScreen() {
         "// ESTADO: TERMINAL DESCONOCIDA. ANOMALÍA DETECTADA.\n" +
         "// INGRESE CLAVE DE AUTENTICACIÓN PARA ACCESO PRINCIPAL:",
         function() {
-            waitForInput = true;
+            waitForInput = true; // Establecer a true para esperar la contraseña inicial
             terminalInput.setAttribute('placeholder', 'Introduzca clave...');
         }
     );
@@ -437,37 +439,13 @@ function handleUserInput(input) {
         return;
     }
 
-    var node = nodes[currentPath] ? nodes[currentPath][currentNodeIndex] : null;
-
-    if (waitForInput && node && node.type === "enigma_input") {
-        waitForInput = false; 
+    // Si estamos esperando la contraseña inicial (waitForInput es true y no estamos en un enigma_input)
+    if (waitForInput && (!nodes[currentPath] || nodes[currentPath][currentNodeIndex].type !== "enigma_input")) {
+        waitForInput = false; // Desactivar la espera después de recibir la entrada
         terminalInput.removeAttribute('placeholder');
-        appendText("> " + input); 
+        appendText("> " + input);
 
-        if (input.toUpperCase() === node.answer.toUpperCase()) {
-            typeWriter(node.correct_feedback, function() {
-                currentNodeIndex++; 
-                displayCurrentNode();
-            });
-        } else {
-            typeWriter(node.incorrect_feedback, function() {
-                if (node.retry_on_incorrect) {
-                    waitForInput = true; 
-                    terminalInput.setAttribute('placeholder', 'Tu respuesta...');
-                } else {
-                    typeWriter("Secuencia interrumpida por fallo crítico. Reiniciando el Velo...", startInitialScreen);
-                }
-            });
-            applyGlitchEffect();
-            setTimeout(removeGlitchEffect, 1500);
-        }
-    } 
-    else if (waitForInput) { 
-        waitForInput = false;
-        terminalInput.removeAttribute('placeholder');
-        appendText("> " + input); 
-
-        var matchedPath = passwords[input.toUpperCase()]; 
+        var matchedPath = passwords[input.toUpperCase()];
 
         if (matchedPath) {
             currentPath = matchedPath;
@@ -475,9 +453,9 @@ function handleUserInput(input) {
                 "Clave de autenticación aceptada.\n" +
                 "Conectando a la red del Velo: " + currentPath.toUpperCase() + "...",
                 function() {
-                    showLoadingBar(3000, function() { 
+                    showLoadingBar(3000, function() {
                         typeWriter("Conexión establecida. Iniciando secuencia de nodos...", function() {
-                            showContinuePrompt(proceedAfterAuthentication); 
+                            proceedAfterAuthentication(); // Llamar directamente a la función de continuación
                         });
                     });
                 }
@@ -487,14 +465,41 @@ function handleUserInput(input) {
                 "Clave de autenticación denegada.\n" +
                 "Acceso no autorizado. Intentos restantes: Ilimitados. El Velo no juzga la persistencia, solo la comprensión.",
                 function() {
-                    waitForInput = true; 
+                    waitForInput = true; // Volver a activar la espera para otro intento
                     terminalInput.setAttribute('placeholder', 'Introduzca clave...');
                 }
             );
             setTimeout(applyGlitchEffect, 500);
             setTimeout(removeGlitchEffect, 1500);
         }
-    } else {
+    }
+    // Si estamos en un enigma_input (waitForInput es true y el nodo actual es enigma_input)
+    else if (waitForInput && nodes[currentPath] && nodes[currentPath][currentNodeIndex].type === "enigma_input") {
+        var node = nodes[currentPath][currentNodeIndex];
+        waitForInput = false;
+        terminalInput.removeAttribute('placeholder');
+        appendText("> " + input);
+
+        if (input.toUpperCase() === node.answer.toUpperCase()) {
+            typeWriter(node.correct_feedback, function() {
+                currentNodeIndex++;
+                displayCurrentNode();
+            });
+        } else {
+            typeWriter(node.incorrect_feedback, function() {
+                if (node.retry_on_incorrect) {
+                    waitForInput = true;
+                    terminalInput.setAttribute('placeholder', 'Tu respuesta...');
+                } else {
+                    typeWriter("Secuencia interrumpida por fallo crítico. Reiniciando el Velo...", startInitialScreen);
+                }
+            });
+            applyGlitchEffect();
+            setTimeout(removeGlitchEffect, 1500);
+        }
+    }
+    // Si no se espera ninguna entrada
+    else {
         appendText("> " + input);
         typeWriter("Comando no reconocido o no se espera entrada en este momento. Intente 'ayuda' si está disponible.", null);
     }
@@ -507,17 +512,17 @@ function proceedAfterAuthentication() {
     switch (currentPath) {
         case "pathA":
             typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                startNodeSequence(currentPath); 
+                startNodeSequence(currentPath);
             });
             break;
         case "pathB":
             typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                startNodeSequence(currentPath); 
+                startNodeSequence(currentPath);
             });
             break;
         case "pathC":
             typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                startNodeSequence(currentPath); 
+                startNodeSequence(currentPath);
             });
             break;
         default:
