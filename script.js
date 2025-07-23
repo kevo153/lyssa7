@@ -10,10 +10,12 @@ var videoBackground;
 var startOverlay;
 
 var currentOutputText = "";
-var textSpeed = 35;
-var isTyping = false;
-var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial)
+var textSpeed = 50; // Puedes ajustar la velocidad aquí (menor número = más rápido)
+var isTyping = false; // Indica si *cualquier* secuencia de typeWriter está activa
+var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial o enigma)
 var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
+var continuePromptIsTyped = false; // NUEVO: Para saber si el mensaje "presiona cualquier tecla para continuar" ya terminó de escribirse
+var blockKeyboardInput = false; // NUEVO: Bandera global para bloquear toda la entrada de teclado durante la escritura
 
 /* MARKER: Audio Control */
 function playAudio(audioElement, loop) {
@@ -36,7 +38,8 @@ function stopAudio(audioElement) {
 
 function typeWriter(text, callback) {
     isTyping = true;
-    terminalInputArea.style.display = 'none';
+    blockKeyboardInput = true; // NUEVO: Bloquear entrada al iniciar escritura
+    terminalInputArea.style.display = 'none'; // Ocultar el área de entrada mientras se escribe
     var i = 0;
     currentOutputText += "\n";
 
@@ -49,7 +52,8 @@ function typeWriter(text, callback) {
             setTimeout(typeChar, textSpeed);
         } else {
             isTyping = false;
-            terminalInputArea.style.display = 'flex';
+            blockKeyboardInput = false; // NUEVO: Permitir entrada al finalizar escritura
+            terminalInputArea.style.display = 'flex'; // Mostrar el área de entrada
             terminalInput.focus();
             if (callback) {
                 callback();
@@ -133,7 +137,6 @@ function showLoadingBar(durationMs, callback) {
     }, 50);
 }
 
-
 /* MARKER: Lógica del Juego - Inicio */
 
 function initGame() {
@@ -150,8 +153,12 @@ function initGame() {
 
     startOverlay.addEventListener('click', startExperience);
 
-    // NUEVO: Añadir event listener para la entrada de la terminal
     terminalInput.addEventListener('keydown', function(event) {
+        if (blockKeyboardInput) { // NUEVO: Si el teclado está bloqueado, prevenir y salir
+            event.preventDefault();
+            return;
+        }
+
         if (event.key === 'Enter') {
             event.preventDefault(); // Evitar salto de línea en el input
             var input = terminalInput.value.trim();
@@ -159,21 +166,27 @@ function initGame() {
             handleUserInput(input);
         } else {
             // Reproducir sonido de teclado solo si no es una tecla especial como Shift, Ctrl, Alt, etc.
-            if (audioTeclado && event.key.length === 1) { // Solo para caracteres individuales
+            if (audioTeclado && event.key.length === 1) {
                 playAudio(audioTeclado);
             }
         }
     });
 
-    // NUEVO: Listener para "presiona cualquier tecla para continuar..."
+    // Listener para "presiona cualquier tecla para continuar..."
     document.addEventListener('keydown', function(event) {
+        if (blockKeyboardInput) { // NUEVO: Si el teclado está bloqueado, prevenir y salir
+            event.preventDefault();
+            return;
+        }
+
         if (waitForKeyPress) {
-            waitForKeyPress = false;
-            event.preventDefault(); // Evita que la tecla presionada se escriba en el input
+            // NUEVO: Solo continuar si el mensaje ya terminó de escribirse
+            if (!continuePromptIsTyped) {
+                return; // Ignorar si el prompt aún se está escribiendo
+            }
             handleContinuePrompt();
         }
     });
-
 }
 
 function startExperience() {
@@ -193,17 +206,34 @@ function startExperience() {
     startInitialScreen();
 }
 
+// MODIFICADO: showContinuePrompt para usar continuePromptIsTyped
 function showContinuePrompt(callback) {
     waitForKeyPress = true;
+    continuePromptIsTyped = false; // Resetear esta bandera al inicio
+
     typeWriter("Presiona cualquier tecla para continuar...", function() {
+        // Este callback se ejecuta *después* de que "Presiona cualquier tecla para continuar..." termine de escribirse
+        continuePromptIsTyped = true; // Ahora sí, el mensaje está completo y listo para la entrada
         if (callback) {
             window._continueCallback = callback;
         }
     });
 }
 
+// MODIFICADO: handleContinuePrompt para usar continuePromptIsTyped y eliminar appendText
 function handleContinuePrompt() {
-    appendText("[CONTINUADO]");
+    // NUEVO: SOLO procesar si el mensaje "presiona cualquier tecla" ya terminó de escribirse
+    if (!continuePromptIsTyped) {
+        return; // Ignorar si el prompt aún se está escribiendo
+    }
+
+    // Resetear ambas banderas
+    waitForKeyPress = false;
+    continuePromptIsTyped = false;
+
+    // ELIMINADO: Ya no se llama a appendText aquí para evitar conflictos
+    // appendText("[CONTINUADO]");
+
     if (window._continueCallback) {
         var tempCallback = window._continueCallback;
         window._continueCallback = null;
@@ -227,7 +257,7 @@ var passwords = {
 };
 
 var nodes = {
-    "pathA": [ // Nodos para el camino del Programador
+    "pathA": [ // Nodos para el camino del Programador - Textos corregidos y con pausas
         {
             id: "programador_01",
             type: "text_only",
@@ -433,10 +463,11 @@ function startInitialScreen() {
     );
 }
 
+// MODIFICADO: handleUserInput para manejar conflictos al escribir
 function handleUserInput(input) {
     if (isTyping) {
-        appendText("Por favor, espere a que el texto termine de cargarse.");
-        return;
+        terminalInput.value = ''; // Limpiar el input para que no se vea lo que escribieron
+        return; // Simplemente ignorar la entrada si la terminal ya está escribiendo.
     }
 
     // Si estamos esperando la contraseña inicial (waitForInput es true y no estamos en un enigma_input)
@@ -454,9 +485,7 @@ function handleUserInput(input) {
                 "Conectando a la red del Velo: " + currentPath.toUpperCase() + "...",
                 function() {
                     showLoadingBar(3000, function() {
-                        typeWriter("Conexión establecida. Iniciando secuencia de nodos...", function() {
-                            proceedAfterAuthentication(); // Llamar directamente a la función de continuación
-                        });
+                        proceedAfterAuthentication(); // Llamar directamente a la función de continuación
                     });
                 }
             );
@@ -507,30 +536,32 @@ function handleUserInput(input) {
 
 document.addEventListener('DOMContentLoaded', initGame);
 
+// MODIFICADO: proceedAfterAuthentication con pausa y showContinuePrompt
 function proceedAfterAuthentication() {
-    clearTerminal();
+    clearTerminal(); // La terminal se limpia inmediatamente
 
+    // NUEVO: Añadir una pausa antes de escribir el mensaje de bienvenida
     setTimeout(function() {
         switch (currentPath) {
             case "pathA":
-                typeWriter("Bienvenido, Entidad_05. Terminal de control remoto... Iniciando...", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa
+                typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
                 });
                 break;
             case "pathB":
-                typeWriter("Bienvenido, Ingeniero_02. Los caminos dimensionales te aguardan.", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa
+                typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
                 });
                 break;
             case "pathC":
-                typeWriter("Bienvenido, Ingeniero_01. La disonancia te ha elegido. El caos te llama.", function() {
-                    // NUEVO: Añadir showContinuePrompt para pausa
+                typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa después del mensaje de bienvenida
                     showContinuePrompt(function() {
                         startNodeSequence(currentPath);
                     });
@@ -540,5 +571,5 @@ function proceedAfterAuthentication() {
                 typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
                 break;
         }
-    }, 1000);
+    }, 1000); // 1000 milisegundos = 1 segundo de pausa. Puedes ajustar este valor.
 }
