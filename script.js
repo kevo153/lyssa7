@@ -10,7 +10,7 @@ var videoBackground;
 var startOverlay;
 
 var currentOutputText = "";
-var textSpeed = 50;
+var textSpeed = 20;
 var isTyping = false;
 var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial)
 var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
@@ -508,25 +508,29 @@ function handleUserInput(input) {
 document.addEventListener('DOMContentLoaded', initGame);
 
 function proceedAfterAuthentication() {
-    clearTerminal();
-    switch (currentPath) {
-        case "pathA":
-            typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                startNodeSequence(currentPath);
-            });
-            break;
-        case "pathB":
-            typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                startNodeSequence(currentPath);
-            });
-            break;
-        case "pathC":
-            typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                startNodeSequence(currentPath);
-            });
-            break;
-        default:
-            typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
-            break;
-    }
+    clearTerminal(); // La terminal se limpia inmediatamente
+
+    // NUEVO: Añadir una pausa antes de escribir el mensaje de bienvenida
+    setTimeout(function() {
+        switch (currentPath) {
+            case "pathA":
+                typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
+                    startNodeSequence(currentPath);
+                });
+                break;
+            case "pathB":
+                typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
+                    startNodeSequence(currentPath);
+                });
+                break;
+            case "pathC":
+                typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
+                    startNodeSequence(currentPath);
+                });
+                break;
+            default:
+                typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
+                break;
+        }
+    }, 3000); // 1000 milisegundos = 1 segundo de pausa. Puedes ajustar este valor.
 }
