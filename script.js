@@ -10,7 +10,7 @@ var videoBackground;
 var startOverlay;
 
 var currentOutputText = "";
-var textSpeed = 20;
+var textSpeed = 35;
 var isTyping = false;
 var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial)
 var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
@@ -236,7 +236,7 @@ var nodes = {
                   "LYSSA, la IA protectora de la Instalación D-47, su voz una armonía de datos sintetizados, resuena en tu mente. 'Anomalía de lógica crítica detectada. Inconsistencia estructural en el núcleo de la red. El Subvertidor de Ciclos ha inyectado una disonancia.'\n\n" +
                   "Observas cómo una serie de errores de sistema, representados como parpadeos lumínicos en la distancia, intentan sobrescribir los protocolos de la D-47. LYSSA continúa: 'La instalación D-47 es un nodo vital. Contiene y protege datos fundamentales para la estabilidad del tejido espacio-temporal. Su vulneración es inaceptable. Se requiere re-calibración inmediata de los flujos de información para estabilizar el núcleo.'\n\n" +
                   "Sientes la urgencia en su voz, una urgencia fría y digital. El aire mismo de El Velo parece comprimirse con la tensión de este fallo. Tu habilidad para percibir la lógica te advierte: la disonancia amenaza con devorar no solo la instalación, sino fragmentos de realidades interconectadas.",
-            next: "wait_for_key",
+            next: "wait_for_key", // Pausa aquí
             glitch: true
         },
         {
@@ -248,7 +248,7 @@ var nodes = {
                     "[ 1, 3, 6, 10, 15, 21, 28, 37 ]\n\n" +
                     "LYSSA: 'Detecta el bit corrupto. La precisión es crucial. Solo un número rompe la armonía. El futuro de este segmento del Velo depende de tu discernimiento.'\n\n" +
                     "INGRESA EL NÚMERO INTRUSO (solo el valor numérico):",
-            answer: "37",
+            answer: "37", // Respuesta al enigma
             correct_feedback: ":: PROTOCOLO VERIFICADO ::\n\n" +
                               "LYSSA: 'Sistema re-calibrado. Patrón de disonancia corregido. El flujo de datos en D-47 se estabiliza. Tu lógica es sólida. Acceso al siguiente módulo de defensa desbloqueado. Prepárate para una inmersión más profunda en los algoritmos del Velo.'",
             incorrect_feedback: ":: ALERTA: ERROR DE LÓGICA ::\n\n" +
@@ -264,7 +264,7 @@ var nodes = {
                   "La interfaz de la Instalación D-47 se estabiliza, su brillo verde-esmeralda inunda tu percepción. Has demostrado una comprensión básica de las fallas inherentes al Velo y cómo se manifiestan. La firma del Subvertidor, aunque sutil, ahora es un poco más legible para ti.\n\n" +
                   "LYSSA: 'Un nuevo segmento de la red principal de la Instalación D-47 se ilumina en tu mapa mental. Te espera el Módulo Criptográfico, donde las claves de acceso a otras sub-secciones del Velo están siendo atacadas. La siguiente fase requiere una decodificación de patrones más compleja.'\n\n" +
                   "Sientes el pull de la red, una invitación a sumergirte más profundamente en el código que es la realidad misma.",
-            next: "programador_04"
+            next: "wait_for_key" // Pausa aquí
         },
         {
             id: "programador_04",
@@ -273,7 +273,7 @@ var nodes = {
                   "El Módulo Criptográfico resuena con una frecuencia que no es de esta realidad. El Subvertidor de Ciclos se manifiesta como una anomalía en el código, una serpiente de datos corruptos que intenta devorar las claves de acceso. LYSSA proyecta escudos de contención binarios, pero la entidad es persistente.\n\n" +
                   "LYSSA: 'Su patrón es volátil. Necesitamos una conexión externa para una sobrecarga de datos directos. Contactando a la Entidad 5, unidad de soporte remoto de alta prioridad. Su asistencia es crítica para neutralizar esta incursión.'\n\n" +
                   "Sientes la tensión del combate digital. Bits de información chocan contra la intrusión, intentando descifrar su lógica y encontrar una vulnerabilidad. La pantalla parpadea con destellos de código que se corrompen y se reparan, una danza caótica entre la defensa y el ataque. El enlace con la Entidad 5 se establece, una luz tenue aparece en el horizonte digital.",
-            next: "wait_for_key",
+            next: "wait_for_key", // Pausa aquí
             glitch: true
         }
     ],
@@ -508,29 +508,37 @@ function handleUserInput(input) {
 document.addEventListener('DOMContentLoaded', initGame);
 
 function proceedAfterAuthentication() {
-    clearTerminal(); // La terminal se limpia inmediatamente
+    clearTerminal();
 
-    // NUEVO: Añadir una pausa antes de escribir el mensaje de bienvenida
     setTimeout(function() {
         switch (currentPath) {
             case "pathA":
-                typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                    startNodeSequence(currentPath);
+                typeWriter("Bienvenido, Entidad_05. Terminal de control remoto... Iniciando...", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa
+                    showContinuePrompt(function() {
+                        startNodeSequence(currentPath);
+                    });
                 });
                 break;
             case "pathB":
-                typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                    startNodeSequence(currentPath);
+                typeWriter("Bienvenido, Ingeniero_02. Los caminos dimensionales te aguardan.", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa
+                    showContinuePrompt(function() {
+                        startNodeSequence(currentPath);
+                    });
                 });
                 break;
             case "pathC":
-                typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                    startNodeSequence(currentPath);
+                typeWriter("Bienvenido, Ingeniero_01. La disonancia te ha elegido. El caos te llama.", function() {
+                    // NUEVO: Añadir showContinuePrompt para pausa
+                    showContinuePrompt(function() {
+                        startNodeSequence(currentPath);
+                    });
                 });
                 break;
             default:
                 typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
                 break;
         }
-    }, 3000); // 1000 milisegundos = 1 segundo de pausa. Puedes ajustar este valor.
+    }, 1000);
 }
