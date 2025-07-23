@@ -31,13 +31,13 @@ body {
 }
 
 #start-overlay h1 {
-    font-size: 2em;
+    font-size: 1em;
     margin-bottom: 20px;
     text-shadow: 0 0 15px #0F0;
 }
 
 #start-overlay p {
-    font-size: 1.5em;
+    font-size: 1em;
     opacity: 0.8;
 }
 
