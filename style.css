@@ -1,274 +1,357 @@
 /* style.css */
 
-/* Estilos Generales y Reseteo */
+/* Fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Reset Básico y Estilos Generales */
 body {
     margin: 0;
-    overflow: hidden; /* Evita barras de desplazamiento */
-    font-family: 'Courier New', Courier, monospace; /* Fuente de terminal */
-    background-color: #000; /* Fondo negro */
-    color: #0f0; /* Color de texto verde de terminal */
+    padding: 0;
+    overflow: hidden; /* Evita barras de desplazamiento en el body */
+    font-family: 'Share Tech Mono', monospace; /* Fuente principal de la terminal */
+    background-color: #000;
+    color: #00ff00; /* Verde brillante para el texto de la terminal */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    font-size: 1.1em; /* BASE FONT SIZE - Aumentado ligeramente */
-    line-height: 1.4;
-    -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
-    -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
+    min-height: 100vh;
+    cursor: url('assets/cursors/terminal-cursor.cur'), auto; /* Cursor personalizado */
+    position: relative; /* Para el video de fondo */
 }
 
-/* Contenedor del Overlay de Inicio */
+/* Video de Fondo */
+#background-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1; /* Detrás de todo */
+    transform: translateX(-50%) translateY(-50%);
+    background-size: cover;
+    opacity: 0.3; /* Opacidad para que no distraiga */
+    filter: blur(2px) grayscale(50%); /* Ligero desenfoque y monocromo */
+}
+
+/* Contenedor principal de la Terminal */
+#terminal-container {
+    background-color: rgba(10, 20, 10, 0.9); /* Fondo oscuro con transparencia */
+    border: 2px solid #00aa00; /* Borde verde */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.3); /* Resplandor exterior e interior */
+    border-radius: 8px;
+    width: 90%;
+    max-width: 900px;
+    height: 80vh;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Oculta el scroll interno no deseado */
+    position: relative; /* Para efectos de glitch */
+    transition: transform 0.1s ease-in-out; /* Transición para efecto de glitch */
+    padding: 15px; /* Espacio interno */
+}
+
+/* Efecto de "Glitch" */
+.glitch {
+    animation: glitch-animation 0.3s infinite linear alternate;
+    transform: scale(1.01);
+    border-color: #ff0000; /* Borde rojo durante el glitch */
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), inset 0 0 10px rgba(255, 0, 0, 0.5); /* Resplandor rojo */
+}
+
+@keyframes glitch-animation {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* Encabezado de la Terminal (opcional, si lo añades) */
+.terminal-header {
+    background-color: #003300;
+    padding: 5px 10px;
+    border-bottom: 1px solid #00ff00;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8em;
+}
+
+.terminal-header .title {
+    color: #00ff00;
+}
+
+.terminal-header .controls span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
+.terminal-header .controls .close { background-color: #ff5555; }
+.terminal-header .controls .minimize { background-color: #ffff55; }
+.terminal-header .controls .maximize { background-color: #55ff55; }
+
+
+/* Área de Salida de la Terminal */
+#terminal-output {
+    flex-grow: 1; /* Ocupa el espacio restante */
+    padding: 10px;
+    overflow-y: auto; /* Permite desplazamiento vertical cuando el contenido es largo */
+    white-space: pre-wrap; /* Mantiene saltos de línea y wrapea el texto */
+    word-wrap: break-word; /* Rompe palabras largas si es necesario */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #00aa00 #002200; /* Color del scrollbar para Firefox */
+    line-height: 1.4; /* Espaciado entre líneas */
+    font-size: 1em;
+}
+
+/* Estilo para el scrollbar en navegadores Webkit (Chrome, Safari) */
+#terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal-output::-webkit-scrollbar-track {
+    background: #001100; /* Fondo del track */
+    border-radius: 4px;
+}
+
+#terminal-output::-webkit-scrollbar-thumb {
+    background-color: #00aa00; /* Color del thumb */
+    border-radius: 4px;
+    border: 2px solid #001100; /* Espacio alrededor del thumb */
+}
+
+/* Área de Entrada de la Terminal */
+#terminal-input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px dashed #007700; /* Línea divisoria */
+    background-color: rgba(0, 30, 0, 0.7); /* Fondo ligeramente más oscuro */
+}
+
+#terminal-input {
+    flex-grow: 1; /* Ocupa la mayor parte del espacio */
+    background-color: transparent; /* Sin fondo */
+    border: none;
+    color: #00ff00; /* Mismo color de texto */
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1em;
+    outline: none; /* Sin borde de enfoque */
+    caret-color: #00ff00; /* Color del cursor de texto */
+    padding-right: 5px; /* Pequeño padding para el texto */
+}
+
+#terminal-input::placeholder {
+    color: #00aa00; /* Color más tenue para el placeholder */
+    opacity: 0.7;
+}
+
+/* Indicador de Prompt (>) */
+#terminal-input-area::before {
+    content: '> '; /* Carácter de prompt */
+    color: #00ff00;
+    margin-right: 5px;
+}
+
+/* Efectos de Texto Específicos */
+.glitch-red-text {
+    color: #ff0000; /* Texto rojo para errores críticos */
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.7); /* Sombra para simular resplandor de error */
+}
+
+.glitch-text-hint {
+    color: #ffcc00; /* Un color ámbar o amarillo para pistas o mensajes importantes */
+    text-shadow: 0 0 3px rgba(255, 204, 0, 0.5);
+    font-weight: bold;
+}
+
+/* Contenido de la Terminal (para imágenes o ASCII art) */
+#terminal-output img.terminal-image-effect {
+    max-width: 80%; /* Ajusta el tamaño de la imagen */
+    height: auto;
+    display: block;
+    margin: 15px auto; /* Centra la imagen y le da espacio */
+    border: 1px solid rgba(0, 255, 0, 0.3); /* Borde sutil */
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.2); /* Sombra ligera */
+    image-rendering: pixelated; /* Si usas pixel art, esto ayuda */
+}
+
+/* **ESTILO ESPECÍFICO PARA EL ASCII ART** */
+#terminal-output pre.ascii-art-effect {
+    font-family: 'Share Tech Mono', monospace; /* Asegura que la fuente monoespaciada se use para la alineación */
+    font-size: 0.8em; /* Ligeramente más pequeño para que quepa más */
+    color: #00ee00; /* Un verde ligeramente diferente o más brillante para el ASCII */
+    text-shadow: 0 0 2px rgba(0, 255, 0, 0.4); /* Sombra sutil para un efecto de neón */
+    white-space: pre; /* **Fundamental: respeta espacios y saltos de línea** */
+    margin: 15px auto; /* Centra el bloque de ASCII art */
+    padding: 10px;
+    background-color: rgba(0, 50, 0, 0.15); /* Fondo sutil para destacar */
+    border: 1px dashed rgba(0, 100, 0, 0.3); /* Borde punteado discreto */
+    overflow-x: auto; /* Para el caso de arte ASCII muy ancho */
+    max-width: calc(100% - 20px); /* Asegura que no se desborde del contenedor */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+}
+
+/* Scrollbar para ASCII art si es muy ancho */
+pre.ascii-art-effect::-webkit-scrollbar {
+    height: 5px;
+}
+pre.ascii-art-effect::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 0, 0.5);
+    border-radius: 3px;
+}
+pre.ascii-art-effect::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay de Inicio del Juego */
 #start-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.95); /* Fondo oscuro semitransparente */
-    color: #0f0;
+    background-color: rgba(0, 0, 0, 0.95); /* Fondo casi negro */
+    color: #00ff00;
+    font-family: 'Press Start 2P', cursive; /* Fuente pixel art para el inicio */
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    z-index: 1000;
-    cursor: pointer;
     text-align: center;
-    font-size: 1.8em; /* Tamaño grande para el mensaje inicial */
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
+    z-index: 100; /* Por encima de todo */
+    cursor: pointer;
+    transition: opacity 1s ease-out; /* Transición suave al ocultar */
+    user-select: none; /* Evita que el texto se pueda seleccionar */
+}
+
+#start-overlay h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    animation: pulse-green 2s infinite alternate; /* Efecto de pulso */
 }
 
 #start-overlay p {
-    animation: pulse 1.5s infinite alternate; /* Efecto de pulso en el texto */
-    padding: 20px;
-    border: 2px solid #0f0;
-    box-shadow: 0 0 15px #0f0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1em;
+    margin-top: 20px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
-/* Animación para el efecto de pulso */
-@keyframes pulse {
-    from {
-        opacity: 0.7;
-    }
-    to {
-        opacity: 1;
-    }
+#start-overlay p.blinking-text {
+    animation: blink-caret 0.8s step-end infinite; /* Cursor parpadeante */
 }
 
-/* Contenedor del Video de Fondo */
-#video-background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1; /* Envía el video al fondo */
-    filter: brightness(0.4) contrast(1.5); /* Oscurece y contrasta el video para que el texto sea legible */
+@keyframes pulse-green {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 
-#video-background-container video {
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
+@keyframes blink-caret {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Botón de Reiniciar Velo (Game Over / Debug) */
+#reset-game-button {
     position: absolute;
-    top: 50%;
+    bottom: 10px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    object-fit: cover; /* Asegura que el video cubra todo el contenedor */
+    transform: translateX(-50%);
+    background-color: #330000; /* Rojo oscuro */
+    color: #ff0000; /* Texto rojo */
+    border: 1px solid #ff0000;
+    padding: 8px 15px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8em;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+    transition: background-color 0.2s, box-shadow 0.2s;
+    z-index: 50; /* Por encima del terminal, pero debajo del overlay de inicio */
 }
 
-
-/* Contenedor Principal del Juego */
-#game-container {
-    display: flex;
-    flex-direction: column; /* Cambiado a columna para apilar la terminal y el contador */
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
+#reset-game-button:hover {
+    background-color: #550000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
 }
 
-/* Estilos de la Terminal */
-#terminal-container {
-    background-color: rgba(0, 0, 0, 0.8); /* Fondo de la terminal ligeramente transparente */
-    border: 2px solid #0f0; /* Borde verde */
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Sombra brillante */
-    padding: 20px;
-    width: 90%; /* Ancho ajustado */
-    max-width: 950px; /* Contenedor de texto más grande */
-    height: 85%; /* Contenedor de texto más grande */
-    max-height: 700px; /* Contenedor de texto más grande */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Oculta el scrollbar principal */
-    resize: both; /* Permite al usuario redimensionar la terminal */
-    min-width: 300px;
-    min-height: 200px;
-    box-sizing: border-box;
-    /* Margin top para separar del contador de fallos, si este se coloca encima */
-    margin-top: 10px; 
-}
-
-#terminal-output {
-    flex-grow: 1; /* Permite que el área de salida ocupe el espacio disponible */
-    overflow-y: auto; /* Habilita el desplazamiento vertical si el contenido excede la altura */
-    white-space: pre-wrap; /* Mantiene saltos de línea y envuelve texto largo */
-    word-wrap: break-word; /* Rompe palabras si son demasiado largas */
-    padding-right: 15px; /* Espacio para el scrollbar */
-    font-size: 1.2em; /* TEXTO DE SALIDA - Aumentado */
-    scrollbar-width: thin; /* Para Firefox */
-    scrollbar-color: #0f0 #000; /* Para Firefox */
-}
-
-/* Estilos para el scrollbar en WebKit (Chrome, Safari) */
-#terminal-output::-webkit-scrollbar {
-    width: 8px;
-}
-
-#terminal-output::-webkit-scrollbar-track {
-    background: #000;
-}
-
-#terminal-output::-webkit-scrollbar-thumb {
-    background-color: #0f0;
-    border-radius: 10px;
-    border: 2px solid #000;
-}
-
-.input-line {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.prompt {
-    color: #0f0;
-    margin-right: 5px;
-    font-size: 1.2em; /* PROMPT - Aumentado para coincidir con el input */
-}
-
-#terminal-input {
-    background-color: transparent;
-    border: none;
-    color: #0f0;
-    flex-grow: 1; /* Ocupa el espacio restante */
-    outline: none; /* Quita el contorno al enfocar */
-    font-size: 1.2em; /* INPUT DEL USUARIO - Aumentado */
-    caret-color: #0f0; /* Color del cursor */
-}
-
-#terminal-input-area {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-}
-
-/* Estilos para el Glitch Effect */
-.glitch {
-    animation: glitch-animation 0.5s infinite;
-}
-
-@keyframes glitch-animation {
-    0% {
-        transform: translate(0);
-    }
-    20% {
-        transform: translate(-2px, 2px);
-    }
-    40% {
-        transform: translate(-2px, -2px);
-    }
-    60% {
-        transform: translate(2px, 2px);
-    }
-    80% {
-        transform: translate(2px, -2px);
-    }
-    100% {
-        transform: translate(0);
-    }
-}
-
-/* Fallos Globales Display - Ajuste inicial para ocultar */
+/* Contador de Fallos Globales */
 #failure-display {
-    display: none; /* Oculta el elemento por defecto hasta que se muestre con JS */
-
-    margin-bottom: 15px; /* Separación de la terminal */
-    text-align: center; /* Centrar el texto */
-    color: #ff0000; /* Rojo vibrante para los fallos */
-    font-size: 1.2em; /* Tamaño de fuente más grande */
-    font-weight: bold; /* Negrita para resaltar */
-    border: 1px solid #ff0000; /* Borde sutil */
-    padding: 8px 15px; /* Relleno */
-    border-radius: 5px; /* Bordes ligeramente redondeados */
-    background-color: rgba(255, 0, 0, 0.1); /* Fondo muy ligero */
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.4); /* Sombra roja brillante */
-    min-width: 200px; /* Ancho mínimo para que no se comprima demasiado */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(50, 0, 0, 0.8);
+    border: 1px solid #ff0000;
+    color: #ff0000;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    text-shadow: 0 0 3px rgba(255, 0, 0, 0.6);
+    display: none; /* Oculto por defecto, se muestra con JS */
+    z-index: 20; /* Asegura que esté visible */
 }
 
-#failure-display p {
-    margin: 0;
+#failure-display strong {
+    color: #ffcc00; /* Color para el "Subvertidor" */
 }
 
-#failure-count {
-    color: #fff; /* Que el número de fallos sea blanco para contraste */
-    text-shadow: 0 0 5px #ff0000; /* Pequeña sombra de texto para resaltarlo */
-}
-
-/* Responsive Design para pantallas más pequeñas */
+/* Responsividad básica */
 @media (max-width: 768px) {
-    body {
-        font-size: 1em; /* Base font size un poco más pequeña en móviles */
-    }
-
     #terminal-container {
         width: 95%;
-        height: 80%; /* Ajuste de altura en móviles */
-        padding: 15px;
-        margin-top: 10px;
+        height: 85vh;
+        padding: 10px;
     }
-
-    #terminal-output,
-    #terminal-input,
-    .prompt {
-        font-size: 1.1em; /* Ajuste para el texto en móviles */
+    #terminal-output {
+        font-size: 0.9em;
     }
-
-    #start-overlay {
-        font-size: 1.5em;
+    #terminal-input-area {
+        padding: 8px;
     }
-
-    #failure-display {
-        font-size: 1.1em;
-        margin-bottom: 10px;
+    #terminal-input {
+        font-size: 0.9em;
+    }
+    #start-overlay h1 {
+        font-size: 1.8em;
+    }
+    #start-overlay p {
+        font-size: 0.9em;
+    }
+    pre.ascii-art-effect {
+        font-size: 0.7em; /* Reducir aún más el tamaño del ASCII art en móviles */
     }
 }
 
-/* Responsive Design para pantallas muy pequeñas */
 @media (max-width: 480px) {
     #terminal-container {
         width: 98%;
-        height: 85%; /* Ajuste de altura para pantallas muy pequeñas */
-        padding: 10px;
-        margin-top: 8px;
+        height: 90vh;
+        border-radius: 5px;
     }
-
-    #terminal-output,
-    #terminal-input,
-    .prompt {
-        font-size: 1em; /* Tamaño más ajustado para pantallas muy pequeñas */
+    #terminal-output {
+        font-size: 0.8em;
+        padding: 8px;
     }
-
-    #start-overlay {
-        font-size: 1.2em;
+    #terminal-input-area {
+        padding: 5px;
     }
-
-    #failure-display {
-        font-size: 1em;
-        margin-bottom: 8px;
+    #start-overlay h1 {
+        font-size: 1.5em;
+    }
+    #start-overlay p {
+        font-size: 0.8em;
+    }
+    #reset-game-button {
+        font-size: 0.7em;
+        padding: 6px 10px;
     }
 }
