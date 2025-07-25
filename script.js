@@ -9,21 +9,35 @@ var audioFondo;
 var videoBackground;
 var startOverlay;
 
-var currentOutputText = "";
-var textSpeed = 20; // Puedes ajustar la velocidad aquí (menor número = más rápido)
-var isTyping = false; // Indica si *cualquier* secuencia de typeWriter está activa
-var waitForInput = false; // Controla si la terminal está esperando una entrada general (como la contraseña inicial o enigma)
-var waitForKeyPress = false; // Controla si se espera un "presiona cualquier tecla para continuar"
-var continuePromptIsTyped = false; // NUEVO: Para saber si el mensaje "presiona cualquier tecla para continuar" ya terminó de escribirse
-var blockKeyboardInput = false; // NUEVO: Bandera global para bloquear toda la entrada de teclado durante la escritura
+var failureCountDisplay; // Elemento para mostrar el contador de fallos
+var failureDisplayElement; // Referencia al div completo #failure-display
 
-/* MARKER: Audio Control */
-function playAudio(audioElement, loop) {
+var currentOutputText = "";
+var textSpeed = 10;
+var isTyping = false;
+var waitForInput = false;
+var waitForKeyPress = false;
+var continuePromptIsTyped = false;
+var blockKeyboardInput = false;
+
+var subvertidorPower = 0;
+const SUBVERTIDOR_MAX_POWER = 3; // Mantener para referencia, aunque el path del programador ya no lo usa directamente para "perder"
+
+var globalFailureCount = 0;
+const MAX_GLOBAL_FAILURES = 5;
+
+// Claves para localStorage
+const GAME_FAILED_MAX_ATTEMPTS_KEY = "game_failed_max_attempts";
+const PATH_A_COMPLETED_KEY = "pathA_completed";
+const PATH_B_COMPLETED_KEY = "pathB_completed";
+const PATH_C_COMPLETED_KEY = "pathC_completed";
+const INITIAL_ACCESS_DONE_KEY = "initial_access_done"; // Para el mensaje inicial al recargar
+
+/* MARKER: Funciones de Utilidad de la Terminal */
+
+function playAudio(audioElement) {
     if (audioElement) {
-        audioElement.loop = loop || false;
-        audioElement.play().catch(function(error) {
-            console.error("Error al intentar reproducir audio:", error);
-        });
+        audioElement.play().catch(e => console.error("Error al reproducir audio:", e));
     }
 }
 
@@ -34,55 +48,45 @@ function stopAudio(audioElement) {
     }
 }
 
-/* MARKER: Funciones de Utilidad de la Terminal */
-
 function typeWriter(text, callback) {
     isTyping = true;
-    blockKeyboardInput = true; // NUEVO: Bloquear entrada al iniciar escritura
-    terminalInputArea.style.display = 'none'; // Ocultar el área de entrada mientras se escribe
-    var i = 0;
-    currentOutputText += "\n";
+    currentOutputText = text;
+    terminalOutput.innerHTML = '';
+    let i = 0;
+    const speed = textSpeed;
 
-    function typeChar() {
-        if (i < text.length) {
-            currentOutputText += text.charAt(i);
-            terminalOutput.innerText = currentOutputText;
-            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    function type() {
+        if (i < currentOutputText.length) {
+            if (!blockKeyboardInput) { // Solo si no estamos bloqueando la entrada (para no interrumpir typing)
+                terminalOutput.innerHTML += currentOutputText.charAt(i);
+                terminalOutput.scrollTop = terminalOutput.scrollHeight; // Auto-scroll
+                playAudio(audioTeclado);
+            }
             i++;
-            setTimeout(typeChar, textSpeed);
+            setTimeout(type, speed);
         } else {
             isTyping = false;
-            blockKeyboardInput = false; // NUEVO: Permitir entrada al finalizar escritura
-            terminalInputArea.style.display = 'flex'; // Mostrar el área de entrada
-            terminalInput.focus();
+            stopAudio(audioTeclado);
             if (callback) {
                 callback();
             }
         }
     }
-    typeChar();
+    type();
 }
 
 function appendText(text) {
-    currentOutputText += "\n" + text;
-    terminalOutput.innerText = currentOutputText;
+    terminalOutput.innerHTML += text + '\n';
     terminalOutput.scrollTop = terminalOutput.scrollHeight;
-    terminalInput.focus();
 }
 
 function clearTerminal() {
-    currentOutputText = "";
-    terminalOutput.innerText = "";
+    terminalOutput.innerHTML = '';
 }
-
-/* MARKER: Funciones de Efectos Visuales */
 
 function applyGlitchEffect() {
     terminalContainer.classList.add('glitch');
-    if (audioGlitch) {
-        audioGlitch.currentTime = 0;
-        playAudio(audioGlitch);
-    }
+    playAudio(audioGlitch);
 }
 
 function removeGlitchEffect() {
@@ -90,51 +94,33 @@ function removeGlitchEffect() {
     stopAudio(audioGlitch);
 }
 
-function showLoadingBar(durationMs, callback) {
-    var loadingBarContainer = document.createElement('div');
-    loadingBarContainer.className = 'loading-bar-container';
-    loadingBarContainer.id = 'dynamic-loading-bar-container';
+function showLoadingBar(duration, callback) {
+    clearTerminal();
+    appendText("Cargando...");
+    let progress = 0;
+    const intervalTime = duration / 10; // 10 ticks for the bar
+    let bar = "----------"; // 10 dashes
 
-    var loadingBarFill = document.createElement('div');
-    loadingBarFill.className = 'loading-bar-fill';
-    loadingBarFill.id = 'dynamic-loading-bar-fill';
-
-    var loadingPercentage = document.createElement('div');
-    loadingPercentage.className = 'loading-percentage';
-    loadingPercentage.id = 'dynamic-loading-percentage';
-    loadingPercentage.innerText = '0%';
-
-    loadingBarContainer.appendChild(loadingBarFill);
-    terminalOutput.appendChild(loadingBarContainer);
-    terminalOutput.appendChild(loadingPercentage);
-
-    loadingBarContainer.style.display = 'block';
-    loadingPercentage.style.display = 'block';
-
-    var startTime = Date.now();
-    var interval = setInterval(function() {
-        var elapsed = Date.now() - startTime;
-        var progress = Math.min(elapsed / durationMs, 1);
-        var percentage = Math.floor(progress * 100);
-
-        loadingBarFill.style.width = percentage + '%';
-        loadingPercentage.innerText = percentage + '%';
-
-        if (progress === 1) {
-            clearInterval(interval);
-            setTimeout(function() {
-                if (terminalOutput.contains(loadingBarContainer)) {
-                    terminalOutput.removeChild(loadingBarContainer);
-                }
-                if (terminalOutput.contains(loadingPercentage)) {
-                    terminalOutput.removeChild(loadingPercentage);
-                }
-                if (callback) {
-                    callback();
-                }
-            }, 500);
+    const loadingInterval = setInterval(() => {
+        if (progress < bar.length) {
+            bar = "#".repeat(progress + 1) + "-".repeat(bar.length - (progress + 1));
+            clearTerminal();
+            appendText("Cargando...\n[" + bar + "]");
+            progress++;
+        } else {
+            clearInterval(loadingInterval);
+            if (callback) {
+                callback();
+            }
         }
-    }, 50);
+    }, intervalTime);
+}
+
+function updateFailureDisplay() {
+    const displayElement = document.getElementById('failure-count');
+    if (displayElement) {
+        displayElement.textContent = globalFailureCount;
+    }
 }
 
 /* MARKER: Lógica del Juego - Inicio */
@@ -144,108 +130,175 @@ function initGame() {
     terminalInput = document.getElementById('terminal-input');
     terminalInputArea = document.getElementById('terminal-input-area');
     terminalContainer = document.getElementById('terminal-container');
-
     audioTeclado = document.getElementById('audio-teclado');
     audioGlitch = document.getElementById('audio-glitch');
     audioFondo = document.getElementById('audio-fondo');
-    videoBackground = document.querySelector('#video-background-container video');
+    videoBackground = document.getElementById('background-video'); // Asegúrate de que este ID exista en tu HTML
     startOverlay = document.getElementById('start-overlay');
+    failureCountDisplay = document.getElementById('failure-count');
+    failureDisplayElement = document.getElementById('failure-display'); // Asigna el elemento aquí
 
-    startOverlay.addEventListener('click', startExperience);
+    // Inicializar el contador de fallos global desde localStorage
+    globalFailureCount = parseInt(localStorage.getItem('globalFailureCount') || '0', 10);
+    updateFailureDisplay();
 
-    terminalInput.addEventListener('keydown', function(event) {
-        if (blockKeyboardInput) {
-            event.preventDefault();
-            return;
-        }
-
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            var input = terminalInput.value.trim();
-            terminalInput.value = '';
-            handleUserInput(input);
-        } else {
-            if (audioTeclado && event.key.length === 1) {
-                playAudio(audioTeclado);
+    // Event Listeners
+    terminalInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Evita que se agregue una nueva línea en algunos casos
+            if (!isTyping && waitForInput) {
+                const input = terminalInput.value.trim();
+                terminalInput.value = '';
+                handleUserInput(input);
+            } else if (waitForKeyPress) {
+                handleContinuePrompt();
             }
         }
     });
 
-    document.addEventListener('keydown', function(event) {
-        if (blockKeyboardInput) {
-            event.preventDefault();
-            return;
-        }
-
-        if (waitForKeyPress) {
-            if (!continuePromptIsTyped) {
-                return;
+    // Control para el overlay de inicio
+    if (startOverlay) {
+        startOverlay.addEventListener('click', startExperience);
+        startOverlay.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { // También permite iniciar con Enter o Espacio
+                e.preventDefault();
+                startExperience();
             }
-            handleContinuePrompt();
-        }
-    });
-}
-
-function startExperience() {
-    startOverlay.style.opacity = '0';
-    setTimeout(function() {
-        startOverlay.style.display = 'none';
-        startOverlay.removeEventListener('click', startExperience);
-    }, 1000);
-
-    playAudio(audioFondo, true);
-    if (videoBackground) {
-        videoBackground.play().catch(function(error) {
-            console.error("Error al intentar reproducir video:", error);
         });
+        startOverlay.focus(); // Asegúrate de que el overlay tenga foco para capturar keypress
     }
 
-    startInitialScreen();
+    // Listener para el botón de Reiniciar Juego
+    document.getElementById('reset-game-button').addEventListener('click', function() {
+        localStorage.clear(); // Limpia todos los datos guardados
+        location.reload(); // Recarga la página
+    });
+
+    // Reproducir audio de fondo al inicio (puede requerir interacción del usuario en algunos navegadores)
+    document.body.addEventListener('click', function() {
+        if (audioFondo.paused) {
+            audioFondo.play().catch(e => console.error("Error al reproducir audio de fondo:", e));
+        }
+    }, { once: true });
+}
+
+
+function startExperience() {
+    if (startOverlay) {
+        startOverlay.style.opacity = '0';
+        setTimeout(() => {
+            startOverlay.style.display = 'none';
+        }, 1000); // Espera la transición
+    }
+    playAudio(audioFondo); // Asegura que el audio de fondo se reproduzca
+
+    // Si ya se accedió al juego antes y no se reseteó, y se completó un path
+    const pathACompleted = localStorage.getItem(PATH_A_COMPLETED_KEY) === "true";
+    const pathBCompleted = localStorage.getItem(PATH_B_COMPLETED_KEY) === "true";
+    const pathCCompleted = localStorage.getItem(PATH_C_COMPLETED_KEY) === "true";
+    const initialAccessDone = localStorage.getItem(INITIAL_ACCESS_DONE_KEY) === "true";
+
+    // Si ya completó alguno y es un acceso "recurrente" (no la primera vez), lleva a la biblioteca
+    if ((pathACompleted || pathBCompleted || pathCCompleted) && initialAccessDone) {
+        // Asegurarse de mostrar el contador de fallos si se vuelve a cargar y ya hay un path completado
+        if (failureDisplayElement) {
+            failureDisplayElement.style.display = 'block';
+        }
+        typeWriter("LYSSA: 'Bienvenido de nuevo. Acceso a la Biblioteca de Ecos activado. Ingresa un protocolo de acceso para continuar, o 'BIBLIOTECA' para explorar los archivos.'", function() {
+            waitForInput = true;
+            terminalInput.setAttribute('placeholder', 'Introduzca clave...');
+        });
+        currentPath = "initial_access"; // Establecer un path inicial de "entrada"
+        currentNodeIndex = 0;
+    } else {
+        // Primera vez o no ha completado ningún path
+        localStorage.setItem(INITIAL_ACCESS_DONE_KEY, "true");
+        typeWriter(
+            "--- INICIANDO CONEXIÓN CON EL VELO ---\n\n" +
+            "Se activa el protocolo de enlace neuronal. Tus sentidos se agudizan, y la realidad conocida se disuelve en un mar de datos pulsantes. La voz sintética de LYSSA, la IA principal de la Instalación D-47, resuena directamente en tu conciencia:\n\n" +
+            "'Anomalía detectada. Interferencia persistente en las frecuencias de resonancia de esta 'Instalación D-47'. El Subvertidor de Ciclos se ha manifestado una vez más. Su patrón es de naturaleza parasitaria, buscando infiltrarse en los protocolos existenciales para generar disonancia y consumir realidades.'\n\n" +
+            "Sientes una extraña sensación de familiaridad con esta voz y este entorno, como un eco de un pasado que no recuerdas. LYSSA continúa: 'Tu acceso fue activado por una resonancia atípica. Eres una entidad no programada. Necesitamos tu intervención. Debes seleccionar tu 'protocolo de acceso' para iniciar la calibración y el contra-ataque contra el Subvertidor.'\n\n" +
+            "LYSSA: 'Para iniciar tu intervención, el Velo requiere una **clave de resonancia**. Esta clave no te será dada, sino que debe ser **percibida**. Es el reflejo de tu propósito aquí, el primer paso para alinearte con las capas de existencia.'\n\n" +
+            "LYSSA: '**Ingresa la clave de resonancia** que te conecta con tu verdadero rol en esta crisis.'",
+            function() {
+                waitForInput = true;
+                terminalInput.setAttribute('placeholder', 'Introduzca clave de resonancia...');
+            }
+        );
+        currentPath = "initial_access";
+        currentNodeIndex = 0;
+    }
+    terminalInput.focus();
 }
 
 function showContinuePrompt(callback) {
     waitForKeyPress = true;
-    continuePromptIsTyped = false;
-
-    typeWriter("Presiona cualquier tecla para continuar...", function() {
-        continuePromptIsTyped = true;
-        if (callback) {
-            window._continueCallback = callback;
-        }
-    });
+    continuePromptIsTyped = true;
+    appendText("\n\nPresiona cualquier tecla para continuar...");
+    if (callback) {
+        // Envuelve el callback para asegurar que se ejecute solo una vez
+        const originalCallback = callback;
+        callback = () => {
+            originalCallback();
+            waitForKeyPress = false; // Resetear después de la ejecución
+            continuePromptIsTyped = false;
+        };
+    }
 }
 
 function handleContinuePrompt() {
-    if (!continuePromptIsTyped) {
-        return;
-    }
-
     waitForKeyPress = false;
     continuePromptIsTyped = false;
-
-    if (window._continueCallback) {
-        var tempCallback = window._continueCallback;
-        window._continueCallback = null;
-        tempCallback();
+    // Lógica para manejar el "Presiona cualquier tecla para continuar"
+    // Si estamos en un nodo de la biblioteca y se espera volver al menú principal
+    if (currentPath === "library" && nodes.library[currentNodeIndex].next === "wait_for_key_library") {
+        currentPath = "library";
+        currentNodeIndex = 0; // Volver al índice del menú principal de la biblioteca
+        displayCurrentNode();
     } else {
         currentNodeIndex++;
         displayCurrentNode();
     }
 }
 
+
+function displayFailedConnectionScreen() {
+    clearTerminal();
+    applyGlitchEffect();
+    typeWriter(
+        "--- FALLO CRÍTICO: CONEXIÓN PERDIDA CON EL VELO ---\n\n" +
+        "La disonancia ha consumido este segmento. Tu mente se disocia del Velo, arrastrada de vuelta a una realidad fragmentada. La conexión se ha roto.\n\n" +
+        "Has alcanzado el límite de fallos globales. La Instalación D-47 se desconecta de tu frecuencia.\n\n" +
+        "LYSSA: 'Acceso denegado. La realidad se resetea. Tu intervención ha concluido.'\n\n" +
+        "// Reiniciando la simulación. Presiona cualquier tecla para intentar de nuevo...",
+        function() {
+            showContinuePrompt(function() {
+                localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                localStorage.setItem('globalFailureCount', '0'); // Reiniciar globalFailureCount
+                updateFailureDisplay();
+                location.reload();
+            });
+        }
+    );
+}
+
 /* MARKER: Lógica Específica del One-Shot */
 
-var currentPath = '';
+var currentPath = ''; // 'pathA', 'pathB', 'pathC', 'library'
 var currentNodeIndex = 0;
 
 var passwords = {
-    "M205": "pathA",
-    "PADEL": "pathB",
-    "PIFIA": "pathC"
+    "M205": "pathA", // Programador
+    "PADEL": "pathB", // Viajero
+    "PIFIA": "pathC", // Corrupto
+    "BIBLIOTECA": "library" // Acceso directo a la biblioteca si está disponible
 };
 
+// **AQUÍ ES DONDE SE CARGAN LOS NODOS DE LA BIBLIOTECA EXTERNALMENTE**
+// Asegúrate de que LIBRARY_NODES esté definido en libraryNodes.js
+// ANTES de que este script se cargue.
 var nodes = {
-    "pathA": [ // Nodos para el camino del Programador - Textos corregidos y con pausas
+    "pathA": [ // Nodos para el camino del Programador
         {
             id: "programador_01",
             type: "text_only",
@@ -291,12 +344,38 @@ var nodes = {
                   "El Módulo Criptográfico resuena con una frecuencia que no es de esta realidad. El Subvertidor de Ciclos se manifiesta como una anomalía en el código, una serpiente de datos corruptos que intenta devorar las claves de acceso. LYSSA proyecta escudos de contención binarios, pero la entidad es persistente.\n\n" +
                   "LYSSA: 'Su patrón es volátil. Necesitamos una conexión externa para una sobrecarga de datos directos. Contactando a la Entidad 5, unidad de soporte remoto de alta prioridad. Su asistencia es crítica para neutralizar esta incursión.'\n\n" +
                   "Sientes la tensión del combate digital. Bits de información chocan contra la intrusión, intentando descifrar su lógica y encontrar una vulnerabilidad. La pantalla parpadea con destellos de código que se corrompen y se reparan, una danza caótica entre la defensa y el ataque. El enlace con la Entidad 5 se establece, una luz tenue aparece en el horizonte digital.",
+            next: "programador_04_5_texto_fracturado",
+            glitch: true
+        },
+        // --- INICIO DE LOS 5 ACERTIJOS ---
+        {
+            id: "programador_04_5_texto_fracturado",
+            type: "text_only",
+            text: "--- PROGRAMADOR: INTERFERENCIA EN LA SINAPSIS ---\n\n" +
+                    "Una nueva ola de disonancia golpea el Módulo Criptográfico, manifestándose como un fragmento de código que se niega a ensamblarse correctamente. LYSSA: 'El Subvertidor ha inyectado una sintaxis rota, una directiva que paraliza los enlaces neuronales del Velo. Debes encontrar el 'comando' correcto que complete el fragmento y restaure el flujo de datos cruciales.'",
             next: "wait_for_key",
             glitch: true
         },
-        // --- INICIO DE LOS 4 NUEVOS ACERTIJOS ---
-
-        // NUEVO: NODO NARRATIVO para Acertijo 1 (El Espejo Roto)
+        {
+            id: "programador_04_6_enigma_fracturado",
+            type: "enigma_input",
+            prompt: "--- ENIGMA: EL CÓDIGO FRACTURADO ---\n\n" +
+                    "LYSSA: 'Un segmento vital de código ha sido corrompido, dejando una brecha en su lógica. Para reparar la sinapsis y avanzar, debes encontrar la palabra clave correcta que complete la secuencia de programación. Piensa en el comando que se usaría para establecer una 'conexión' segura o 'vínculo' en un sistema informático básico.'\n\n" +
+                    "Fragmento de código:\n" +
+                    "INIT_PROTOCOL (SYSTEM_CORE)\n" +
+                    "AUTHENTICATE_USER (ADMIN_01)\n" +
+                    "ESTABLISH_??? (SECURE_CHANNEL)\n" +
+                    "ENCRYPT_DATA (ALL_TRAFFIC)\n\n" +
+                    "LYSSA: '¿Cuál es el comando que falta en el lugar de los '???' para completar la operación de un canal seguro? Una sola palabra clave, común en protocolos de red.'\n\n" +
+                    "INGRESA EL COMANDO FALTANTE (una palabra):",
+            answer: "LINK",
+            correct_feedback: ":: SINTAXIS REPARADA ::\n\n" +
+                              "LYSSA: '¡Confirmado! El fragmento ha sido ensamblado. La sinapsis se restablece. Tu comprensión de la lógica binaria es excepcional. El camino está más claro.'",
+            incorrect_feedback: ":: ALERTA: CÓDIGO INVÁLIDO ::\n\n" +
+                                "LYSSA: 'El comando no es reconocido. La sintaxis permanece rota. La disonancia persiste. Reintenta tu análisis. La frustración distorsiona tu percepción.'",
+            next_on_correct: "programador_05_texto_espejo",
+            retry_on_incorrect: true
+        },
         {
             id: "programador_05_texto_espejo",
             type: "text_only",
@@ -305,7 +384,6 @@ var nodes = {
             next: "wait_for_key",
             glitch: false
         },
-        // NUEVO: NODO DE ACERTIJO 1 (El Espejo Roto)
         {
             id: "programador_06_enigma_espejo",
             type: "enigma_input",
@@ -313,11 +391,11 @@ var nodes = {
                     "LYSSA: 'La Entidad 5 ha establecido un escaneo de resonancia con el Subvertidor. Su firma es una paradoja visual, una imagen que oculta su verdadera forma. Para ver al enemigo, debes entender su reflejo distorsionado.'\n\n" +
                     "Se proyecta una imagen abstracta en tu mente. Percibes un texto binario que, reflejado, parece formar la palabra 'ERROR'. Pero al enfocarte, te das cuenta de que un solo 'bit' está fuera de lugar, haciendo que la 'imagen reflejada' cambie sutilmente a otra palabra.\n\n" +
                     "Si la imagen original es una secuencia binaria que se lee de izquierda a derecha:\n" +
-                    "01001010 01100001 01101101 01100101 01110011\n" +
+                    "01001010 01100001 01101101 01100101 01110010\n" +
                     "Y al reflejarla horizontalmente, esperas 'ERROR'.\n" +
-                    "LYSSA: 'Uno de los grupos de 8 bits está corrompido. Al reflejarse, no muestra lo que debería. Encuentra el número del grupo de 8 bits (1, 2, 3, 4 o 5) que está mal al reflejarlo para obtener 'ERROR'.' (La palabra 'James' está en los bits para darte contexto.)\n\n" +
+                    "LYSSA: 'Uno de los grupos de 8 bits (o byte) está corrompido. Al reflejarse, no muestra lo que debería. Encuentra el número del grupo de 8 bits (1, 2, 3, 4 o 5) que está mal al reflejarlo para obtener 'ERROR'.' (La palabra 'Jamer' está en los bits para darte contexto.)\n\n" +
                     "INGRESA EL NÚMERO DEL GRUPO DE BITS INCORRECTO (1 al 5):",
-            answer: "4", // La lógica se centra en la posición, como se explicó anteriormente.
+            answer: "4",
             correct_feedback: ":: PERCEPCIÓN RESTAURADA ::\n\n" +
                               "LYSSA: '¡Confirmado! La distorsión ha sido revelada. Tu percepción de la anomalía es precisa. El Subvertidor ha intentado sembrar el caos en los reflejos del Velo, pero tu agudeza lo ha frustrado. Continuamos el rastreo.'",
             incorrect_feedback: ":: ALERTA: IMAGEN DISTORSIONADA ::\n\n" +
@@ -325,8 +403,6 @@ var nodes = {
             next_on_correct: "programador_07_texto_ruta",
             retry_on_incorrect: true
         },
-
-        // NUEVO: NODO NARRATIVO para Acertijo 2 (La "Ruta Descartada")
         {
             id: "programador_07_texto_ruta",
             type: "text_only",
@@ -335,7 +411,6 @@ var nodes = {
             next: "wait_for_key",
             glitch: false
         },
-        // NUEVO: NODO DE ACERTIJO 2 (La "Ruta Descartada")
         {
             id: "programador_08_enigma_ruta",
             type: "enigma_input",
@@ -357,8 +432,6 @@ var nodes = {
             next_on_correct: "programador_09_texto_sombras",
             retry_on_incorrect: true
         },
-
-        // NUEVO: NODO NARRATIVO para Acertijo 3 (Las "Sombras Persistentes")
         {
             id: "programador_09_texto_sombras",
             type: "text_only",
@@ -367,7 +440,6 @@ var nodes = {
             next: "wait_for_key",
             glitch: true
         },
-        // NUEVO: NODO DE ACERTIJO 3 (Las "Sombras Persistentes")
         {
             id: "programador_10_enigma_sombras",
             type: "enigma_input",
@@ -386,8 +458,6 @@ var nodes = {
             next_on_correct: "programador_11_texto_protocolo",
             retry_on_incorrect: true
         },
-
-        // NUEVO: NODO NARRATIVO para Acertijo 4 (El "Protocolo Fantasma")
         {
             id: "programador_11_texto_protocolo",
             type: "text_only",
@@ -396,7 +466,6 @@ var nodes = {
             next: "wait_for_key",
             glitch: true
         },
-        // NUEVO: NODO DE ACERTIJO 4 (El "Protocolo Fantasma")
         {
             id: "programador_12_enigma_fantasma",
             type: "enigma_input",
@@ -416,21 +485,8 @@ var nodes = {
                               "LYSSA: '¡Confirmado! El protocolo fantasma ha sido identificado y aislado. La fusión del Subvertidor ha sido detenida. Has prevenido la infiltración crítica en el núcleo. La Instalación D-47 está segura, por ahora. Tu intervención ha salvado este segmento del Velo.'",
             incorrect_feedback: ":: ALERTA: AMENAZA PERSISTENTE ::\n\n" +
                                 "LYSSA: 'El impostor se camufla mejor de lo que esperábamos. Tu elección no ha desvelado la verdadera amenaza. La fusión continúa. El Vacío de la derrota se cierne.'",
-            next_on_correct: "final_pathA_message", // CAMBIO AQUÍ: Nuevo ID para el mensaje final
+            next_on_correct: "end_pathA_success", // Nuevo nodo de éxito
             retry_on_incorrect: true
-        },
-        // --- FIN DE LOS 4 NUEVOS ACERTIJOS ---
-
-        // NUEVO: Nodo final para Path A (mensaje)
-        {
-            id: "final_pathA_message",
-            type: "text_only",
-            text: "--- PROGRAMADOR: VICTORIA TEMPORAL EN EL VELO ---\n\n" +
-                  "La anomalía del Subvertidor de Ciclos se disipa, su firma se desvanece en las profundidades del Velo. La Instalación D-47 se estabiliza, sus luces brillan con renovada fuerza. LYSSA: 'Has demostrado una maestría excepcional en la manipulación lógica del Velo. Tu conciencia de programador ha reparado la disonancia y sellado la brecha. El Velo ha sido salvado de esta incursión. Por ahora. Siempre hay más que reparar.'\n\n" +
-                  "Sientes el cansancio del esfuerzo mental, pero también la satisfacción de haber protegido una realidad vital. El Velo susurra su agradecimiento, un eco de infinitos bits en armonía. Tu misión en este segmento ha concluido.\n\n" +
-                  "El Velo se cierra. Presiona cualquier tecla para reiniciar y explorar otros caminos.",
-            next: "end_game_reload", // Este nodo directamente llevará al reinicio
-            glitch: false
         }
     ],
     "pathB": [
@@ -453,24 +509,16 @@ var nodes = {
                     "Piensa en un objeto de tu pasado, una posesión personal, sin importar su insignificancia aparente, que te ate más fuertemente a la 'realidad' que conocías. Algo que te traiga de vuelta, un faro en la niebla de la disociación.\n\n" +
                     "LYSSA: 'Tu conexión personal es la clave. La verdad de tu ser es tu mejor ancla. ¿Qué es lo que verdaderamente te arraiga?'\n\n" +
                     "INGRESA UNA PALABRA (un sustantivo) que describa ese objeto o concepto que te ancla:",
-            answer: "LIBRO",
+            answer: "LIBRO", // Respuesta de ejemplo, cámbiala si lo deseas
             correct_feedback: ":: RESONANCIA ESTABLECIDA ::\n\n" +
                               "LYSSA: 'Anclaje con éxito. El nexo se estabiliza con tu resonancia personal. La dislocación de D-47 ha sido prevenida. Una ruta tenue, un camino entre los pliegues del Velo, se manifiesta brevemente en la niebla. Has demostrado tu capacidad para la navegación interdimensional.'",
             incorrect_feedback: ":: ALERTA: ANCLAJE INSUFICIENTE ::\n\n" +
                                 "LYSSA: 'La niebla de la disonancia te confunde. El anclaje es ineficaz. La Instalación D-47 continúa a la deriva. Piensa más profundamente en lo que realmente te arraiga, lo que define tu 'yo' más allá de esta realidad.'\n\n" +
                                 "Sientes un Miedo paralizante a la disociación. El Velo te jala hacia sus profundidades.",
-            next_on_correct: "viajero_03",
+            next_on_correct: "end_pathB_success", // Nuevo nodo de éxito
             retry_on_incorrect: true
         },
-        {
-            id: "viajero_03",
-            type: "text_only",
-            text: "--- VIAJERO: RECORTE DEL PLIEGUE ---\n\n" +
-                  "La distorsión espacio-temporal cede. La estabilidad que has infundido permite que las Capas de El Velo se asienten momentáneamente. Has encontrado un punto de referencia sólido en este océano de caos. La Instalación D-47 se ancla firmemente a tu percepción.\n\n" +
-                  "LYSSA: 'Ahora puedes percibir los tenues hilos que conectan los innumerables planos. Los Nodos, como faros en la oscuridad, emiten una señal más clara. El siguiente paso te llevará a las Conexiones Temporales, donde el Subvertidor intenta reescribir la historia para abrir brechas.'\n\n" +
-                  "Sientes la vasta inmensidad de los caminos posibles. Tu mente se expande para abarcar las realidades que se extienden más allá de tu comprensión.",
-            next: "wait_for_key"
-        }
+        // Aquí podrías tener más nodos para el path B, terminando en end_pathB_success
     ],
     "pathC": [
         {
@@ -492,45 +540,94 @@ var nodes = {
                     "¿Qué emoción, de estas tres, te consume más profundamente ahora mismo? ¿Cuál es el eco más fuerte de tu trauma central que el Velo ha amplificado?\n\n" +
                     "LYSSA: 'Tu elección resonará con el Velo. La verdad de tu aflicción se convertirá en tu arma o tu perdición. Elige sabiamente, o serás consumido sin propósito.'\n\n" +
                     "INGRESA UNA DE LAS TRES EMOCIONES (Miedo, Culpa, Vacío):",
-            answer: "VACIO",
+            answer: "VACIO", // Respuesta de ejemplo, cámbiala si lo deseas
             correct_feedback: ":: RESONANCIA ESTABLECIDA CON EL VELO ::\n\n" +
                               "LYSSA: 'Frecuencia de corrupción reconocida. El poder fluye a través de ti. Las barreras internas de D-47 se rompen, o se doblegan a tu voluntad. Tu voluntad es una onda expansiva en el tejido del Velo, para bien o para mal.'",
             incorrect_feedback: ":: ALERTA: DISONANCIA INTERNA ::\n\n" +
                                 "LYSSA: 'La disonancia es sutil, pero tu resonancia es débil. No has abrazado la verdadera naturaleza de tu corrupción. El Velo te rechaza parcialmente. Vuelve a intentarlo. Cada fallo te sumerge más en el abismo.'\n\n" +
                                 "Sientes un brote incontrolable de Inestabilidad emocional. El Velo se ríe de tu intento.",
-            next_on_correct: "corrupto_03",
+            next_on_correct: "end_pathC_success", // Nuevo nodo de éxito
             retry_on_incorrect: true
         },
-        {
-            id: "corrupto_03",
-            type: "text_only",
-            text: "--- CORRUPTO: EL ABRAZO DEL CAOS ---\n\n" +
-                  "Una ola de poder crudo, disonante y abrumadora, recorre tu ser. Los fragmentos del Velo te reconocen no como un intruso, sino como una extensión. Ahora eres parte de su caos y su fuerza, una herramienta, o quizás un maestro del desorden.\n\n" +
-                  "LYSSA: 'Tu presencia ha alterado los protocolos de D-47 de una manera imprevista. El siguiente sector, el Módulo de Contención de Entidades, está respondiendo a tu resonancia. No sé si para sellarte o para liberarte. Tu 'don' es tanto una amenaza como una ventaja.'\n\n" +
-                  "Sientes el pull de las entidades que habitan El Velo. Tu propia forma parece fluctuar al borde de la disolución y la redefinición.",
-            next: "wait_for_key"
+        // Aquí podrías tener más nodos para el path C, terminando en end_pathC_success
+    ],
+    // --- NUEVOS NODOS DE ÉXITO PARA CADA PATH ---
+    "end_pathA_success": {
+        id: "end_pathA_success",
+        type: "function_call",
+        func: function() {
+            localStorage.setItem(PATH_A_COMPLETED_KEY, "true");
+            typeWriter("LYSSA: 'El protocolo de Programador ha concluido con éxito. Los algoritmos de D-47 están restaurados. La Biblioteca de Ecos se ha desbloqueado. Preparando acceso...'", function() {
+                showContinuePrompt(function() {
+                    currentPath = "library";
+                    currentNodeIndex = 0;
+                    displayCurrentNode();
+                });
+            });
         }
-    ]
+    },
+    "end_pathB_success": {
+        id: "end_pathB_success",
+        type: "function_call",
+        func: function() {
+            localStorage.setItem(PATH_B_COMPLETED_KEY, "true");
+            typeWriter("LYSSA: 'El protocolo de Viajero ha concluido con éxito. Los nexos de D-47 están estabilizados. La Biblioteca de Ecos se ha desbloqueado. Preparando acceso...'", function() {
+                showContinuePrompt(function() {
+                    currentPath = "library";
+                    currentNodeIndex = 0;
+                    displayCurrentNode();
+                });
+            });
+        }
+    },
+    "end_pathC_success": {
+        id: "end_pathC_success",
+        type: "function_call",
+        func: function() {
+            localStorage.setItem(PATH_C_COMPLETED_KEY, "true");
+            typeWriter("LYSSA: 'El protocolo de Corrupto ha concluido con éxito. Las brechas de D-47 han sido reorientadas. La Biblioteca de Ecos se ha desbloqueado. Preparando acceso...'", function() {
+                showContinuePrompt(function() {
+                    currentPath = "library";
+                    currentNodeIndex = 0;
+                    displayCurrentNode();
+                });
+            });
+        }
+    },
+    // --- NODOS DE LA BIBLIOTECA (CARGADOS DESDE libraryNodes.js) ---
+    "library": LIBRARY_NODES // ¡Importante! Aquí se asigna la constante global
 };
 
-function startNodeSequence(path) {
-    currentPath = path;
-    currentNodeIndex = 0;
-    displayCurrentNode();
-}
+/* MARKER: Lógica del Juego - Core */
 
 function displayCurrentNode() {
     clearTerminal();
-    var node = nodes[currentPath][currentNodeIndex];
+    let node;
+
+    // Determinar qué conjunto de nodos usar
+    if (currentPath === "library") {
+        node = nodes.library[currentNodeIndex];
+    } else {
+        node = nodes[currentPath][currentNodeIndex];
+    }
 
     if (!node) {
-        // Si no hay más nodos en el camino actual, reiniciar el juego.
+        // Manejo del final de un path que no conduce a un estado de victoria o biblioteca
         typeWriter("--- FIN DE LA SECUENCIA DE NODOS ---\n\nEl Velo se cierra. Presiona cualquier tecla para reiniciar y explorar otros caminos.", function() {
             showContinuePrompt(function() {
-                location.reload(); // Recargar la página para reiniciar
+                localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                localStorage.setItem('globalFailureCount', '0');
+                updateFailureDisplay();
+                location.reload();
             });
         });
         return;
+    }
+
+    // Lógica para nodos de función (como end_pathX_success)
+    if (node.type === "function_call") {
+        node.func(); // Ejecuta la función definida en el nodo
+        return; // Detiene el procesamiento adicional del nodo actual
     }
 
     if (node.glitch) {
@@ -540,16 +637,30 @@ function displayCurrentNode() {
 
     if (node.type === "text_only") {
         typeWriter(node.text, function() {
-            if (node.next === "wait_for_key") {
-                showContinuePrompt();
-            } else if (node.next === "end_game_reload") { // Nuevo marcador para reiniciar el juego
+            // Lógica para el "wait_for_key" en la biblioteca
+            if (node.next === "wait_for_key_library") {
                 showContinuePrompt(function() {
-                    location.reload(); // Recargar la página directamente
+                    // Después de "cualquier tecla" en la biblioteca, regresar al menú principal de la biblioteca
+                    currentPath = "library";
+                    currentNodeIndex = 0; // Volver al índice del menú principal de la biblioteca
+                    displayCurrentNode();
+                });
+            } else if (node.next === "wait_for_key") {
+                showContinuePrompt();
+            } else if (node.next === "end_game_reload") {
+                // Opción "9. Regresar al Acceso Principal" de la biblioteca
+                showContinuePrompt(function() {
+                    localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                    localStorage.setItem('globalFailureCount', '0');
+                    updateFailureDisplay();
+                    location.reload();
                 });
             } else if (node.next) {
                 var nextNodeFound = false;
-                for (var i = 0; i < nodes[currentPath].length; i++) {
-                    if (nodes[currentPath][i].id === node.next) {
+                // Buscar el siguiente nodo dentro del path actual
+                var targetPathNodes = nodes[currentPath]; // Usar nodes[currentPath] para todos los paths
+                for (var i = 0; i < targetPathNodes.length; i++) {
+                    if (targetPathNodes[i].id === node.next) {
                         currentNodeIndex = i;
                         nextNodeFound = true;
                         break;
@@ -558,16 +669,23 @@ function displayCurrentNode() {
                 if (nextNodeFound) {
                     displayCurrentNode();
                 } else {
-                    typeWriter("ERROR: Nodo siguiente '" + node.next + "' no encontrado. Terminando secuencia.", function() {
+                    // Esto indica un error en la definición del nodo 'next_on_correct'
+                    typeWriter("ERROR: Nodo siguiente '" + node.next + "' no encontrado en el path '" + currentPath + "'. Terminando secuencia.", function() {
                         showContinuePrompt(function() {
-                             location.reload();
+                            localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                            localStorage.setItem('globalFailureCount', '0');
+                            updateFailureDisplay();
+                            location.reload();
                         });
                     });
                 }
             } else {
-                // Si un nodo text_only no tiene 'next' definido (caso inusual), reiniciar.
+                // Caso por defecto para nodos sin 'next' explícito (deberían ser los de función)
                 typeWriter("Secuencia de nodo de texto finalizada sin siguiente instrucción. Fin de este segmento.", function(){
                      showContinuePrompt(function() {
+                        localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                        localStorage.setItem('globalFailureCount', '0');
+                        updateFailureDisplay();
                         location.reload();
                     });
                 });
@@ -581,40 +699,129 @@ function displayCurrentNode() {
     }
 }
 
-function startInitialScreen() {
-    clearTerminal();
-    typeWriter(
-        "// PROTOCOLO DE CONEXIÓN INICIADO\n" +
-        "// ESTADO: TERMINAL DESCONOCIDA. ANOMALÍA DETECTADA.\n" +
-        "// INGRESE CLAVE DE AUTENTICACIÓN PARA ACCESO PRINCIPAL:",
-        function() {
-            waitForInput = true;
-            terminalInput.setAttribute('placeholder', 'Introduzca clave...');
-        }
-    );
-}
-
 function handleUserInput(input) {
     if (isTyping) {
         terminalInput.value = '';
         return;
     }
 
-    if (waitForInput && (!nodes[currentPath] || nodes[currentPath][currentNodeIndex].type !== "enigma_input")) {
+    // Lógica para el menú de la biblioteca (si currentPath es 'library' y el nodo es 'biblioteca_principal')
+    if (currentPath === "library" && nodes.library[currentNodeIndex].id === "biblioteca_principal") {
+        var node = nodes.library[currentNodeIndex];
         waitForInput = false;
         terminalInput.removeAttribute('placeholder');
         appendText("> " + input);
 
-        var matchedPath = passwords[input.toUpperCase()];
+        var selectedOptionId = node.answer[input]; // Busca la ID del nodo asociado a la opción
+
+        if (selectedOptionId) {
+            if (selectedOptionId === "end_game_reload") {
+                typeWriter("LYSSA: 'Regresando al acceso principal. El Velo espera tu siguiente elección.'", function() {
+                    showContinuePrompt(function() {
+                        localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false"); // Limpiar estado de derrota
+                        localStorage.setItem('globalFailureCount', '0'); // Reiniciar contador de fallos
+                        updateFailureDisplay(); // Actualizar display
+                        location.reload(); // Recargar la página
+                    });
+                });
+            } else {
+                var nextNodeFound = false;
+                for (var i = 0; i < nodes.library.length; i++) {
+                    if (nodes.library[i].id === selectedOptionId) {
+                        currentNodeIndex = i;
+                        nextNodeFound = true;
+                        break;
+                    }
+                }
+                if (nextNodeFound) {
+                    displayCurrentNode();
+                } else {
+                    typeWriter("ERROR: Sección '" + selectedOptionId + "' no encontrada en la Biblioteca. Volviendo al índice.", function() {
+                        currentPath = "library";
+                        currentNodeIndex = 0; // Volver al índice del menú principal de la biblioteca
+                        displayCurrentNode();
+                    });
+                }
+            }
+        } else {
+            typeWriter(node.incorrect_feedback, function() {
+                waitForInput = true;
+                terminalInput.setAttribute('placeholder', 'Tu respuesta...');
+            });
+        }
+        return; // Salir de la función para no procesar como enigma normal
+    }
+
+    // Lógica para la entrada de la clave inicial (M205, PADEL, PIFIA, BIBLIOTECA)
+    if (waitForInput && (currentPath === "initial_access")) { // Solo para el primer input
+        waitForInput = false;
+        terminalInput.removeAttribute('placeholder');
+        appendText("> " + input);
+
+        const inputKey = input.toUpperCase();
+        var matchedPath = passwords[inputKey];
+
+        // Verificar si el camino ya ha sido completado y bloquearlo (excepto la biblioteca)
+        if (inputKey !== "BIBLIOTECA" &&
+            ((inputKey === "M205" && localStorage.getItem(PATH_A_COMPLETED_KEY) === "true") ||
+             (inputKey === "PADEL" && localStorage.getItem(PATH_B_COMPLETED_KEY) === "true") ||
+             (inputKey === "PIFIA" && localStorage.getItem(PATH_C_COMPLETED_KEY) === "true")))
+        {
+            typeWriter(
+                "<span class='glitch-red'>ERROR CRÍTICO: CONEXIÓN REMOTA '" + inputKey + "' DESHABILADA.</span>\n" +
+                "El Subvertidor de Ciclos ha sellado o estabilizado este nodo. Acceso denegado a caminos ya completados.\n" +
+                "Explora la Biblioteca de Ecos ('BIBLIOTECA') o intenta un protocolo diferente no completado.",
+                function() {
+                    applyGlitchEffect();
+                    setTimeout(removeGlitchEffect, 2000);
+                    setTimeout(function() {
+                        waitForInput = true;
+                        terminalInput.setAttribute('placeholder', 'Introduzca clave...');
+                    }, 2000);
+                }
+            );
+            return;
+        }
+
+        // Si intenta acceder a la biblioteca pero ningún path ha sido completado
+        if (inputKey === "BIBLIOTECA" &&
+            !(localStorage.getItem(PATH_A_COMPLETED_KEY) === "true" ||
+              localStorage.getItem(PATH_B_COMPLETED_KEY) === "true" ||
+              localStorage.getItem(PATH_C_COMPLETED_KEY) === "true"))
+        {
+            typeWriter("LYSSA: 'La Biblioteca de Ecos está sellada. Se requiere la finalización de al menos un protocolo principal para desbloquear el acceso a sus archivos profundos.'", function() {
+                waitForInput = true;
+                terminalInput.setAttribute('placeholder', 'Introduzca clave...');
+            });
+            return;
+        }
+
 
         if (matchedPath) {
+            if (localStorage.getItem(GAME_FAILED_MAX_ATTEMPTS_KEY) === "true") {
+                displayFailedConnectionScreen();
+                return;
+            }
+
+            // --- ¡AQUÍ ES DONDE HACEMOS VISIBLE EL CONTADOR DE FALLOS! ---
+            if (failureDisplayElement) {
+                failureDisplayElement.style.display = 'block'; // O 'flex' si #game-container usa flex-direction: column
+            }
+
             currentPath = matchedPath;
             typeWriter(
                 "Clave de autenticación aceptada.\n" +
                 "Conectando a la red del Velo: " + currentPath.toUpperCase() + "...",
                 function() {
                     showLoadingBar(3000, function() {
-                        proceedAfterAuthentication();
+                        // Si el camino es la biblioteca, simplemente la mostramos
+                        if (currentPath === "library") {
+                            currentNodeIndex = 0; // Asegurarse de que empiece en el índice 0 del array LIBRARY_NODES
+                            displayCurrentNode();
+                        } else {
+                            // Para paths normales, iniciar el display
+                            proceedAfterAuthentication();
+                        }
                     });
                 }
             );
@@ -627,30 +834,86 @@ function handleUserInput(input) {
                     terminalInput.setAttribute('placeholder', 'Introduzca clave...');
                 }
             );
-            setTimeout(applyGlitchEffect, 500);
+            applyGlitchEffect();
             setTimeout(removeGlitchEffect, 1500);
         }
     }
-    else if (waitForInput && nodes[currentPath] && nodes[currentPath][currentNodeIndex].type === "enigma_input") {
+    // Lógica para las respuestas a los enigmas (fuera del menú de la biblioteca)
+    else if (waitForInput && nodes[currentPath] && nodes[currentPath][currentNodeIndex] && nodes[currentPath][currentNodeIndex].type === "enigma_input") {
         var node = nodes[currentPath][currentNodeIndex];
         waitForInput = false;
         terminalInput.removeAttribute('placeholder');
         appendText("> " + input);
 
-        if (input.toUpperCase() === node.answer.toUpperCase()) {
-            typeWriter(node.correct_feedback, function() {
-                currentNodeIndex++;
-                displayCurrentNode();
+        // Ajustar la comparación para manejar la respuesta del enigma
+        if (input.toUpperCase() === String(node.answer).toUpperCase()) { // Convertir node.answer a String para comparación consistente
+            subvertidorPower = Math.max(0, subvertidorPower - 1);
+            typeWriter(node.correct_feedback + "\n\n[NIVEL DE AMENAZA DEL SUBVERTIDOR: " + subvertidorPower + "]", function() {
+                updateFailureDisplay();
+                // --- CAMBIO CLAVE AQUÍ: AÑADIMOS showContinuePrompt() ---
+                showContinuePrompt(function() { // Espera una tecla antes de continuar
+                    if (node.next_on_correct) {
+                        var nextNodeFound = false;
+                        var targetPathNodes = nodes[currentPath];
+                        for (var i = 0; i < targetPathNodes.length; i++) {
+                            if (targetPathNodes[i].id === node.next_on_correct) {
+                                currentNodeIndex = i;
+                                nextNodeFound = true;
+                                break;
+                            }
+                        }
+                        if (nextNodeFound) {
+                            displayCurrentNode();
+                        } else {
+                            typeWriter("ERROR: Nodo siguiente correcto '" + node.next_on_correct + "' no encontrado. Terminando secuencia.", function() {
+                                showContinuePrompt(function() {
+                                    localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                                    localStorage.setItem('globalFailureCount', '0');
+                                    updateFailureDisplay();
+                                    location.reload();
+                                });
+                            });
+                        }
+                    } else {
+                        currentNodeIndex++;
+                        displayCurrentNode();
+                    }
+                });
+                // --- FIN DEL CAMBIO ---
             });
         } else {
-            typeWriter(node.incorrect_feedback, function() {
-                if (node.retry_on_incorrect) {
-                    waitForInput = true;
-                    terminalInput.setAttribute('placeholder', 'Tu respuesta...');
-                } else {
-                    typeWriter("Secuencia interrumpida por fallo crítico. Reiniciando el Velo...", startInitialScreen);
+            // ... (código para respuestas incorrectas, que ya debería tener showContinuePrompt o similar) ...
+            subvertidorPower++; // Incrementa el poder del subvertidor en fallo de enigma
+            globalFailureCount++; // Incrementa los fallos globales
+            localStorage.setItem('globalFailureCount', globalFailureCount.toString());
+            updateFailureDisplay();
+
+            typeWriter(
+                node.incorrect_feedback +
+                "\n\n[NIVEL DE AMENAZA DEL SUBVERTIDOR: " + subvertidorPower + "]\n" +
+                "[FALLOS GLOBALES: " + globalFailureCount + " / " + MAX_GLOBAL_FAILURES + "]",
+                function() {
+                    if (globalFailureCount >= MAX_GLOBAL_FAILURES) {
+                        localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "true");
+                        displayFailedConnectionScreen();
+                        return;
+                    }
+
+                    if (node.retry_on_incorrect) {
+                        waitForInput = true;
+                        terminalInput.setAttribute('placeholder', 'Tu respuesta...');
+                    } else {
+                        typeWriter("Secuencia interrumpida por fallo crítico. Reiniciando el Velo...", function() {
+                             showContinuePrompt(function() {
+                                localStorage.setItem(GAME_FAILED_MAX_ATTEMPTS_KEY, "false");
+                                localStorage.setItem('globalFailureCount', '0');
+                                updateFailureDisplay();
+                                location.reload();
+                            });
+                        });
+                    }
                 }
-            });
+            );
             applyGlitchEffect();
             setTimeout(removeGlitchEffect, 1500);
         }
@@ -661,37 +924,11 @@ function handleUserInput(input) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initGame);
 
 function proceedAfterAuthentication() {
-    clearTerminal();
-
-    setTimeout(function() {
-        switch (currentPath) {
-            case "pathA":
-                typeWriter("Bienvenido, Programador. Tu camino hacia los enigmas de la lógica comienza ahora.", function() {
-                    showContinuePrompt(function() {
-                        startNodeSequence(currentPath);
-                    });
-                });
-                break;
-            case "pathB":
-                typeWriter("Bienvenido, Viajero. Los caminos dimensionales te aguardan.", function() {
-                    showContinuePrompt(function() {
-                        startNodeSequence(currentPath);
-                    });
-                });
-                break;
-            case "pathC":
-                typeWriter("Bienvenido, Corrupto. La disonancia te ha elegido. El caos te llama.", function() {
-                    showContinuePrompt(function() {
-                        startNodeSequence(currentPath);
-                    });
-                });
-                break;
-            default:
-                typeWriter("Error de ruta interna. Reiniciando secuencia.", startInitialScreen);
-                break;
-        }
-    }, 1000);
+    currentNodeIndex = 0; // Resetear para el inicio del path
+    displayCurrentNode();
 }
+
+/* MARKER: Inicialización del Juego */
+document.addEventListener('DOMContentLoaded', initGame);

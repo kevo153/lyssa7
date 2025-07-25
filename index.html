@@ -3,35 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL INSTALACIÓN R45</title>
+    <title>El Velo</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="start-overlay">
-        <h1>TERMINAL INSTALACIÓN R45</h1>
-        <p>HAZ CLIC PARA INICIAR</p>
+        <p>Acceso al Velo. Pulsa para entrar.</p> 
     </div>
-
-    <audio id="audio-teclado" src="audio/teclado.mp3" preload="auto"></audio>
-    <audio id="audio-glitch" src="audio/glitch.mp3" preload="auto"></audio>
-    <audio id="audio-fondo" src="audio/ambience.mp3" preload="auto"></audio>
 
     <div id="video-background-container">
         <video autoplay loop muted playsinline>
             <source src="video/ambiencevide.mp4" type="video/mp4">
-            Tu navegador no soporta el formato de video.
+            Tu navegador no soporta el tag de video.
         </video>
     </div>
 
-    <div id="terminal-container">
-        <div id="terminal-output"></div>
-        <div id="terminal-input-area">
-            <span class="prompt">></span>
-            <input type="text" id="terminal-input" autofocus>
+    <div id="game-container">
+        <div id="failure-display">
+            <p>Fallos Globales: <span id="failure-count">0</span> / 5</p>
+        </div>
+
+        <div id="terminal-container">
+            <div id="terminal-output"></div>
+            <div id="terminal-input-area">
+                <span class="prompt">></span>
+                <input type="text" id="terminal-input" autocomplete="off" autofocus>
+            </div>
         </div>
     </div>
 
+    <audio id="audio-teclado" src="assets/typewriter.mp3" preload="auto"></audio>
+    <audio id="audio-glitch" src="assets/glitch.mp3" preload="auto"></audio>
+    <audio id="audio-fondo" src="audio/ambience.mp3" preload="auto" loop></audio>
+
+    <button id="reset-game-button" style="position: fixed; bottom: 10px; right: 10px; z-index: 1000; background-color: #444; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer;">Reiniciar Juego</button>
+
+    <script src="libraryNodes.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,47 +1,61 @@
-/* MARKER: Estilos Generales y del Cuerpo */
+/* style.css */
+
+/* Estilos Generales y Reseteo */
 body {
-    background-color: transparent; /* Importante: el fondo del body debe ser transparente para que se vea el video */
-    color: #0F0; /* Texto verde brillante, clásico de terminal */
-    font-family: 'Press Start 2P', monospace;
-    font-size: 1.1em;
     margin: 0;
-    overflow: hidden; /* Oculta barras de desplazamiento */
-    display: flex; /* Para centrar la terminal */
+    overflow: hidden; /* Evita barras de desplazamiento */
+    font-family: 'Courier New', Courier, monospace; /* Fuente de terminal */
+    background-color: #000; /* Fondo negro */
+    color: #0f0; /* Color de texto verde de terminal */
+    display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    height: 100vh;
+    font-size: 1.1em; /* BASE FONT SIZE - Aumentado ligeramente */
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased; /* Suavizado de fuentes para WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Suavizado de fuentes para Firefox */
 }
 
-/* NUEVO: Estilos para el Overlay de Inicio */
+/* Contenedor del Overlay de Inicio */
 #start-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.95); /* Fondo casi negro y opaco */
-    color: #0F0;
+    background-color: rgba(0, 0, 0, 0.95); /* Fondo oscuro semitransparente */
+    color: #0f0;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Asegura que esté por encima de todo */
-    cursor: pointer; /* Indica que es clicable */
-    transition: opacity 1s ease-out; /* Transición suave al desaparecer */
-}
-
-#start-overlay h1 {
-    font-size: 1em;
-    margin-bottom: 20px;
-    text-shadow: 0 0 15px #0F0;
+    flex-direction: column;
+    z-index: 1000;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.8em; /* Tamaño grande para el mensaje inicial */
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
 }
 
 #start-overlay p {
-    font-size: 1em;
-    opacity: 0.8;
+    animation: pulse 1.5s infinite alternate; /* Efecto de pulso en el texto */
+    padding: 20px;
+    border: 2px solid #0f0;
+    box-shadow: 0 0 15px #0f0;
 }
 
-/* Estilos para el Contenedor del Video de Fondo */
+/* Animación para el efecto de pulso */
+@keyframes pulse {
+    from {
+        opacity: 0.7;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Contenedor del Video de Fondo */
 #video-background-container {
     position: fixed;
     top: 0;
@@ -49,140 +63,212 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: -100;
-    pointer-events: none;
+    z-index: -1; /* Envía el video al fondo */
+    filter: brightness(0.4) contrast(1.5); /* Oscurece y contrasta el video para que el texto sea legible */
 }
 
-#video-background-container video { /* Apunta a la etiqueta <video> */
+#video-background-container video {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-width: 100%;
-    min-height: 100%;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    filter: brightness(0.5) contrast(1.2) blur(0px);
+    object-fit: cover; /* Asegura que el video cubra todo el contenedor */
 }
 
-/* Estilos del Contenedor de la Terminal */
-#terminal-container {
-    background-color: rgba(0, 0, 0, 0.9);
-    border: 2px solid #0F0;
+
+/* Contenedor Principal del Juego */
+#game-container {
+    display: flex;
+    flex-direction: column; /* Cambiado a columna para apilar la terminal y el contador */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     padding: 20px;
-    width: 80%;
-    max-width: 900px;
-    height: 70vh;
+    box-sizing: border-box;
+}
+
+/* Estilos de la Terminal */
+#terminal-container {
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo de la terminal ligeramente transparente */
+    border: 2px solid #0f0; /* Borde verde */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Sombra brillante */
+    padding: 20px;
+    width: 90%; /* Ancho ajustado */
+    max-width: 950px; /* Contenedor de texto más grande */
+    height: 85%; /* Contenedor de texto más grande */
+    max-height: 700px; /* Contenedor de texto más grande */
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    overflow: hidden; /* Oculta el scrollbar principal */
+    resize: both; /* Permite al usuario redimensionar la terminal */
+    min-width: 300px;
+    min-height: 200px;
     box-sizing: border-box;
-    position: relative;
-    z-index: 1;
+    /* Margin top para separar del contador de fallos, si este se coloca encima */
+    margin-top: 10px; 
 }
 
-/* Estilos del Área de Salida (Output) */
 #terminal-output {
-    flex-grow: 1;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    padding-right: 10px;
-    line-height: 1.5;
-    scrollbar-width: thin;
-    scrollbar-color: #0F0 #000;
+    flex-grow: 1; /* Permite que el área de salida ocupe el espacio disponible */
+    overflow-y: auto; /* Habilita el desplazamiento vertical si el contenido excede la altura */
+    white-space: pre-wrap; /* Mantiene saltos de línea y envuelve texto largo */
+    word-wrap: break-word; /* Rompe palabras si son demasiado largas */
+    padding-right: 15px; /* Espacio para el scrollbar */
+    font-size: 1.2em; /* TEXTO DE SALIDA - Aumentado */
+    scrollbar-width: thin; /* Para Firefox */
+    scrollbar-color: #0f0 #000; /* Para Firefox */
 }
 
+/* Estilos para el scrollbar en WebKit (Chrome, Safari) */
 #terminal-output::-webkit-scrollbar {
     width: 8px;
 }
+
 #terminal-output::-webkit-scrollbar-track {
     background: #000;
 }
+
 #terminal-output::-webkit-scrollbar-thumb {
-    background-color: #0F0;
-    border-radius: 4px;
-    border: 1px solid #080;
+    background-color: #0f0;
+    border-radius: 10px;
+    border: 2px solid #000;
 }
 
-/* Estilos del Área de Entrada (Input) */
-#terminal-input-area {
+.input-line {
     display: flex;
     align-items: center;
     margin-top: 10px;
-    border-top: 1px solid #0F0;
-    padding-top: 10px;
 }
 
 .prompt {
-    color: #0F0;
+    color: #0f0;
     margin-right: 5px;
+    font-size: 1.2em; /* PROMPT - Aumentado para coincidir con el input */
 }
 
 #terminal-input {
     background-color: transparent;
     border: none;
-    color: #0F0;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 1.1em;
-    flex-grow: 1;
-    outline: none;
-    caret-color: #0F0;
+    color: #0f0;
+    flex-grow: 1; /* Ocupa el espacio restante */
+    outline: none; /* Quita el contorno al enfocar */
+    font-size: 1.2em; /* INPUT DEL USUARIO - Aumentado */
+    caret-color: #0f0; /* Color del cursor */
 }
 
-/* Estilo para el efecto Glitch (se aplicará con JS) */
+#terminal-input-area {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Estilos para el Glitch Effect */
 .glitch {
-    animation: glitch-effect 0.5s infinite alternate;
+    animation: glitch-animation 0.5s infinite;
 }
 
-@keyframes glitch-effect {
+@keyframes glitch-animation {
     0% {
         transform: translate(0);
-        opacity: 1;
     }
     20% {
         transform: translate(-2px, 2px);
-        opacity: 0.9;
     }
     40% {
-        transform: translate(-1px, -1px);
-        opacity: 0.8;
+        transform: translate(-2px, -2px);
     }
     60% {
         transform: translate(2px, 2px);
-        opacity: 0.9;
     }
     80% {
-        transform: translate(1px, -2px);
-        opacity: 0.8;
+        transform: translate(2px, -2px);
     }
     100% {
         transform: translate(0);
-        opacity: 1;
     }
 }
 
-/* Estilos para barras de carga (inicialmente ocultas) */
-.loading-bar-container {
-    width: 100%;
-    height: 15px;
-    background-color: #222;
-    border: 1px solid #0F0;
-    margin-top: 10px;
-    box-sizing: border-box;
-    display: none;
+/* Fallos Globales Display - Ajuste inicial para ocultar */
+#failure-display {
+    display: none; /* Oculta el elemento por defecto hasta que se muestre con JS */
+
+    margin-bottom: 15px; /* Separación de la terminal */
+    text-align: center; /* Centrar el texto */
+    color: #ff0000; /* Rojo vibrante para los fallos */
+    font-size: 1.2em; /* Tamaño de fuente más grande */
+    font-weight: bold; /* Negrita para resaltar */
+    border: 1px solid #ff0000; /* Borde sutil */
+    padding: 8px 15px; /* Relleno */
+    border-radius: 5px; /* Bordes ligeramente redondeados */
+    background-color: rgba(255, 0, 0, 0.1); /* Fondo muy ligero */
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.4); /* Sombra roja brillante */
+    min-width: 200px; /* Ancho mínimo para que no se comprima demasiado */
 }
 
-.loading-bar-fill {
-    height: 100%;
-    width: 0%;
-    background-color: #0F0;
-    transition: width 0.1s linear;
+#failure-display p {
+    margin: 0;
 }
 
-.loading-percentage {
-    text-align: center;
-    margin-top: 5px;
-    color: #0F0;
-    display: none;
+#failure-count {
+    color: #fff; /* Que el número de fallos sea blanco para contraste */
+    text-shadow: 0 0 5px #ff0000; /* Pequeña sombra de texto para resaltarlo */
+}
+
+/* Responsive Design para pantallas más pequeñas */
+@media (max-width: 768px) {
+    body {
+        font-size: 1em; /* Base font size un poco más pequeña en móviles */
+    }
+
+    #terminal-container {
+        width: 95%;
+        height: 80%; /* Ajuste de altura en móviles */
+        padding: 15px;
+        margin-top: 10px;
+    }
+
+    #terminal-output,
+    #terminal-input,
+    .prompt {
+        font-size: 1.1em; /* Ajuste para el texto en móviles */
+    }
+
+    #start-overlay {
+        font-size: 1.5em;
+    }
+
+    #failure-display {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+}
+
+/* Responsive Design para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    #terminal-container {
+        width: 98%;
+        height: 85%; /* Ajuste de altura para pantallas muy pequeñas */
+        padding: 10px;
+        margin-top: 8px;
+    }
+
+    #terminal-output,
+    #terminal-input,
+    .prompt {
+        font-size: 1em; /* Tamaño más ajustado para pantallas muy pequeñas */
+    }
+
+    #start-overlay {
+        font-size: 1.2em;
+    }
+
+    #failure-display {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
 }
