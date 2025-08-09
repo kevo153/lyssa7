@@ -3,55 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Velo - Protocolo de Acceso</title>
-    <link rel="stylesheet" href="style.css">
+    <title>El Velo</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="start-overlay" tabindex="0">
-        <h1>Terminal de el Velo... Da click para ingresar...</h1>
-        <p class="blink">CARGANDO PROTOCOLOS...</p>
+    <!-- Pantalla de Bienvenida con Contraseña -->
+    <div id="welcome-screen">
+        <div class="welcome-box">
+            <h1>EL VELO</h1>
+            <p>Se requiere clave de acceso para sincronizar.</p>
+            <div id="password-input-area">
+                <span class="prompt">></span>
+                <input type="text" id="password-input" autocomplete="off" autofocus>
+            </div>
+            <p id="error-message" class="hidden">Clave no reconocida. La disonancia aumenta.</p>
+        </div>
     </div>
 
-    <div id="game-container">
-        <video id="background-video" autoplay loop muted playsinline>
-            <source src="video/ambiencevide.mp4" type="video/mp4">
-            Tu navegador no soporta el elemento de video.
-        </video>
+    <!-- La terminal principal donde se mostrará la historia -->
+    <main id="game-terminal" class="hidden">
+        <div id="terminal-output"></div>
+        <div id="terminal-input-area" class="hidden">
+            <span class="prompt">></span>
+            <input type="text" id="terminal-input" autocomplete="off">
+        </div>
+    </main>
 
-        <div id="terminal-container" class="terminal-effect">
-            <div id="terminal-output">
-                </div>
-
-            <div id="terminal-input-area">
-                <span class="prompt">></span>
-                <input type="text" id="terminal-input" autofocus autocomplete="off">
+    <!-- La capa de interfaz para contadores y botones -->
+    <div id="ui-overlay" class="hidden">
+        <!-- Contador de Fallos Retrofuturista -->
+        <div id="failure-counter">
+            <div class="failure-header">
+                <span>ESTADO DE SINCRONIZACIÓN</span>
+                <span id="failure-percentage">0%</span>
+            </div>
+            <div class="failure-bar-container">
+                <div id="failure-bar"></div>
             </div>
         </div>
 
-        <div id="failure-display">
-            FALLOS GLOBALES: <span id="global-failures-count">0</span> / <span id="max-failures-limit">5</span>
-            <br>Nivel de Amenaza del Subvertidor: <span id="subvertidor-power">0</span>
+        <!-- Reproductor de Audio -->
+        <div id="audio-player" class="hidden">
+            <canvas id="audio-spectrogram" width="200" height="50"></canvas>
+            <button id="play-pause-button">INICIAR ANÁLISIS</button>
+            <audio id="clue-audio-element" src="assets/audio/pianoCount.mp3"></audio>
         </div>
-        
-        <button id="reset-game-button" class="action-button">Reiniciar Velo</button>
 
-        <!-- <div id="dev-controls">
-            <h3>Controles de Debug:</h3>
-            <button id="dev-next-node-button" class="dev-button">Siguiente Nodo</button>
-            <button id="dev-show-answer-button" class="dev-button">Mostrar Respuesta</button>
-            <div id="dev-answer-display" class="dev-info-box">
-                Respuesta: <span id="dev-current-answer">N/A</span>
-            </div>
-            </div>
-        </div> -->
+        <button id="skip-button" class="hidden">SALTAR</button>
+    </div>
 
-    <audio id="audio-teclado" src="audio/typewriter.mp3" preload="auto"></audio>
-    <audio id="audio-glitch" src="audio/glitch.mp3" preload="auto"></audio>
-    <audio id="audio-fondo" src="audio/ambience.mp3" loop preload="auto"></audio>
-
-    <script src="paths/pathA.js"></script>
-    <script src="libraryNodes.js"></script> 
-    
-    <script src="script.js"></script>
+    <!-- El punto de entrada a todo nuestro código -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
