@@ -245,7 +245,7 @@ export const LORE_DATA = {
             "Estos ecos son caóticos, pero contienen la lógica para su propia anulación. Ha dejado un rastro, un acertijo para enmascarar su firma.",
             "Directiva: Analiza los ecos visuales y descifra el código de purga de 4 dígitos para estabilizar y purgar este nodo.",
             "--- INICIO DE TRANSMISIÓN CORRUPTA ---",
-            "\"Si el segundo fuera tan alto como el número de guardianes, me quedaría corto por dos, con dos de ellos caídos y uno siendo un fraude.",
+            "\"Si el segundo fuera tan alto como el número de guardianes, me quedaría corto por dos, con dos de ellos muertos y uno siendo un fraude.",
             "El tercero fue fruto de una matanza de especímenes alados, donde solo sobrevivieron dos.",
             "Los sirvientes iban ante el primero.",
             "El cuarto no necesita presentación.\"",
@@ -258,7 +258,7 @@ export const LORE_DATA = {
             'Sirvientes': 'assets/image/egi.jpg',
             'El Cuarto': 'assets/image/lu.jpg'
         },
-        answer: "3271",
+        answer: "3471",
         nextNode: 'M205_COMMAND_FINALE'
     },
 
