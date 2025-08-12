@@ -102,7 +102,6 @@ async function processCurrentNode() {
         case 'end':
         case 'key_sequence':
         case 'arrow_sequence':
-        case 'library_entry':
             break;
     }
 }
@@ -205,7 +204,7 @@ function handlePlayerInput() {
         
         case 'prompt':
         case 'audio_clue':
-            if (inputValue === node.answer) {
+            if (inputValue.toUpperCase() === node.answer.toUpperCase()) {
                 setCurrentNodeKey(node.nextNode);
                 processCurrentNode();
             } else {
@@ -226,12 +225,6 @@ function handleKeyPress(event) {
 
     const nodeKey = getCurrentNodeKey();
     const node = LORE_DATA[nodeKey];
-
-    if (node.type === 'library_entry' && event.key === 'Enter') {
-        setCurrentNodeKey(node.nextNode);
-        processCurrentNode();
-        return;
-    }
 
     if (node.type !== 'key_sequence' && node.type !== 'arrow_sequence') return;
 

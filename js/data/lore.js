@@ -143,9 +143,9 @@ export const LORE_DATA = {
         text: [
             "El Subvertidor ha intentado corromper el cronómetro central del sistema. Ha fragmentado la marca de tiempo de un evento crítico en tres ecos narrativos.",
             "Debes reconstruir la marca de tiempo exacta (HH:MM:SS) para estabilizar el flujo temporal.",
-            "Eco de HELIOS: El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
-            "Eco de MERIDIA: La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
-            "Eco de SASHA: El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
+            "Eco de HELIOS (Horas): El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
+            "Eco de MERIDIA (Minutos): La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
+            "Eco de SASHA (Segundos): El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
             "Directiva: Ingresa la marca de tiempo reconstruida en formato HH:MM:SS."
         ],
         type: 'prompt',
@@ -190,7 +190,7 @@ export const LORE_DATA = {
             "Instrucción 1: Hay un registro con designaciones marcadas. El Manifiesto de Terminación.",
             "Instrucción 2: Todas las entidades están listas para ser procesadas.",
             "Instrucción 3: Jóvenes y viejas, perfectamente en fila por orden de ciclo.",
-            "Instrucción 4: Luego se abren las puertas iniciales secuencialmente de manera vertical.",
+            "Instrucción 4: Luego se abren las puertas secuencialmente de manera vertical.",
             "--- FIN DE INSTRUCCIONES ---",
             "Manifiesto de Entidades Purgadas:",
             "[Ciclo 38] Entidad Biggs",
@@ -246,8 +246,8 @@ export const LORE_DATA = {
             "Directiva: Analiza los ecos visuales y descifra el código de purga de 4 dígitos para estabilizar y purgar este nodo.",
             "--- INICIO DE TRANSMISIÓN CORRUPTA ---",
             "\"Si el segundo fuera tan alto como el número de guardianes, me quedaría corto por dos, con dos de ellos caídos y uno siendo un fraude.",
-            "El tercero es el resultado de una matanza de especímenes alados, donde solo sobrevivieron dos.",
-            "Los sirvientes iban ante el primero, este... sentado en su trono, no era relevante.",
+            "El tercero fue fruto de una matanza de especímenes alados, donde solo sobrevivieron dos.",
+            "Los sirvientes iban ante el primero.",
             "El cuarto no necesita presentación.\"",
             "--- FIN DE TRANSMISIÓN ---"
         ],
@@ -329,7 +329,8 @@ export const LORE_DATA = {
             "El Velo es una realidad vacía, la realidad base desde donde parten o se crean todas las demás realidades que existen en el sistema...",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB'
     },
     'LIB_REALIDAD': {
@@ -338,7 +339,8 @@ export const LORE_DATA = {
             "Una realidad es una simulación, un conjunto de universos amalgamados en un espacio...",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB'
     },
     'LIB_ENTIDADES': {
@@ -347,7 +349,8 @@ export const LORE_DATA = {
             "Las entidades que habitaban esta realidad eran las encargadas de crear, administrar, supervisar y destruir todas las realidades...",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB'
     },
     'LIB_ANOMALIAS': {
@@ -364,7 +367,8 @@ export const LORE_DATA = {
             "**O**bjetivo primario: su erradicación.",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB',
         unlocks: 'HIDDEN_PROTOCOL_PROMPT'
     },
@@ -374,7 +378,8 @@ export const LORE_DATA = {
             "Se tiene registro de 386,923 instalaciones en el sector &%**|||\"\"ØØæڃ...",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB'
     },
     'LIB_COSMOLOGIA': {
@@ -383,7 +388,8 @@ export const LORE_DATA = {
             "Un número infinito de planos existenciales equivale a un universo...",
             "Introduce 'VOLVER' para regresar al índice."
         ],
-        type: 'library_entry',
+        type: 'prompt',
+        answer: "VOLVER",
         nextNode: 'LIBRARY_HUB'
     },
     'HIDDEN_PROTOCOL_PROMPT': {
