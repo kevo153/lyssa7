@@ -28,8 +28,9 @@ export const LORE_DATA = {
 
     'M205_AUDIO_CHALLENGE': {
         text: [
-            "Entidad hostil utiliza frecuencia sub-armónica para ofuscar su firma de acceso. Transmisión aislada.",
-            "Directiva: Analizar señal. Extraer código de anulación de 4 dígitos para neutralizar vector de ataque inicial."
+            "El Subvertidor está transmitiendo su código de acceso en una frecuencia sub-armónica, enmascarado como una simple señal de audio.",
+            "He aislado la transmisión. La señal consiste en cuatro secuencias de pulsos tonales, separadas por pausas de silencio.",
+            "Directiva: Analice la señal. Cuantifique los pulsos en cada una de las cuatro secuencias para obtener el código de anulación."
         ],
         type: 'audio_clue',
         answer: "6775",
@@ -48,19 +49,19 @@ export const LORE_DATA = {
 
     'M205_MUSIC_CHALLENGE': {
         text: [
-            "El Subvertidor ha dejado un rastro, un fragmento de datos corrupto que apunta a una composición musical.",
-            "Referencia: Flores Solitarias Opus 82.3",
-            "Acceda al documento en la siguiente dirección de memoria para su análisis:",
+            "El Subvertidor ha respondido con un nuevo tipo de ofuscación. Ha inyectado un fragmento de registro corrupto, una narrativa extraída de una realidad adyacente. La clave de acceso está oculta dentro de la historia.",
+            "--- INICIO DE REGISTRO CORRUPTO ---",
+            "\"Estuve solo al borde del primer camino. Durante el recorrido me encontré con un pequeño eco, solo, buscando a su hermano gemelo. Una cruz que representa los puntos cardinales. En el que va hacia el este, un letrero reza 'Einfach', esto fue lo ULTIMO que recuerdo.\"",
+            "--- FIN DE REGISTRO ---",
+            "Acceda al documento visual en la siguiente dirección de memoria para verificar el letrero:",
             "https://www.reddit.com/user/Traditional-Play9725/comments/1ml3i5s/op_82_no_3_de_robert_schumann/",
-            "El sistema interpreta esto como un segundo firewall. La clave de acceso parece estar codificada en la estructura y anotaciones del documento.",
-            "Directiva: Analizar los elementos visuales del documento. Extraer la clave de 4 dígitos.",
-            "Ingrese 'HELP' para un desglose del protocolo de descifrado."
+            "Directiva: Extrae la clave de 4 dígitos de la narrativa y el documento."
         ],
         type: 'prompt',
         answer: "3249",
         hints: [
             "Pista 1: La clave de acceso no reside en la melodía, sino en los parámetros de su contenedor. Analice la estructura, las anotaciones y las especificaciones de ejecución.",
-            "Pista 2: Cuantifique los identificadores primarios, las directivas de dinámica repetidas, la segmentación vertical y el tempo base especificado.",
+            "Pista 2: El orden es lineal a la narrativa",
             "Pista 3: El protocolo de descifrado sigue la jerarquía del documento. Inicie con el identificador de la pieza, proceda con las anotaciones de ejecución, analice la estructura macroscópica y concluya con el parámetro de velocidad."
         ],
         nextNode: 'M205_MUSIC_SUCCESS'
@@ -121,7 +122,7 @@ export const LORE_DATA = {
         text: [
             "El Subvertidor ha respondido inyectando un fragmento de datos corrupto en este canal. Parece ser un eco de una realidad adyacente, una narrativa rota.",
             "El texto es el siguiente:",
-            "\"La integridad del nexo está coMprometida. El protocolo de Emergencia requiere que restaures el fragMento original. SólO los datos puros pueden estabilizaR el sector. La Interferencia es fuerte, pero la clave está oculta a sImple vistA.\"",
+            "\"La integridad del nexo está coMprometida, el protocolo de Emergencia requiere que restaures el fragMento original, sólO los datos puros pueden estabilizaR el sector, la interferencia es fuerte, pero la clave está oculta a sImple vistA.\"",
             "Directiva: Analiza el texto. Las mayúsculas fuera de lugar parecen ser intencionales. Extrae la palabra clave para purgar la corrupción."
         ],
         type: 'prompt',
@@ -142,9 +143,9 @@ export const LORE_DATA = {
         text: [
             "El Subvertidor ha intentado corromper el cronómetro central del sistema. Ha fragmentado la marca de tiempo de un evento crítico en tres ecos narrativos.",
             "Debes reconstruir la marca de tiempo exacta (HH:MM:SS) para estabilizar el flujo temporal.",
-            "Eco de HELIOS (Horas): El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
-            "Eco de MERIDIA (Minutos): La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
-            "Eco de SASHA (Segundos): El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
+            "Eco de HELIOS: El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
+            "Eco de MERIDIA: La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
+            "Eco de SASHA: El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
             "Directiva: Ingresa la marca de tiempo reconstruida en formato HH:MM:SS."
         ],
         type: 'prompt',
@@ -189,7 +190,7 @@ export const LORE_DATA = {
             "Instrucción 1: Hay un registro con designaciones marcadas. El Manifiesto de Terminación.",
             "Instrucción 2: Todas las entidades están listas para ser procesadas.",
             "Instrucción 3: Jóvenes y viejas, perfectamente en fila por orden de ciclo.",
-            "Instrucción 4: Luego se abren las puertas del siguiente nexo.",
+            "Instrucción 4: Luego se abren las puertas iniciales secuencialmente de manera vertical.",
             "--- FIN DE INSTRUCCIONES ---",
             "Manifiesto de Entidades Purgadas:",
             "[Ciclo 38] Entidad Biggs",
@@ -218,7 +219,7 @@ export const LORE_DATA = {
         text: [
             "Estás desconectado de la terminal estándar. Se requiere una anulación manual del hardware para el golpe final.",
             "Directiva: Siga la secuencia de anulación de tres pasos para restaurar el control.",
-            "El sistema solicita una tecla para iniciar... Para iniciar presione la tecla cualquirea... la secuencia es específica.",
+            "El sistema solicita una tecla para iniciar... ¿'Cualquier tecla'? No, la secuencia es específica.",
             "Esperando primera tecla..."
         ],
         type: 'key_sequence',
@@ -235,14 +236,38 @@ export const LORE_DATA = {
         ],
         type: 'arrow_sequence',
         sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowRight', 'ArrowUp', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'ArrowDown'],
+        nextNode: 'M205_IMAGE_PUZZLE'
+    },
+
+    'M205_IMAGE_PUZZLE': {
+        text: [
+            "ALERTA: El Subvertidor ha creado una fisura dimensional, inyectando ecos visuales de otras realidades directamente en este nexo.",
+            "Estos ecos son caóticos, pero contienen la lógica para su propia anulación. Ha dejado un rastro, un acertijo para enmascarar su firma.",
+            "Directiva: Analiza los ecos visuales y descifra el código de purga de 4 dígitos para estabilizar y purgar este nodo.",
+            "--- INICIO DE TRANSMISIÓN CORRUPTA ---",
+            "\"Si el segundo fuera tan alto como el número de guardianes, me quedaría corto por dos, con dos de ellos caídos y uno siendo un fraude.",
+            "El tercero es el resultado de una matanza de especímenes alados, donde solo sobrevivieron dos.",
+            "Los sirvientes iban ante el primero, este... sentado en su trono, no era relevante.",
+            "El cuarto no necesita presentación.\"",
+            "--- FIN DE TRANSMISIÓN ---"
+        ],
+        type: 'image_puzzle',
+        images: {
+            'Guardianes': 'assets/image/poli.jpg',
+            'Especímenes': 'assets/image/but.jpg',
+            'Sirvientes': 'assets/image/egi.jpg',
+            'El Cuarto': 'assets/image/lu.jpg'
+        },
+        answer: "3271",
         nextNode: 'M205_COMMAND_FINALE'
     },
 
     'M205_COMMAND_FINALE': {
         text: [
+            "Código de purga aceptado. La fisura dimensional ha sido sellada.",
             "Desacople exitoso. Conexión estabilizada. Tienes acceso limitado a la shell del sistema.",
-            "Directiva: El Subvertidor mantiene una conexión externa enmascarada bajo el identificador de este mismo protocolo de acceso. Debes identificarla y terminarla manually.",
-            "Consulta comandos para cerrar conexion externa cmd en linea, el lugar que visitaste en el segundo problema podria estar la clave."
+            "Directiva: El Subvertidor mantiene una conexión externa enmascarada bajo el identificador de este mismo protocolo de acceso. Debes identificarla y terminarla manualmente.",
+            "Puedes consultar la <a href='https://www.reddit.com/user/Traditional-Play9725/comments/1mm1u7k/comandos_para_terminar_conexion_remota/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button' target='_blank'>documentación de protocolos</a> para obtener ayuda."
         ],
         type: 'multi_prompt',
         questions: [
@@ -255,8 +280,8 @@ export const LORE_DATA = {
 
     'M205_FINAL_VICTORY': {
         text: [
-            "SECUENCIA DE CIERRE EJECUTADA.",
-            "El Subvertidor ha sido completamente purgado del sistema.",
+            "SECUENCIA DE ANULACIÓN ACEPTADA.",
+            "El Subvertidor ha sido completamente expulsado del sistema.",
             "El Velo está a salvo. Tu misión ha sido un éxito."
         ],
         type: 'story',
@@ -301,9 +326,8 @@ export const LORE_DATA = {
     'LIB_VELO': {
         text: [
             "--- ¿Qué es el Velo? ---",
-            "El Velo es una realidad vacía, la realidad base desde donde parten o se crean todas las demás realidades que existen en el sistema. Cada una de ellas está conformada por un número infinito de planos o universos. Se cree que el Velo era una especie de fábrica de realidades, y las entidades que la habitaban eran las encargadas de crear desde cero estos mundos o sistemas. En términos actuales, se describiría como una realidad que existe fuera de la red de un metaverso, desde donde se supervisa que las simulaciones funcionen de manera correcta.",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "El Velo es una realidad vacía, la realidad base desde donde parten o se crean todas las demás realidades que existen en el sistema...",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
         nextNode: 'LIBRARY_HUB'
@@ -311,9 +335,8 @@ export const LORE_DATA = {
     'LIB_REALIDAD': {
         text: [
             "--- ¿Qué es una Realidad? ---",
-            "Una realidad es una simulación, un conjunto de universos amalgamados en un espacio. Están conformadas por varios universos y planos con sus respectivas entidades, leyes físicas, cuánticas, etc. Las entidades que las habitan no son conscientes de que su existencia es una simulación bien programada. Las realidades son creadas en base a las necesidades del sistema o a la investigación que se reciba.",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "Una realidad es una simulación, un conjunto de universos amalgamados en un espacio...",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
         nextNode: 'LIBRARY_HUB'
@@ -321,12 +344,8 @@ export const LORE_DATA = {
     'LIB_ENTIDADES': {
         text: [
             "--- Entidades ---",
-            "Las entidades que habitaban esta realidad eran las encargadas de crear, administrar, supervisar y destruir todas las realidades. Pertenecían a instalaciones específicas. Se conocen varios tipos:",
-            "Arquitectos: Diseñan la realidad, sus biomas y materia.",
-            "Ingenieros: Crean la lógica de la realidad: sus leyes físicas, cuánticas y sociales.",
-            "Programadores: Reciben la información y programan la simulación, corrigiendo errores y eliminando entidades que se percatan de la naturaleza de su realidad.",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "Las entidades que habitaban esta realidad eran las encargadas de crear, administrar, supervisar y destruir todas las realidades...",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
         nextNode: 'LIBRARY_HUB'
@@ -334,19 +353,26 @@ export const LORE_DATA = {
     'LIB_ANOMALIAS': {
         text: [
             "--- Entidades Anómalas ---",
-            "Se tiene reporte en la instalación D47 sobre la existencia de 5 entidades que no pertenecen al Velo, resultado de códigos erróneos. Vienen de una parte sin registrar del Velo. Una de ellas, el 'Subvertidor de Ciclos', ha sido analizada por 3 ciclos por LYSSA. Es una entidad programada con capacidades de nivel mercurio (análisis, programación, alteraciones de narrativa, compresión del flujo, etc.).",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "**P**rocesos no autorizados han sido detectados en múltiples nexos.",
+            "**R**egistros indican que su primera aparición fue en el ciclo 3.14.",
+            "**O**peran fuera de las directivas estándar del Velo.",
+            "**T**odas las instancias detectadas muestran una capacidad de adaptación anómala.",
+            "**O**miten las barreras de seguridad estándar.",
+            "**C**orrompen las narrativas de las realidades que infectan.",
+            "**O**cultan su firma de datos dentro de ecos de transmisiones legítimas.",
+            "**L**a entidad 'Subvertidor de Ciclos' es la más peligrosa.",
+            "**O**bjetivo primario: su erradicación.",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
-        nextNode: 'LIBRARY_HUB'
+        nextNode: 'LIBRARY_HUB',
+        unlocks: 'HIDDEN_PROTOCOL_PROMPT'
     },
     'LIB_INSTALACIONES': {
         text: [
             "--- Instalaciones ---",
-            "Se tiene registro de 386,923 instalaciones en el sector &%**|||\"\"ØØæڃ. Este sector está dentro de una zona nublada con agua, lluvia y niebla. La instalación D47, encargada del monitoreo de realidades, está cerca de otras 24 instalaciones de rol desconocido. La estética de las instalaciones es moderna y minimalista, utilizando la luz como elemento unificador y de control.",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "Se tiene registro de 386,923 instalaciones en el sector &%**|||\"\"ØØæڃ...",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
         nextNode: 'LIBRARY_HUB'
@@ -354,12 +380,26 @@ export const LORE_DATA = {
     'LIB_COSMOLOGIA': {
         text: [
             "--- Cosmología ---",
-            "Un número infinito de planos existenciales equivale a un universo. Un número infinito de universos equivale a una realidad. Se desconoce el nombre que recibe un numero infinito de realidades. Es posible que las entidades originales descubrieran cómo ascender a un nivel superior y abandonaron la realidad madre.",
-            "",
-            "[ Presiona ENTER para regresar al índice ]"
+            "Un número infinito de planos existenciales equivale a un universo...",
+            "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'library_entry',
         nextNode: 'LIBRARY_HUB'
+    },
+    'HIDDEN_PROTOCOL_PROMPT': {
+        text: [
+            "Análisis de tu actividad de lectura completado.",
+            "Has accedido a datos sensibles sobre las entidades anómalas.",
+            "Se ha detectado una palabra clave oculta en el registro. Para continuar, debes demostrar tu comprensión del protocolo de contención.",
+            "Directiva: Introduce la palabra clave oculta."
+        ],
+        type: 'prompt',
+        answer: 'PROTOCOLO',
+        nextNode: 'FINAL_PUZZLE_INTRO'
+    },
+    'FINAL_PUZZLE_INTRO': {
+        text: ["Clave aceptada. Iniciando la fase final de la purga."],
+        type: 'end'
     },
     'END_CONNECTION': {
         text: [">> CONEXIÓN FINALIZADA <<"],

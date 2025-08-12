@@ -21,6 +21,11 @@ const elements = {
     spectrogram: document.getElementById('audio-spectrogram'),
     playPauseButton: document.getElementById('play-pause-button'),
     clueAudioElement: document.getElementById('clue-audio-element'),
+    // Image Puzzle
+    imagePuzzleContainer: document.getElementById('image-puzzle-container'),
+    imageDisplay: document.getElementById('image-display'),
+    imageDisplayImg: document.getElementById('image-display-img'),
+    imagePuzzleButtons: document.getElementById('image-puzzle-buttons'),
 };
 
 export function clearOutput() { elements.output.innerHTML = ''; }

@@ -10,6 +10,27 @@ import { setupAudioPlayer } from '../ui/audio.js';
 let keyPressInProgress = false;
 let multiPromptIndex = 0;
 
+// --- FUNCIÓN AUXILIAR PARA EL PUZLE DE IMÁGENES ---
+function setupImagePuzzle(node) {
+    const { imagePuzzleButtons, imageDisplayImg } = DOM.getElements();
+    
+    // Limpiar botones e imagen anteriores
+    imagePuzzleButtons.innerHTML = '';
+    imageDisplayImg.src = '';
+    imageDisplayImg.alt = 'Visor de realidad divergente';
+
+    // Crear botones para cada imagen en el nodo
+    for (const key in node.images) {
+        const button = document.createElement('button');
+        button.textContent = `Invocar Eco: ${key}`;
+        button.addEventListener('click', () => {
+            imageDisplayImg.src = node.images[key];
+            imageDisplayImg.alt = `Eco visual de la realidad: ${key}`;
+        });
+        imagePuzzleButtons.appendChild(button);
+    }
+}
+
 async function processCurrentNode() {
     const nodeKey = getCurrentNodeKey();
     const node = LORE_DATA[nodeKey];
@@ -20,6 +41,7 @@ async function processCurrentNode() {
 
     DOM.hideElement('inputArea');
     DOM.hideElement('audioPlayer');
+    DOM.hideElement('imagePuzzleContainer'); // Ocultar por defecto
 
     if (node.type === 'password') {
         DOM.showElement('welcomeScreen');
@@ -65,15 +87,21 @@ async function processCurrentNode() {
             DOM.showElement('inputArea');
             DOM.focusInput();
             break;
+        case 'image_puzzle':
+            setupImagePuzzle(node);
+            DOM.showElement('imagePuzzleContainer');
+            DOM.showElement('inputArea');
+            DOM.focusInput();
+            break;
         case 'prompt':
         case 'hiver_control':
         case 'library_hub':
             DOM.showElement('inputArea');
             DOM.focusInput();
             break;
+        case 'end':
         case 'key_sequence':
         case 'arrow_sequence':
-        case 'end':
         case 'library_entry':
             break;
     }
@@ -163,6 +191,18 @@ function handlePlayerInput() {
             }
             break;
 
+        case 'image_puzzle':
+            if (inputValue === node.answer) {
+                setCurrentNodeKey(node.nextNode);
+                processCurrentNode();
+            } else {
+                addFailures(1);
+                DOM.updateFailureCounter(getFailures());
+                DOM.appendOutput(`<p class="response-text"><em>Código de anulación incorrecto. La fisura se intensifica.</em></p>`);
+                if (getFailures() >= CONFIG.MAX_FAILURES) handleGameOver();
+            }
+            break;
+        
         case 'prompt':
         case 'audio_clue':
             if (inputValue === node.answer) {
@@ -178,10 +218,7 @@ function handlePlayerInput() {
     }
 }
 
-// --- FUNCIÓN MODIFICADA ---
 function handleKeyPress(event) {
-    // Si el texto se está escribiendo, la primera pulsación de cualquier tecla
-    // simplemente saltará la animación y no hará nada más.
     if (FX.isTyping) {
         FX.skipTyping();
         return;
@@ -190,21 +227,19 @@ function handleKeyPress(event) {
     const nodeKey = getCurrentNodeKey();
     const node = LORE_DATA[nodeKey];
 
-    // Si el texto YA SE MOSTRÓ, y estamos en una entrada de la biblioteca,
-    // la tecla Enter nos llevará de vuelta al índice.
     if (node.type === 'library_entry' && event.key === 'Enter') {
         setCurrentNodeKey(node.nextNode);
         processCurrentNode();
         return;
     }
 
-    // Lógica existente para los acertijos de secuencia de teclas
     if (node.type !== 'key_sequence' && node.type !== 'arrow_sequence') return;
 
     const progress = getKeySequenceProgress();
     const expectedKey = node.sequence[progress];
 
-    if (event.key === expectedKey) {
+    // --- CAMBIO AQUÍ: Comparación insensible a mayúsculas/minúsculas ---
+    if (event.key.toLowerCase() === expectedKey.toLowerCase()) {
         advanceKeySequence();
         DOM.appendOutput(`<p class="response-text">> Entrada [${event.key}] reconocida. Siguiente...</p>`);
         
@@ -225,6 +260,7 @@ async function handleGameOver() {
     DOM.hideElement('inputArea');
     DOM.hideElement('welcomeScreen');
     DOM.hideElement('audioPlayer');
+    DOM.hideElement('imagePuzzleContainer'); // Ocultar en game over
     DOM.showElement('gameTerminal');
     DOM.clearOutput();
     await FX.typeWriter(LORE_DATA['GAME_OVER_SUBVERTIDOR'].text);

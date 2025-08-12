@@ -23,6 +23,20 @@
     <!-- La terminal principal donde se mostrará la historia -->
     <main id="game-terminal" class="hidden">
         <div id="terminal-output"></div>
+        <div id="terminal-actions"></div> <!-- Contenedor para botones de acción -->
+        
+        <!-- Contenedor para el puzle de imágenes -->
+        <div id="image-puzzle-container" class="hidden">
+            <div id="image-puzzle-controls">
+                <div id="image-puzzle-buttons">
+                    <!-- Los botones se generarán dinámicamente con JS -->
+                </div>
+                <div id="image-display">
+                    <img id="image-display-img" src="" alt="Visor de realidad divergente">
+                </div>
+            </div>
+        </div>
+
         <div id="terminal-input-area" class="hidden">
             <span class="prompt">></span>
             <input type="text" id="terminal-input" autocomplete="off">

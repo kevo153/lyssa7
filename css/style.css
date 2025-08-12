@@ -176,3 +176,63 @@ body {
     background: var(--primary-color);
     color: var(--background-color);
 }
+
+/* --- ESTILOS PARA EL PUZLE DE IMÁGENES --- */
+#image-puzzle-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid var(--primary-color);
+    background-color: #00000099;
+    animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#image-puzzle-controls {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+#image-puzzle-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-basis: 200px; /* Ancho fijo para la columna de botones */
+}
+
+#image-puzzle-buttons button {
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 100%;
+    font-family: var(--font-primary);
+    text-align: left;
+}
+
+#image-puzzle-buttons button:hover {
+    background: var(--primary-color);
+    color: var(--background-color);
+}
+
+#image-display {
+    flex-grow: 1;
+    height: 250px; /* Altura fija para el visor */
+    border: 1px dashed var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #080808;
+    padding: 10px;
+}
+
+#image-display-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Para que la imagen se ajuste sin deformarse */
+}
