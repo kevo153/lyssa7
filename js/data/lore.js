@@ -143,9 +143,9 @@ export const LORE_DATA = {
         text: [
             "El Subvertidor ha intentado corromper el cronómetro central del sistema. Ha fragmentado la marca de tiempo de un evento crítico en tres ecos narrativos.",
             "Debes reconstruir la marca de tiempo exacta (HH:MM:SS) para estabilizar el flujo temporal.",
-            "Eco de HELIOS (Horas): El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
-            "Eco de MERIDIA (Minutos): La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
-            "Eco de SASHA (Segundos): El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
+            "Eco de HELIOS: El guardián del ciclo solar se encontraba en su cénit, pero una disonancia lo desplazó un cuarto de ciclo hacia adelante desde el punto cero.",
+            "Eco de MERIDIA: La tejedora de momentos observó su telar circular. Su aguja había completado tres cuartas partes del patrón antes de detenerse.",
+            "Eco de SASHA: El eco final es un pulso simple, una oscilación que se detuvo exactamente a la mitad de su recorrido completo.",
             "Directiva: Ingresa la marca de tiempo reconstruida en formato HH:MM:SS."
         ],
         type: 'prompt',
@@ -219,7 +219,7 @@ export const LORE_DATA = {
         text: [
             "Estás desconectado de la terminal estándar. Se requiere una anulación manual del hardware para el golpe final.",
             "Directiva: Siga la secuencia de anulación de tres pasos para restaurar el control.",
-            "El sistema solicita una tecla para iniciar... ¿'Cualquier tecla'? No, la secuencia es específica.",
+            "El sistema solicita una tecla para iniciar... ¿Para iniciar presione la tecla cualquiera? No, la secuencia es específica.",
             "Esperando primera tecla..."
         ],
         type: 'key_sequence',
@@ -247,7 +247,7 @@ export const LORE_DATA = {
             "--- INICIO DE TRANSMISIÓN CORRUPTA ---",
             "\"Si el segundo fuera tan alto como el número de guardianes, me quedaría corto por dos, con dos de ellos muertos y uno siendo un fraude.",
             "El tercero fue fruto de una matanza de especímenes alados, donde solo sobrevivieron dos.",
-            "Los sirvientes iban ante el primero.",
+            "Los sirvientes iban ante el primero, en su trono, este era irrelevante",
             "El cuarto no necesita presentación.\"",
             "--- FIN DE TRANSMISIÓN ---"
         ],
