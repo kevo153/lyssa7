@@ -326,7 +326,13 @@ export const LORE_DATA = {
     'LIB_VELO': {
         text: [
             "--- ¿Qué es el Velo? ---",
-            "El Velo es una realidad vacía, la realidad base desde donde parten o se crean todas las demás realidades que existen en el sistema...",
+            "El Velo es una realidad vacía, la realidad base desde donde parten o se crean todas las demás realidades que existen en el sistema",
+            "o en la red de el velo, cada una de ellas esta conformada por un numero infinito de planos o universos.",
+            "a este conjunto de universos o planos se les conoce como realidades, esta realidad base existe desde hace miles de millones de",
+            "eones de existencia, se cree que el velo era una especie de fabrica de realidades, las entidades que la habitaban eran las encargadas",
+            "de crear desde cero estos mundos o sistemas, simulaciones de universos, en términos actuales se describiría a el velo una especie de ",
+            "realidad que existe fuera de la red o sistema de un metaverso, desde aquí se supervisa el sistema y se encarga de que las simulaciones",
+            "funcionen de manera correcta, ningún universo esta al tanto de esta realidad.",
             "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'prompt',
@@ -336,7 +342,11 @@ export const LORE_DATA = {
     'LIB_REALIDAD': {
         text: [
             "--- ¿Qué es una Realidad? ---",
-            "Una realidad es una simulación, un conjunto de universos amalgamados en un espacio...",
+            "Una realidad es una simulación, un conjunto de universos amalgamados en un espacio, están conformadas por varios universos",
+            "y planos diferentes (véase cosmología de el velo) con sus respectivas entidades, leyes físicas, cuánticas, políticas",
+            "etc las entidades que las habitan no están consientes de que lo que están viendo, viviendo, comiendo, destruyendo, habitando,",
+            "existiendo, es verdad, es una simulación bien programada y hecha, las realidades son creadas en base a las necesidades del sistema",
+            " o a la investigación que se reciban.",
             "Introduce 'VOLVER' para regresar al índice."
         ],
         type: 'prompt',
